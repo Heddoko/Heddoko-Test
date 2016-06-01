@@ -1,0 +1,61 @@
+// @file heddokoPacket.proto
+// @brief Contains the heddokoPacket protobuffer file definition
+// @author Sean Cloghesy (sean@heddoko.com)
+// @date April 2016
+// Copyright Heddoko(TM) 2016, all rights reserved
+package heddoko;
+
+enum PacketType 
+{
+	StateRequest = 0;
+	StateResponse = 1;
+	DataFrame = 2;
+	BatteryChargeRequest = 3;
+	BatteryChargeResponse = 4;	
+	BrainPackVersionRequest = 5;
+	BrainPackVersionResponse = 6;
+	SetRecordingName = 7;
+	GetRecordingName = 8;
+}
+
+message ImuDataFrame
+{
+	required uint32 imuId = 1; 
+	optional uint32 sensorMask = 2;
+	optional float quat_x_yaw = 3;
+	optional float quat_y_pitch = 4;
+	optional float quat_z_roll = 5;
+	optional float quat_w = 6;
+	optional int32 Mag_x = 7; 	
+	optional int32 Mag_y = 8;
+	optional int32 Mag_z = 9;
+	optional int32 Accel_x = 10;
+	optional int32 Accel_y = 11;
+	optional int32 Accel_z = 12; 	
+	optional int32 Rot_x = 14;
+	optional int32 Rot_y = 15;
+	optional int32 Rot_z = 16;
+}
+
+message FullDataFrame
+{
+	required uint32 timeStamp = 1;
+	repeated ImuDataFrame imuDataFrame = 2; 
+}
+ 
+message Packet 
+{
+  required PacketType type = 1;
+  enum BrainPackState
+  {
+	Idle = 0;
+	Recording = 1;
+	Reset = 2; 
+	Error = 4;
+  }
+  optional BrainPackState state = 2;
+  optional string brainPackVersion = 3;
+  optional int32 batteryCharge = 4;		
+  optional FullDataFrame fullDataFrame = 5;
+  optional string recordingName = 6;
+}
