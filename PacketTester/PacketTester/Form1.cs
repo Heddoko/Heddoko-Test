@@ -27,7 +27,7 @@ namespace PacketTester
 
         private bool streamDataToChartEnabled = false;
 
-        enum OutputType { legacyFrame, QuaternionFrame};
+        enum OutputType { legacyFrame, QuaternionFrame, protoBufFrame};
         OutputType streamOutputType = OutputType.QuaternionFrame; 
         string dataStreamFilePath = "";
         int selectedDataType = 0; 
@@ -124,6 +124,85 @@ namespace PacketTester
 
             return strBuilder.ToString();
         }
+        public void createProtoBufFrame(ImuFrame[] frameArray, bool[] receivedFlags, ref FileStream outputFile)
+        {
+            StringBuilder strBuilder = new StringBuilder();
+            //so we need to create a frame compatible with the old system.             
+            long timeStamp = (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) - startTime;
+            UInt16 receivedMask = 0;
+            for (int i = 0; i < receivedFlags.Length; i++)
+            {
+                if (receivedFlags[i])
+                {
+                    receivedMask += (UInt16)(1 << i);
+                }
+            }
+            heddoko.Packet packet = new Packet();
+            packet.fullDataFrame = new FullDataFrame();
+            packet.fullDataFrame.timeStamp = (UInt32)timeStamp;
+            for(int i =0; i < frameArray.Length; i++)
+            {
+                ImuDataFrame frame = new ImuDataFrame();
+                frame.imuId = frameArray[i].ImuId;
+                frame.Accel_xSpecified = true;
+                frame.Accel_x = frameArray[i].Acceleration_x;
+                frame.Accel_ySpecified = true;
+                frame.Accel_y = frameArray[i].Acceleration_y;
+                frame.Accel_zSpecified = true;
+                frame.Accel_z = frameArray[i].Acceleration_y;
+
+                frame.Mag_xSpecified = true;
+                frame.Mag_x = frameArray[i].Magnetic_x;
+                frame.Mag_ySpecified = true;
+                frame.Mag_y = frameArray[i].Magnetic_y;
+                frame.Mag_zSpecified = true;
+                frame.Mag_z = frameArray[i].Magnetic_z;
+
+                frame.Rot_xSpecified = true;
+                frame.Rot_x = frameArray[i].Rotation_x;
+                frame.Rot_ySpecified = true;
+                frame.Rot_y = frameArray[i].Rotation_y;
+                frame.Rot_zSpecified = true;
+                frame.Rot_z = frameArray[i].Rotation_z;
+
+                frame.quat_x_yawSpecified = true;
+                frame.quat_x_yaw = frameArray[i].Quaternion_x;
+                frame.quat_y_pitchSpecified = true;
+                frame.quat_y_pitch = frameArray[i].Quaternion_y;
+                frame.quat_z_rollSpecified = true;
+                frame.quat_z_roll = frameArray[i].Quaternion_z;
+                frame.quat_wSpecified = true;
+                frame.quat_w = frameArray[i].Quaternion_w;
+
+                packet.fullDataFrame.imuDataFrame.Add(frame); 
+
+            }
+            packet.type = PacketType.DataFrame;
+
+            //Serializer.To 
+            MemoryStream stream = new MemoryStream();
+            Serializer.Serialize<Packet>(stream, packet);
+            RawPacket rawPacket = new RawPacket();
+            ushort rawSize = 0;
+            byte[] rawData = rawPacket.createRawPacket(ref rawSize, stream); 
+            if(forwardSerialPort.IsOpen)
+            {
+                forwardSerialPort.Write(rawData, 0, rawSize);
+            }
+            try
+            {
+                if (outputFile.CanWrite)
+                {
+                    outputFile.Write(rawData, 0, rawSize);
+                }
+            }
+            catch
+            {
+                debugMessageQueue.Enqueue(String.Format("Failed to write file\r\n"));
+                return;
+            }
+
+        }
         public void streamDataThread()
         {
             startTime = (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond);
@@ -191,31 +270,42 @@ namespace PacketTester
                     maxTime = interval; 
                 }
                 //create a frame from all the received data
+
                 string frameString = "";
-                if (streamOutputType == OutputType.legacyFrame)
+
+                if (streamOutputType != OutputType.protoBufFrame)
                 {
-                    frameString = createLegacyFrame(frameArray, frameReceived);
+
+                    if (streamOutputType == OutputType.legacyFrame)
+                    {
+                        frameString = createLegacyFrame(frameArray, frameReceived);
+                    }
+                    else if (streamOutputType == OutputType.QuaternionFrame)
+                    {
+                        frameString = createQuaternionFrame(frameArray, frameReceived);
+                    }
+
+
+                    if (forwardSerialPort.IsOpen)
+                    {
+                        forwardSerialPort.Write(frameString);
+                    }
+                    try
+                    {
+                        if (outputFile.CanWrite)
+                        {
+                            outputFile.Write(ASCIIEncoding.ASCII.GetBytes(frameString), 0, frameString.Length);
+                        }
+                    }
+                    catch
+                    {
+                        debugMessageQueue.Enqueue(String.Format("Failed to write file\r\n"));
+                        return;
+                    }
                 }
                 else
                 {
-                    frameString = createQuaternionFrame(frameArray, frameReceived);
-                }
-
-                if (forwardSerialPort.IsOpen)
-                {
-                    forwardSerialPort.Write(frameString);
-                }
-                try
-                {
-                    if (outputFile.CanWrite)
-                    {
-                        outputFile.Write(ASCIIEncoding.ASCII.GetBytes(frameString), 0, frameString.Length);
-                    }
-                }
-                catch
-                {
-                    debugMessageQueue.Enqueue(String.Format("Failed to write file\r\n"));
-                    return;
+                    createProtoBufFrame(frameArray, frameReceived, ref outputFile);
                 }
                 //Thread.Sleep(1); 
             }
@@ -254,9 +344,9 @@ namespace PacketTester
             strBuilder.Append(string.Format("IMU Status:{0:x}\r\n", imuStatus));
             strBuilder.Append(string.Format("Received Error Count :{0}\r\n", receivedPacketError));
             strBuilder.Append(string.Format("Quat Error:{0}\r\n", quatError));
-            strBuilder.Append(string.Format("Mag Error:{0}\r\n", magError));
-            strBuilder.Append(string.Format("Accel Error:{0}\r\n", accelError));
-            strBuilder.Append(string.Format("Gyro Error:{0}\r\n", gyroError));
+            strBuilder.Append(string.Format("Mag Rate:{0}\r\n", magError));
+            strBuilder.Append(string.Format("Accel Rate:{0}\r\n", accelError));
+            strBuilder.Append(string.Format("Gyro Rate:{0}\r\n", gyroError));
             return strBuilder.ToString();
 
         }
@@ -402,6 +492,8 @@ namespace PacketTester
             string[] baudrates = { "110", "150", "300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"
                     , "460800","500000", "921600","1000000"};
             cb_BaudRate.Items.AddRange(baudrates);
+            cb_fpBaudRate.Items.AddRange(baudrates);
+            cb_fpBaudRate.SelectedIndex = 14;
             cb_BaudRate.SelectedIndex = 12;
             //initialize the message queue
             debugMessageQueue = new ConcurrentQueue<string>();
@@ -415,7 +507,7 @@ namespace PacketTester
             Thread packetProcessorThread = new Thread(processPacketThread);
             packetProcessorThread.Start();
 
-            string[] frameFormats = { "Legacy Frame", "Quaternion Frame" };
+            string[] frameFormats = { "Legacy Frame", "Quaternion Frame", "Protocol Buffer" };
             cb_OutputFormat.Items.AddRange(frameFormats);
             cb_OutputFormat.SelectedIndex = 1;
 
@@ -525,6 +617,7 @@ namespace PacketTester
             //stop debug thread
             processDebugThreadEnabled = false;
             processPacketQueueEnabled = false;
+            streamDataEnabled = false;            
             EnableSocketQueue = false;
             //close the serial port
             if (serialPort.IsOpen)
@@ -577,6 +670,37 @@ namespace PacketTester
                 sendPacket(setupModeBytes, 3);
             }
 
+        }
+        private void btn_setRate_Click(object sender, EventArgs e)
+        {
+            byte[] setRateBytes = new byte[5];
+            setRateBytes[0] = 0x01;
+            setRateBytes[1] = 0x24; //set rate command code
+            setRateBytes[2] = (byte)nud_magRate.Value;
+            setRateBytes[3] = (byte)nud_accelRate.Value;
+            setRateBytes[4] = (byte)nud_gyroRate.Value;
+            if (serialPort.IsOpen)
+            {
+                sendPacket(setRateBytes, 5);
+            }
+        }
+        private void cb_ypr_CheckedChanged(object sender, EventArgs e)
+        {
+            if (serialPort.IsOpen)
+            {
+                byte[] setYPRBytes = new byte[3];
+                setYPRBytes[0] = 0x01;
+                setYPRBytes[1] = 0x22; //set yaw pitch and roll command
+                if(cb_ypr.Checked)
+                {
+                    setYPRBytes[2] = 0x01;
+                }
+                else
+                {
+                    setYPRBytes[2] = 0x00;
+                }
+                sendPacket(setYPRBytes, 3);
+            }
         }
         private void sendUpdateCommand()
         {
@@ -826,6 +950,7 @@ namespace PacketTester
                     if (cb_EnableFowardPort.Checked)
                     {
                         forwardSerialPort.PortName = cb_forwardPorts.Items[cb_forwardPorts.SelectedIndex].ToString();
+                        forwardSerialPort.BaudRate = int.Parse(cb_fpBaudRate.Items[cb_fpBaudRate.SelectedIndex].ToString());
                         try
                         {
                             forwardSerialPort.Open();
@@ -884,6 +1009,11 @@ namespace PacketTester
             }
 
 
+
+        }
+
+        private void cb_fpBaudRate_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
         }
     }

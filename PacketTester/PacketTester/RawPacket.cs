@@ -12,8 +12,7 @@ namespace PacketTester
     {
         const byte startByte = 0xDE;
         const byte escapeByte = 0xDF;
-        const byte escapedByteOffset = 0x10;
-        
+        const byte escapedByteOffset = 0x10;      
 
         const UInt32 maxPacketSize = 2000; 
         byte[] payload;
@@ -181,10 +180,29 @@ namespace PacketTester
             rawPacketBytes[rawPacketBytesIndex++] = startByte;
             addByteToRawPacket((byte)(payloadSize & 0x00ff));
             addByteToRawPacket((byte)((payloadSize >> 8) & 0x00ff));
-                     
+
             for (int i = 0; i < payloadSize; i++)
             {
-                addByteToRawPacket(payload[i]); 
+                addByteToRawPacket(payload[i]);
+            }
+            //return the size of the raw bytes. 
+            rawSize = rawPacketBytesIndex;
+            return rawPacketBytes;
+
+        }
+        public byte[] createRawPacket(ref UInt16 rawSize, MemoryStream stream)
+        {
+            rawSize = 0;
+            payloadSize = (UInt16)(stream.Length + 1); 
+            rawPacketBytes[rawPacketBytesIndex++] = startByte;
+            addByteToRawPacket((byte)(payloadSize & 0x00ff));
+            addByteToRawPacket((byte)((payloadSize >> 8) & 0x00ff));
+
+            addByteToRawPacket(0x04);
+            stream.Seek(0, SeekOrigin.Begin);
+            for (int i = 0; i < stream.Length; i++)
+            {
+                addByteToRawPacket((byte)stream.ReadByte()); 
             }
             //return the size of the raw bytes. 
             rawSize = rawPacketBytesIndex; 

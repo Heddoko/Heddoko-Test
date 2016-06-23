@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.btn_disconnect = new System.Windows.Forms.Button();
             this.tb_Console = new System.Windows.Forms.TextBox();
             this.bnt_Connect = new System.Windows.Forms.Button();
@@ -76,11 +76,19 @@
             this.cb_dataType = new System.Windows.Forms.ComboBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.nud_nodSensorId = new System.Windows.Forms.NumericUpDown();
-            this.cb_EnableNodStream = new System.Windows.Forms.CheckBox();
-            this.btn_Record = new System.Windows.Forms.Button();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.btn_sendCommand = new System.Windows.Forms.Button();
+            this.tb_nodAddress = new System.Windows.Forms.TextBox();
             this.btn_Reset = new System.Windows.Forms.Button();
-            this.btn_getState = new System.Windows.Forms.Button();
+            this.btn_Record = new System.Windows.Forms.Button();
+            this.cb_EnableNodStream = new System.Windows.Forms.CheckBox();
+            this.nud_magRate = new System.Windows.Forms.NumericUpDown();
+            this.nud_accelRate = new System.Windows.Forms.NumericUpDown();
+            this.nud_gyroRate = new System.Windows.Forms.NumericUpDown();
+            this.btn_setRate = new System.Windows.Forms.Button();
+            this.lb_rates = new System.Windows.Forms.Label();
+            this.cb_ypr = new System.Windows.Forms.CheckBox();
+            this.cb_fpBaudRate = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_SelectedImu)).BeginInit();
             this.tabControl1.SuspendLayout();
@@ -88,7 +96,9 @@
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nud_nodSensorId)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_magRate)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_accelRate)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_gyroRate)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_disconnect
@@ -197,40 +207,44 @@
             // 
             // chrt_dataChart
             // 
-            chartArea1.AxisY.Maximum = 1.1D;
-            chartArea1.AxisY.Minimum = -1.1D;
-            chartArea1.Name = "ChartArea1";
-            this.chrt_dataChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chrt_dataChart.Legends.Add(legend1);
+            chartArea2.AxisY.Maximum = 1.1D;
+            chartArea2.AxisY.Minimum = -1.1D;
+            chartArea2.Name = "ChartArea1";
+            this.chrt_dataChart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.chrt_dataChart.Legends.Add(legend2);
             this.chrt_dataChart.Location = new System.Drawing.Point(541, 30);
             this.chrt_dataChart.Name = "chrt_dataChart";
             this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
-            series1.BorderWidth = 5;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Legend = "Legend1";
-            series1.Name = "Qx";
-            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            series2.BorderWidth = 5;
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series2.Legend = "Legend1";
-            series2.Name = "Qy";
-            series3.BorderWidth = 5;
-            series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series3.Legend = "Legend1";
-            series3.Name = "Qz";
-            series4.BorderWidth = 5;
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series4.Legend = "Legend1";
-            series4.Name = "Qw";
-            this.chrt_dataChart.Series.Add(series1);
-            this.chrt_dataChart.Series.Add(series2);
-            this.chrt_dataChart.Series.Add(series3);
-            this.chrt_dataChart.Series.Add(series4);
+            series5.BorderWidth = 5;
+            series5.ChartArea = "ChartArea1";
+            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series5.Legend = "Legend1";
+            series5.MarkerSize = 1;
+            series5.Name = "Qx";
+            series5.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            series6.BorderWidth = 5;
+            series6.ChartArea = "ChartArea1";
+            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series6.Legend = "Legend1";
+            series6.MarkerSize = 1;
+            series6.Name = "Qy";
+            series7.BorderWidth = 5;
+            series7.ChartArea = "ChartArea1";
+            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series7.Legend = "Legend1";
+            series7.MarkerSize = 1;
+            series7.Name = "Qz";
+            series8.BorderWidth = 5;
+            series8.ChartArea = "ChartArea1";
+            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series8.Legend = "Legend1";
+            series8.MarkerSize = 1;
+            series8.Name = "Qw";
+            this.chrt_dataChart.Series.Add(series5);
+            this.chrt_dataChart.Series.Add(series6);
+            this.chrt_dataChart.Series.Add(series7);
+            this.chrt_dataChart.Series.Add(series8);
             this.chrt_dataChart.Size = new System.Drawing.Size(589, 377);
             this.chrt_dataChart.TabIndex = 28;
             this.chrt_dataChart.Text = "chart1";
@@ -306,7 +320,7 @@
             // 
             // nud_SelectedImu
             // 
-            this.nud_SelectedImu.Location = new System.Drawing.Point(36, 42);
+            this.nud_SelectedImu.Location = new System.Drawing.Point(36, 18);
             this.nud_SelectedImu.Maximum = new decimal(new int[] {
             8,
             0,
@@ -326,7 +340,7 @@
             this.cb_forwardPorts.FormattingEnabled = true;
             this.cb_forwardPorts.Location = new System.Drawing.Point(252, 32);
             this.cb_forwardPorts.Name = "cb_forwardPorts";
-            this.cb_forwardPorts.Size = new System.Drawing.Size(112, 21);
+            this.cb_forwardPorts.Size = new System.Drawing.Size(156, 21);
             this.cb_forwardPorts.TabIndex = 37;
             // 
             // forwardSerialPort
@@ -427,6 +441,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.cb_fpBaudRate);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.lb_forwardPort);
             this.tabPage1.Controls.Add(this.cb_OutputFormat);
@@ -445,7 +460,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(172, 90);
+            this.label2.Location = new System.Drawing.Point(24, 121);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(74, 13);
             this.label2.TabIndex = 49;
@@ -466,7 +481,7 @@
             this.cb_OutputFormat.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
             this.cb_OutputFormat.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.cb_OutputFormat.FormattingEnabled = true;
-            this.cb_OutputFormat.Location = new System.Drawing.Point(252, 82);
+            this.cb_OutputFormat.Location = new System.Drawing.Point(125, 118);
             this.cb_OutputFormat.Name = "cb_OutputFormat";
             this.cb_OutputFormat.Size = new System.Drawing.Size(112, 21);
             this.cb_OutputFormat.TabIndex = 47;
@@ -474,7 +489,7 @@
             // cb_EnableFowardPort
             // 
             this.cb_EnableFowardPort.AutoSize = true;
-            this.cb_EnableFowardPort.Location = new System.Drawing.Point(252, 59);
+            this.cb_EnableFowardPort.Location = new System.Drawing.Point(252, 86);
             this.cb_EnableFowardPort.Name = "cb_EnableFowardPort";
             this.cb_EnableFowardPort.Size = new System.Drawing.Size(100, 17);
             this.cb_EnableFowardPort.TabIndex = 46;
@@ -483,6 +498,12 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.cb_ypr);
+            this.tabPage2.Controls.Add(this.lb_rates);
+            this.tabPage2.Controls.Add(this.btn_setRate);
+            this.tabPage2.Controls.Add(this.nud_gyroRate);
+            this.tabPage2.Controls.Add(this.nud_accelRate);
+            this.tabPage2.Controls.Add(this.nud_magRate);
             this.tabPage2.Controls.Add(this.cb_dataType);
             this.tabPage2.Controls.Add(this.btn_getStatus);
             this.tabPage2.Controls.Add(this.btn_getFrame);
@@ -503,7 +524,7 @@
             // cb_dataType
             // 
             this.cb_dataType.FormattingEnabled = true;
-            this.cb_dataType.Location = new System.Drawing.Point(271, 39);
+            this.cb_dataType.Location = new System.Drawing.Point(36, 43);
             this.cb_dataType.Name = "cb_dataType";
             this.cb_dataType.Size = new System.Drawing.Size(121, 21);
             this.cb_dataType.TabIndex = 39;
@@ -526,11 +547,12 @@
             // 
             // tabPage4
             // 
-            this.tabPage4.Controls.Add(this.btn_getState);
+            this.tabPage4.Controls.Add(this.comboBox1);
+            this.tabPage4.Controls.Add(this.btn_sendCommand);
+            this.tabPage4.Controls.Add(this.tb_nodAddress);
             this.tabPage4.Controls.Add(this.btn_Reset);
             this.tabPage4.Controls.Add(this.btn_Record);
             this.tabPage4.Controls.Add(this.cb_EnableNodStream);
-            this.tabPage4.Controls.Add(this.nud_nodSensorId);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
@@ -539,54 +561,148 @@
             this.tabPage4.Text = "Nod Analyzer";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
-            // nud_nodSensorId
+            // comboBox1
             // 
-            this.nud_nodSensorId.Location = new System.Drawing.Point(45, 19);
-            this.nud_nodSensorId.Maximum = new decimal(new int[] {
-            8,
-            0,
-            0,
-            0});
-            this.nud_nodSensorId.Name = "nud_nodSensorId";
-            this.nud_nodSensorId.Size = new System.Drawing.Size(120, 20);
-            this.nud_nodSensorId.TabIndex = 0;
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(37, 27);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(125, 21);
+            this.comboBox1.TabIndex = 7;
             // 
-            // cb_EnableNodStream
+            // btn_sendCommand
             // 
-            this.cb_EnableNodStream.AutoSize = true;
-            this.cb_EnableNodStream.Location = new System.Drawing.Point(186, 21);
-            this.cb_EnableNodStream.Name = "cb_EnableNodStream";
-            this.cb_EnableNodStream.Size = new System.Drawing.Size(95, 17);
-            this.cb_EnableNodStream.TabIndex = 1;
-            this.cb_EnableNodStream.Text = "Enable Stream";
-            this.cb_EnableNodStream.UseVisualStyleBackColor = true;
+            this.btn_sendCommand.Location = new System.Drawing.Point(193, 23);
+            this.btn_sendCommand.Name = "btn_sendCommand";
+            this.btn_sendCommand.Size = new System.Drawing.Size(97, 23);
+            this.btn_sendCommand.TabIndex = 6;
+            this.btn_sendCommand.Text = "Send Command";
+            this.btn_sendCommand.UseVisualStyleBackColor = true;
             // 
-            // btn_Record
+            // tb_nodAddress
             // 
-            this.btn_Record.Location = new System.Drawing.Point(45, 52);
-            this.btn_Record.Name = "btn_Record";
-            this.btn_Record.Size = new System.Drawing.Size(75, 23);
-            this.btn_Record.TabIndex = 2;
-            this.btn_Record.Text = "Record";
-            this.btn_Record.UseVisualStyleBackColor = true;
+            this.tb_nodAddress.Location = new System.Drawing.Point(37, 67);
+            this.tb_nodAddress.Name = "tb_nodAddress";
+            this.tb_nodAddress.Size = new System.Drawing.Size(125, 20);
+            this.tb_nodAddress.TabIndex = 5;
+            this.tb_nodAddress.Text = "A0E5E90013B6";
             // 
             // btn_Reset
             // 
-            this.btn_Reset.Location = new System.Drawing.Point(45, 82);
+            this.btn_Reset.Location = new System.Drawing.Point(193, 97);
             this.btn_Reset.Name = "btn_Reset";
             this.btn_Reset.Size = new System.Drawing.Size(75, 23);
             this.btn_Reset.TabIndex = 3;
             this.btn_Reset.Text = "Reset";
             this.btn_Reset.UseVisualStyleBackColor = true;
             // 
-            // btn_getState
+            // btn_Record
             // 
-            this.btn_getState.Location = new System.Drawing.Point(45, 110);
-            this.btn_getState.Name = "btn_getState";
-            this.btn_getState.Size = new System.Drawing.Size(75, 23);
-            this.btn_getState.TabIndex = 4;
-            this.btn_getState.Text = "Get State";
-            this.btn_getState.UseVisualStyleBackColor = true;
+            this.btn_Record.Location = new System.Drawing.Point(193, 67);
+            this.btn_Record.Name = "btn_Record";
+            this.btn_Record.Size = new System.Drawing.Size(75, 23);
+            this.btn_Record.TabIndex = 2;
+            this.btn_Record.Text = "Record";
+            this.btn_Record.UseVisualStyleBackColor = true;
+            // 
+            // cb_EnableNodStream
+            // 
+            this.cb_EnableNodStream.AutoSize = true;
+            this.cb_EnableNodStream.Location = new System.Drawing.Point(308, 27);
+            this.cb_EnableNodStream.Name = "cb_EnableNodStream";
+            this.cb_EnableNodStream.Size = new System.Drawing.Size(95, 17);
+            this.cb_EnableNodStream.TabIndex = 1;
+            this.cb_EnableNodStream.Text = "Enable Stream";
+            this.cb_EnableNodStream.UseVisualStyleBackColor = true;
+            // 
+            // nud_magRate
+            // 
+            this.nud_magRate.Location = new System.Drawing.Point(274, 96);
+            this.nud_magRate.Maximum = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            this.nud_magRate.Name = "nud_magRate";
+            this.nud_magRate.Size = new System.Drawing.Size(39, 20);
+            this.nud_magRate.TabIndex = 40;
+            this.nud_magRate.Value = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            // 
+            // nud_accelRate
+            // 
+            this.nud_accelRate.Location = new System.Drawing.Point(337, 96);
+            this.nud_accelRate.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.nud_accelRate.Name = "nud_accelRate";
+            this.nud_accelRate.Size = new System.Drawing.Size(39, 20);
+            this.nud_accelRate.TabIndex = 41;
+            this.nud_accelRate.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // nud_gyroRate
+            // 
+            this.nud_gyroRate.Location = new System.Drawing.Point(399, 96);
+            this.nud_gyroRate.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.nud_gyroRate.Name = "nud_gyroRate";
+            this.nud_gyroRate.Size = new System.Drawing.Size(39, 20);
+            this.nud_gyroRate.TabIndex = 42;
+            this.nud_gyroRate.Value = new decimal(new int[] {
+            20,
+            0,
+            0,
+            0});
+            // 
+            // btn_setRate
+            // 
+            this.btn_setRate.Location = new System.Drawing.Point(274, 127);
+            this.btn_setRate.Name = "btn_setRate";
+            this.btn_setRate.Size = new System.Drawing.Size(102, 23);
+            this.btn_setRate.TabIndex = 43;
+            this.btn_setRate.Text = "Set Rates";
+            this.btn_setRate.UseVisualStyleBackColor = true;
+            this.btn_setRate.Click += new System.EventHandler(this.btn_setRate_Click);
+            // 
+            // lb_rates
+            // 
+            this.lb_rates.AutoSize = true;
+            this.lb_rates.Location = new System.Drawing.Point(272, 78);
+            this.lb_rates.Name = "lb_rates";
+            this.lb_rates.Size = new System.Drawing.Size(176, 13);
+            this.lb_rates.TabIndex = 44;
+            this.lb_rates.Text = "Mag Rate    Accel Rate   Gyro Rate";
+            // 
+            // cb_ypr
+            // 
+            this.cb_ypr.AutoSize = true;
+            this.cb_ypr.Location = new System.Drawing.Point(174, 18);
+            this.cb_ypr.Name = "cb_ypr";
+            this.cb_ypr.Size = new System.Drawing.Size(137, 17);
+            this.cb_ypr.TabIndex = 45;
+            this.cb_ypr.Text = "Yaw-Pitch-Roll Enabled";
+            this.cb_ypr.UseVisualStyleBackColor = true;
+            this.cb_ypr.CheckedChanged += new System.EventHandler(this.cb_ypr_CheckedChanged);
+            // 
+            // cb_fpBaudRate
+            // 
+            this.cb_fpBaudRate.FormattingEnabled = true;
+            this.cb_fpBaudRate.Location = new System.Drawing.Point(252, 59);
+            this.cb_fpBaudRate.Name = "cb_fpBaudRate";
+            this.cb_fpBaudRate.Size = new System.Drawing.Size(156, 21);
+            this.cb_fpBaudRate.TabIndex = 50;
+            this.cb_fpBaudRate.SelectedIndexChanged += new System.EventHandler(this.cb_fpBaudRate_SelectedIndexChanged);
             // 
             // mainForm
             // 
@@ -621,7 +737,9 @@
             this.tabPage3.PerformLayout();
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nud_nodSensorId)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_magRate)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_accelRate)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_gyroRate)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -670,11 +788,19 @@
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.ComboBox cb_dataType;
         private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.Button btn_getState;
         private System.Windows.Forms.Button btn_Reset;
         private System.Windows.Forms.Button btn_Record;
         private System.Windows.Forms.CheckBox cb_EnableNodStream;
-        private System.Windows.Forms.NumericUpDown nud_nodSensorId;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Button btn_sendCommand;
+        private System.Windows.Forms.TextBox tb_nodAddress;
+        private System.Windows.Forms.CheckBox cb_ypr;
+        private System.Windows.Forms.Label lb_rates;
+        private System.Windows.Forms.Button btn_setRate;
+        private System.Windows.Forms.NumericUpDown nud_gyroRate;
+        private System.Windows.Forms.NumericUpDown nud_accelRate;
+        private System.Windows.Forms.NumericUpDown nud_magRate;
+        private System.Windows.Forms.ComboBox cb_fpBaudRate;
     }
 }
 
