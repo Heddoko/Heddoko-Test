@@ -92,6 +92,15 @@ namespace PacketTester
             return swapHexBytes(pitchStr) + ";" + swapHexBytes(rollStr) + ";" + swapHexBytes(yawStr);
 
         }
+        public string getCsvString()
+        {
+            StringBuilder strBuilder = new StringBuilder();
+            strBuilder.Append(String.Format("{0:F4},{1:F4},{2:F4},{3:F4},", Quaternion_x, Quaternion_y, Quaternion_z, Quaternion_w));
+            strBuilder.Append(String.Format("{0},{1},{2},", Magnetic_x, Magnetic_y, Magnetic_z));
+            strBuilder.Append(String.Format("{0},{1},{2},", Acceleration_x, Acceleration_y, Acceleration_z));
+            strBuilder.Append(String.Format("{0},{1},{2}\r\n", Rotation_x, Rotation_y, Rotation_z));
+            return strBuilder.ToString();
+        }
         public bool ParseImuFrame(RawPacket packet, byte expectedId)
         {
             bool retVal = false; 

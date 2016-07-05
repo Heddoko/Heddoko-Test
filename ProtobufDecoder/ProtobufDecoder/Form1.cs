@@ -194,6 +194,10 @@ namespace ProtobufDecoder
                 for (int i = 0; i < heddokoPacket.fullDataFrame.imuDataFrame.Count; i++)
                 {
                     //do stuff for each frame received.
+                    if(heddokoPacket.fullDataFrame.imuDataFrame[i].imuId != i)
+                    {
+                        debugMessageQueue.Enqueue("IMU ID: i=" + i.ToString() + " imuId=" + heddokoPacket.fullDataFrame.imuDataFrame[i].imuId.ToString() +  " failure at: " + timeStamp.ToString("F3") + "\r\n");
+                    }
                     retString.Append(heddokoPacket.fullDataFrame.imuDataFrame[i].imuId.ToString() + ",");
                     retString.Append(heddokoPacket.fullDataFrame.imuDataFrame[i].quat_z_roll.ToString("F3") + ";");
                     retString.Append(heddokoPacket.fullDataFrame.imuDataFrame[i].quat_y_pitch.ToString("F3") + ";");

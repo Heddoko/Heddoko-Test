@@ -26,11 +26,15 @@ namespace PacketTester
         private const UInt16 graphMaxSize = 100;
 
         private bool streamDataToChartEnabled = false;
+        private bool saveSensorDataToFile = false;
+        private string saveSensorDataFilename = "";
+        private FileStream outputFileStream; 
 
         enum OutputType { legacyFrame, QuaternionFrame, protoBufFrame};
         OutputType streamOutputType = OutputType.QuaternionFrame; 
         string dataStreamFilePath = "";
         int selectedDataType = 0; 
+
 
 
         public mainForm()
@@ -52,6 +56,29 @@ namespace PacketTester
                 }
             }
         }
+        public void saveSensorFrameToFile(ImuFrame frame, ref FileStream outputFile)
+        {
+            StringBuilder strBuilder = new StringBuilder();
+            //so we need to create a frame compatible with the old system. 
+            //0000246665,03ff,A2D1;9707; C11B,311B; 5D14; C6C9,7713; B2E2; 73FF,9D3F; AD1A; 07A5,3B2A; E7D7; 125E,7331; 4AFA; 8B42,2132; 97F8; 4EA1,1E3C; 30FD; C8D3,B337; 28FD; BCAA,1234; BBBB; CCCC; DDDD; EEEE, 
+            long timeStamp = (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) - startTime;
+            strBuilder.Append(timeStamp.ToString("D10") + ",");
+            strBuilder.Append(frame.getCsvString());
+            try
+            {
+                if (outputFile.CanWrite)
+                {
+                    outputFile.Write(ASCIIEncoding.ASCII.GetBytes(strBuilder.ToString()), 0, strBuilder.Length);
+                    outputFile.Flush();                   
+                }
+            }
+            catch
+            {
+                debugMessageQueue.Enqueue(String.Format("Failed to write file\r\n"));
+                return;
+            }
+            
+        }
         public void streamDataToChartThread()
         {
             startTime = (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond);
@@ -60,14 +87,79 @@ namespace PacketTester
             this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qz"].Points.Clear()));
             this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qw"].Points.Clear()));
 
+            ImuFrame sensorframe = new ImuFrame();
+            RawPacket framePacket = new RawPacket();
+            bool receivedPacket = false; 
             graphIndex = 0;
+            //open file stream
+
+            FileStream outputFile;
+            if (saveSensorDataToFile)
+            {
+                try
+                {
+                    debugMessageQueue.Enqueue(String.Format("Openning file: {0}\r\n", saveSensorDataFilename));
+                    outputFile = File.Open(saveSensorDataFilename, FileMode.Create);
+                    string header = "Time(ms),Qx,Qy,Qz,Qw,Mx,My,Mz,Ax,Ay,Az,Rx,Ry,Rz\r\n";
+                    outputFile.Write(ASCIIEncoding.ASCII.GetBytes(header), 0, header.Length);
+                }
+                catch
+                {
+                    debugMessageQueue.Enqueue(String.Format("Failed to create file: {0}\r\n", saveSensorDataFilename));
+                    return;
+                }
+                
+            }
+            else
+            {
+                outputFile = null;
+            }
+            //close the other listenning thread for the queue
+            processPacketQueueEnabled = false;
+
             while (streamDataToChartEnabled)
             {
                 sendUpdateCommand();
-                Thread.Sleep(5);
+                Thread.Sleep((int)nud_updateRate.Value);
                 sendGetFrameCommand((byte)nud_SelectedImu.Value);
-                Thread.Sleep(5);
+                DateTime start = DateTime.Now;
+                receivedPacket = false;
+                while ((DateTime.Now - start).Milliseconds < 5)
+                {
+                    if (packetQueue.TryDequeue(out framePacket))
+                    {
+                        if (sensorframe.ParseImuFrame(framePacket, (byte)nud_SelectedImu.Value))
+                        {
+                            //we got the packet.                            
+                            receivedPacket = true;
+                            break;
+                        }
+                    }
+                    Thread.Yield();
+                }
+                if(receivedPacket)
+                {
+                    updateChart(sensorframe);
+                    if (saveSensorDataToFile)
+                    {
+                        saveSensorFrameToFile(sensorframe,ref outputFile);
+                    }
+                }
+
             }
+            if(saveSensorDataToFile)
+            {
+                if(outputFile != null)
+                {
+                    outputFile.Close(); 
+                }
+            }
+            //start up other listenning thread again
+            processPacketQueueEnabled = true;
+            Thread packetProcessorThread = new Thread(processPacketThread);
+            packetProcessorThread.Start();
+
+
         }
         public string createLegacyFrame(ImuFrame[] frameArray, bool[] receivedFlags)
         {
@@ -118,7 +210,7 @@ namespace PacketTester
             }
             for (int i = 0; i < 9 - frameArray.Length; i++)
             {
-                strBuilder.Append("0000;0000;0000,");
+                strBuilder.Append("0000;0000;0000;0000,");
             }
             strBuilder.Append("\r\n");
 
@@ -127,7 +219,7 @@ namespace PacketTester
         public void createProtoBufFrame(ImuFrame[] frameArray, bool[] receivedFlags, ref FileStream outputFile)
         {
             StringBuilder strBuilder = new StringBuilder();
-            //so we need to create a frame compatible with the old system.             
+                      
             long timeStamp = (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) - startTime;
             UInt16 receivedMask = 0;
             for (int i = 0; i < receivedFlags.Length; i++)
@@ -237,17 +329,17 @@ namespace PacketTester
             {
                 DateTime startGetFrame = DateTime.Now;
                 sendUpdateCommand();
-                Thread.Sleep(3);
+                Thread.Sleep(5);
                 for(int i = 0; i < numberOfSensors; i++)
                 {
                     sendGetFrameCommand((byte)i);
-                    frameReceived[i] = false; 
+                    frameReceived[i] = false;
+                    frameArray[i].ImuId = (byte)i; //set the imu ID to equal the expected frame IMU
                     DateTime start = DateTime.Now;
                     while ((DateTime.Now - start).Milliseconds < 5)
                     {
                         if (packetQueue.TryDequeue(out framePacket))
                         {
-
                             if (frameArray[i].ParseImuFrame(framePacket, (byte)i))
                             {
                                 //we got the packet.
@@ -719,8 +811,29 @@ namespace PacketTester
 
         private void cb_enableStream_CheckedChanged(object sender, EventArgs e)
         {
-            if(cb_enableStream.Checked)
+
+
+            if (cb_enableStream.Checked)
             {
+                if (cb_saveSensorData.Checked)
+                {
+                    saveSensorDataToFile = true;
+                    if (sfd_saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        saveSensorDataFilename = sfd_saveFileDialog.FileName;
+                        tb_dataLogLocation.Text = sfd_saveFileDialog.FileName;
+                    }
+                    else
+                    {
+                        saveSensorDataToFile = false;
+                        tb_dataLogLocation.Text = "";
+                    }
+                }
+                else
+                {
+                    saveSensorDataToFile = false;
+                    tb_dataLogLocation.Text = "";
+                }
                 Thread streamThread = new Thread(streamDataToChartThread);
                 streamDataToChartEnabled = true;
                 streamThread.Start(); 
@@ -1001,18 +1114,34 @@ namespace PacketTester
                 chrt_dataChart.ChartAreas[0].AxisY.Minimum = -1.1;
                 chrt_dataChart.ChartAreas[0].AxisY.RoundAxisValues();
             }
-            else
+            else if(cb_dataType.SelectedIndex == 1) //magnetic
             {
-                chrt_dataChart.ChartAreas[0].AxisY.Maximum = 100;
-                chrt_dataChart.ChartAreas[0].AxisY.Minimum = -100;
+                chrt_dataChart.ChartAreas[0].AxisY.Maximum = 1500;
+                chrt_dataChart.ChartAreas[0].AxisY.Minimum = -1500;
                 chrt_dataChart.ChartAreas[0].AxisY.RoundAxisValues();
             }
-
+            else if (cb_dataType.SelectedIndex == 2)//Acceleration
+            {
+                chrt_dataChart.ChartAreas[0].AxisY.Maximum = 10000;
+                chrt_dataChart.ChartAreas[0].AxisY.Minimum = -10000;
+                chrt_dataChart.ChartAreas[0].AxisY.RoundAxisValues();
+            }
+            else if (cb_dataType.SelectedIndex == 3)//Gyro
+            {
+                chrt_dataChart.ChartAreas[0].AxisY.Maximum = 15000;
+                chrt_dataChart.ChartAreas[0].AxisY.Minimum = -15000;
+                chrt_dataChart.ChartAreas[0].AxisY.RoundAxisValues();
+            }
 
 
         }
 
         private void cb_fpBaudRate_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cb_saveSensorData_CheckedChanged(object sender, EventArgs e)
         {
 
         }
