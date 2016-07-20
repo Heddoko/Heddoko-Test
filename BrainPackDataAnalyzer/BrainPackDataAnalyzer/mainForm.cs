@@ -435,18 +435,47 @@ namespace BrainPackDataAnalyzer
                 }
                 FileStream tempFile = new FileStream(tempFilename, FileMode.Create);
                 FileStream rawFile = new FileStream(filename, FileMode.Open);
-                rawFile.Seek(0, SeekOrigin.Begin);
-                Int32 temp = 0x00;  
-                for(long i = 0; i < rawFile.Length; i++)
+                
+               
+                //read the first portion of data
+                byte[] header = new byte[44];
+                rawFile.Read(header, 0, 44);
+                
+                string headerString = System.Text.Encoding.ASCII.GetString(header);
+                long offset = 0; 
+                if (headerString.Contains("BPVERSION"))
                 {
-                    temp = rawFile.ReadByte();
-                    //check if the end of file has been reached. 
-                    if (temp == -1)
-                    {
-                        break; 
-                    }
-                    tempFile.WriteByte((byte)(temp - 0x80)); 
+                    this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Header: " + headerString )));
+                    offset = headerString.Length; 
                 }
+
+                Int32 temp = 0x00;
+                int errorCount = 0;
+                byte[] fileBytes = new byte[rawFile.Length - offset];
+                rawFile.Seek(offset, SeekOrigin.Begin);
+                rawFile.Read(fileBytes, 0, (int)(rawFile.Length - offset));
+                for (long i = 0; i < rawFile.Length - offset; i++)
+                {
+                    if ((fileBytes[i] & 0x80) > 0)
+                    {
+                        fileBytes[i] -= 0x80;
+                        tempFile.WriteByte((byte)(fileBytes[i]));
+                    }
+                    else
+                    {
+                        //error bytes
+                        errorCount++;
+                    }
+                    //temp = rawFile.ReadByte();
+                    ////check if the end of file has been reached. 
+                    //if (temp == -1)
+                    //{
+                    //    break; 
+                    //}
+                    //tempFile.WriteByte((byte)(temp - 0x80)); 
+                }
+                this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Found  " + errorCount.ToString() + " bytes improperly formatted\r\n")));
+                //tempFile.Write(fileBytes, 0, (int)(rawFile.Length - offset));
                 tempFile.Close(); 
             }
             catch
@@ -958,28 +987,36 @@ namespace BrainPackDataAnalyzer
             if (analysisData == null)
             {
                 this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Failed to load the file\r\n")));
+                return;
             }
             this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Loaded " + analysisData.Rows.Count.ToString() + " Rows \r\n")));
             this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("From File: " + ofd_AnalyzeFile.FileName + " \r\n")));
             Int32 maxTime = 0;
 
             Int32 startTime = Int32.Parse(analysisData.Rows[0][0].ToString());
-
+            int errorCount = 0;
             for (int i = 1; i < analysisData.Rows.Count; i++)
             {
                 bgw_AnalysisBackgroundWorker.ReportProgress((i * 100) / analysisData.Rows.Count);
-                Int32 val1 = Int32.Parse(analysisData.Rows[i][0].ToString());
-                Int32 val2 = Int32.Parse(analysisData.Rows[i - 1][0].ToString());
-                Int32 interval = val1 - val2;
-                if (interval > maxTime)
+                try
                 {
-                    maxTime = interval;
+                    Int32 val1 = Int32.Parse(analysisData.Rows[i][0].ToString());
+                    Int32 val2 = Int32.Parse(analysisData.Rows[i - 1][0].ToString());
+                    Int32 interval = val1 - val2;
+                    if (interval > maxTime)
+                    {
+                        maxTime = interval;
+                    }
+
+                    processDataRow(analysisData.Rows[i]);
+                }
+                catch
+                {
+                    errorCount++;
                 }
 
-                processDataRow(analysisData.Rows[i]);     
-
-
             }
+            this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Failed on " + errorCount.ToString() + " Rows \r\n")));
         }
 
         private void bgw_AnalysisBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
