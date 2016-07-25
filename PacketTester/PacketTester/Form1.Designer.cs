@@ -32,12 +32,12 @@ namespace PacketTester
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series11 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series12 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.btn_disconnect = new System.Windows.Forms.Button();
             this.tb_Console = new System.Windows.Forms.TextBox();
             this.bnt_Connect = new System.Windows.Forms.Button();
@@ -94,12 +94,13 @@ namespace PacketTester
             this.btb_arm_playRecording = new System.Windows.Forms.Button();
             this.btn_arm_recMovement = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.chb_arm_easeMovement = new System.Windows.Forms.CheckBox();
             this.btn_arm_startStreaming = new System.Windows.Forms.Button();
             this.btn_arm_stopStreaming = new System.Windows.Forms.Button();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.btn_arm_togglePort = new System.Windows.Forms.Button();
             this.chb_arm_EnableTracing = new System.Windows.Forms.CheckBox();
-            this.label7 = new System.Windows.Forms.Label();
+            this.lb_loopsExecuted = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.countDelaySel = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -110,7 +111,7 @@ namespace PacketTester
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.cb_robotPort = new System.Windows.Forms.ComboBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btn_refreshComPorts = new System.Windows.Forms.Button();
             this.robotArmPort = new System.IO.Ports.SerialPort(this.components);
             this.bgw_uarmFileWorker = new System.ComponentModel.BackgroundWorker();
             this.ofd_openUarmFile = new System.Windows.Forms.OpenFileDialog();
@@ -123,7 +124,7 @@ namespace PacketTester
             this.lbl_valueData2 = new System.Windows.Forms.Label();
             this.lbl_valueData3 = new System.Windows.Forms.Label();
             this.lbl_valueData4 = new System.Windows.Forms.Label();
-            this.chb_arm_easeMovement = new System.Windows.Forms.CheckBox();
+            this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -196,44 +197,44 @@ namespace PacketTester
             // 
             // chrt_dataChart
             // 
-            chartArea3.AxisY.Maximum = 1.1D;
-            chartArea3.AxisY.Minimum = -1.1D;
-            chartArea3.Name = "ChartArea1";
-            this.chrt_dataChart.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.chrt_dataChart.Legends.Add(legend3);
+            chartArea1.AxisY.Maximum = 1.1D;
+            chartArea1.AxisY.Minimum = -1.1D;
+            chartArea1.Name = "ChartArea1";
+            this.chrt_dataChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chrt_dataChart.Legends.Add(legend1);
             this.chrt_dataChart.Location = new System.Drawing.Point(541, 30);
             this.chrt_dataChart.Name = "chrt_dataChart";
             this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
-            series9.BorderWidth = 5;
-            series9.ChartArea = "ChartArea1";
-            series9.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series9.Legend = "Legend1";
-            series9.MarkerSize = 1;
-            series9.Name = "Qx";
-            series9.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            series10.BorderWidth = 5;
-            series10.ChartArea = "ChartArea1";
-            series10.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series10.Legend = "Legend1";
-            series10.MarkerSize = 1;
-            series10.Name = "Qy";
-            series11.BorderWidth = 5;
-            series11.ChartArea = "ChartArea1";
-            series11.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series11.Legend = "Legend1";
-            series11.MarkerSize = 1;
-            series11.Name = "Qz";
-            series12.BorderWidth = 5;
-            series12.ChartArea = "ChartArea1";
-            series12.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series12.Legend = "Legend1";
-            series12.MarkerSize = 1;
-            series12.Name = "Qw";
-            this.chrt_dataChart.Series.Add(series9);
-            this.chrt_dataChart.Series.Add(series10);
-            this.chrt_dataChart.Series.Add(series11);
-            this.chrt_dataChart.Series.Add(series12);
+            series1.BorderWidth = 5;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Legend = "Legend1";
+            series1.MarkerSize = 1;
+            series1.Name = "Qx";
+            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            series2.BorderWidth = 5;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Legend = "Legend1";
+            series2.MarkerSize = 1;
+            series2.Name = "Qy";
+            series3.BorderWidth = 5;
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.Legend = "Legend1";
+            series3.MarkerSize = 1;
+            series3.Name = "Qz";
+            series4.BorderWidth = 5;
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series4.Legend = "Legend1";
+            series4.MarkerSize = 1;
+            series4.Name = "Qw";
+            this.chrt_dataChart.Series.Add(series1);
+            this.chrt_dataChart.Series.Add(series2);
+            this.chrt_dataChart.Series.Add(series3);
+            this.chrt_dataChart.Series.Add(series4);
             this.chrt_dataChart.Size = new System.Drawing.Size(589, 377);
             this.chrt_dataChart.TabIndex = 28;
             this.chrt_dataChart.Text = "chart1";
@@ -672,7 +673,7 @@ namespace PacketTester
             this.cb_OutputFormat.FormattingEnabled = true;
             this.cb_OutputFormat.Location = new System.Drawing.Point(104, 118);
             this.cb_OutputFormat.Name = "cb_OutputFormat";
-            this.cb_OutputFormat.Size = new System.Drawing.Size(112, 21);
+            this.cb_OutputFormat.Size = new System.Drawing.Size(163, 21);
             this.cb_OutputFormat.TabIndex = 47;
             // 
             // cb_EnableFowardPort
@@ -732,7 +733,7 @@ namespace PacketTester
             this.tabPage4.Controls.Add(this.splitter1);
             this.tabPage4.Controls.Add(this.btn_arm_togglePort);
             this.tabPage4.Controls.Add(this.chb_arm_EnableTracing);
-            this.tabPage4.Controls.Add(this.label7);
+            this.tabPage4.Controls.Add(this.lb_loopsExecuted);
             this.tabPage4.Controls.Add(this.label5);
             this.tabPage4.Controls.Add(this.countDelaySel);
             this.tabPage4.Controls.Add(this.label6);
@@ -768,8 +769,8 @@ namespace PacketTester
             this.btb_arm_playRecording.Size = new System.Drawing.Size(75, 23);
             this.btb_arm_playRecording.TabIndex = 18;
             this.btb_arm_playRecording.Text = "Play";
+            this.toolTip1.SetToolTip(this.btb_arm_playRecording, "Playback recording from Robot\'s internal memory\r\n");
             this.btb_arm_playRecording.UseVisualStyleBackColor = true;
-            this.toolTip1.SetToolTip(this.btb_arm_playRecording, "Playback recording from Robot's internal memory\r\n");
             this.btb_arm_playRecording.Click += new System.EventHandler(this.btb_arm_playRecording_Click);
             this.btb_arm_playRecording.MouseEnter += new System.EventHandler(this.btb_arm_playRecording_MouseEnter);
             // 
@@ -794,6 +795,18 @@ namespace PacketTester
             this.groupBox1.TabIndex = 56;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Stream";
+            // 
+            // chb_arm_easeMovement
+            // 
+            this.chb_arm_easeMovement.AutoSize = true;
+            this.chb_arm_easeMovement.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chb_arm_easeMovement.Location = new System.Drawing.Point(12, 74);
+            this.chb_arm_easeMovement.Name = "chb_arm_easeMovement";
+            this.chb_arm_easeMovement.Size = new System.Drawing.Size(102, 17);
+            this.chb_arm_easeMovement.TabIndex = 13;
+            this.chb_arm_easeMovement.Text = "Ease movement";
+            this.chb_arm_easeMovement.UseVisualStyleBackColor = true;
+            this.chb_arm_easeMovement.CheckedChanged += new System.EventHandler(this.chb_arm_easeMovement_CheckedChanged);
             // 
             // btn_arm_startStreaming
             // 
@@ -848,14 +861,14 @@ namespace PacketTester
             this.chb_arm_EnableTracing.CheckedChanged += new System.EventHandler(this.chb_arm_EnableTracing_CheckedChanged);
             this.chb_arm_EnableTracing.MouseEnter += new System.EventHandler(this.checkBox1_MouseEnter);
             // 
-            // label7
+            // lb_loopsExecuted
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(322, 159);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(13, 13);
-            this.label7.TabIndex = 14;
-            this.label7.Text = "0";
+            this.lb_loopsExecuted.AutoSize = true;
+            this.lb_loopsExecuted.Location = new System.Drawing.Point(322, 159);
+            this.lb_loopsExecuted.Name = "lb_loopsExecuted";
+            this.lb_loopsExecuted.Size = new System.Drawing.Size(13, 13);
+            this.lb_loopsExecuted.TabIndex = 14;
+            this.lb_loopsExecuted.Text = "0";
             // 
             // label5
             // 
@@ -964,15 +977,15 @@ namespace PacketTester
             this.cb_robotPort.TabIndex = 1;
             this.cb_robotPort.SelectedIndexChanged += new System.EventHandler(this.cb_robotPort_SelectedIndexChanged);
             // 
-            // button1
+            // btn_refreshComPorts
             // 
-            this.button1.Location = new System.Drawing.Point(368, 255);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(126, 23);
-            this.button1.TabIndex = 47;
-            this.button1.Text = "Rescan Com Ports";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btn_refreshComPorts.Location = new System.Drawing.Point(368, 255);
+            this.btn_refreshComPorts.Name = "btn_refreshComPorts";
+            this.btn_refreshComPorts.Size = new System.Drawing.Size(126, 23);
+            this.btn_refreshComPorts.TabIndex = 47;
+            this.btn_refreshComPorts.Text = "Rescan Com Ports";
+            this.btn_refreshComPorts.UseVisualStyleBackColor = true;
+            this.btn_refreshComPorts.Click += new System.EventHandler(this.btn_refreshComPorts_Click);
             // 
             // robotArmPort
             // 
@@ -1073,18 +1086,6 @@ namespace PacketTester
             this.lbl_valueData4.Text = "0";
             this.lbl_valueData4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // chb_arm_easeMovement
-            // 
-            this.chb_arm_easeMovement.AutoSize = true;
-            this.chb_arm_easeMovement.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chb_arm_easeMovement.Location = new System.Drawing.Point(12, 74);
-            this.chb_arm_easeMovement.Name = "chb_arm_easeMovement";
-            this.chb_arm_easeMovement.Size = new System.Drawing.Size(102, 17);
-            this.chb_arm_easeMovement.TabIndex = 13;
-            this.chb_arm_easeMovement.Text = "Ease movement";
-            this.chb_arm_easeMovement.UseVisualStyleBackColor = true;
-            this.chb_arm_easeMovement.CheckedChanged += new System.EventHandler(this.chb_arm_easeMovement_CheckedChanged);
-            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1098,7 +1099,7 @@ namespace PacketTester
             this.Controls.Add(this.lbl_data3);
             this.Controls.Add(this.lbl_data2);
             this.Controls.Add(this.lbl_data1);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btn_refreshComPorts);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.btn_clearScreen);
             this.Controls.Add(this.chrt_dataChart);
@@ -1195,7 +1196,7 @@ namespace PacketTester
         private System.Windows.Forms.NumericUpDown nud_updateRate;
         private System.Windows.Forms.TabPage tabPage4;
         private System.Windows.Forms.ComboBox cb_robotPort;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btn_refreshComPorts;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button btn_arm_startStreaming;
@@ -1209,7 +1210,7 @@ namespace PacketTester
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ComboBox countDelaySel;
         private System.Windows.Forms.Button btn_arm_stopStreaming;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label lb_loopsExecuted;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.CheckBox chb_arm_EnableTracing;
         private System.Windows.Forms.ToolTip toolTip1;
@@ -1228,6 +1229,7 @@ namespace PacketTester
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Button btb_arm_playRecording;
         private System.Windows.Forms.CheckBox chb_arm_easeMovement;
+        private System.Windows.Forms.FolderBrowserDialog fbd_folderBrowser;
     }
 }
 

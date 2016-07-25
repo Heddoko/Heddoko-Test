@@ -32,7 +32,7 @@ namespace PacketTester
         private string saveSensorDataFilename = "";
         private FileStream outputFileStream; 
 
-        enum OutputType { legacyFrame, QuaternionFrame, protoBufFrame, allSensorFiles};
+        enum OutputType { legacyFrame, QuaternionFrame, protoBufFrame, individualSensorFiles};
         OutputType streamOutputType = OutputType.protoBufFrame; 
         string dataStreamFilePath = "";
         int selectedDataType = 0;
@@ -50,6 +50,7 @@ namespace PacketTester
         public bool robotArmWarningEnable = true;
         public bool robotArmOutFileIsOpen = false;
         FileStream robotArmOutFile;
+        public int robotArmLoopCount = 0;
 
         public mainForm()
         {
@@ -70,13 +71,13 @@ namespace PacketTester
                 }
             }
         }
-        public void saveSensorFrameToFile(ImuFrame frame, ref FileStream outputFile)
+        public void saveSensorFrameToFile(ImuFrame frame, ref FileStream outputFile, string interval)
         {
             StringBuilder strBuilder = new StringBuilder();
             //so we need to create a frame compatible with the old system. 
             //0000246665,03ff,A2D1;9707; C11B,311B; 5D14; C6C9,7713; B2E2; 73FF,9D3F; AD1A; 07A5,3B2A; E7D7; 125E,7331; 4AFA; 8B42,2132; 97F8; 4EA1,1E3C; 30FD; C8D3,B337; 28FD; BCAA,1234; BBBB; CCCC; DDDD; EEEE, 
             long timeStamp = (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) - startTime;
-            strBuilder.Append(timeStamp.ToString("D10") + ",");
+            strBuilder.Append(timeStamp.ToString("D10") + "," + interval + ",");
             strBuilder.Append(frame.getCsvString());
             try
             {
@@ -114,7 +115,7 @@ namespace PacketTester
                 {
                     debugMessageQueue.Enqueue(String.Format("Openning file: {0}\r\n", saveSensorDataFilename));
                     outputFile = File.Open(saveSensorDataFilename, FileMode.Create);
-                    string header = "Time(ms),Qx,Qy,Qz,Qw,Mx,My,Mz,Ax,Ay,Az,Rx,Ry,Rz\r\n";
+                    string header = "Time(ms),Interval,Qx,Qy,Qz,Qw,Mx,My,Mz,Ax,Ay,Az,Rx,Ry,Rz\r\n";
                     outputFile.Write(ASCIIEncoding.ASCII.GetBytes(header), 0, header.Length);
                 }
                 catch
@@ -169,7 +170,7 @@ namespace PacketTester
                     updateTable(sensorframe);
                     if (saveSensorDataToFile)
                     {
-                        saveSensorFrameToFile(sensorframe,ref outputFile);
+                        saveSensorFrameToFile(sensorframe,ref outputFile, "0");
                     }
                 }
             }
@@ -321,6 +322,19 @@ namespace PacketTester
             }
 
         }
+        public void createIndividualSensorFrames(ImuFrame[] frameArray, bool[] receivedFlags, ref FileStream[] outputFiles)
+        {
+
+            for(int i = 0; i < frameArray.Length; i++)
+            {
+                if (receivedFlags[i])
+                {
+                    saveSensorFrameToFile(frameArray[i], ref outputFiles[i], robotArmLoopCount.ToString());
+                }
+            }
+
+            
+        }
         public void streamDataThread()
         {
             startTime = (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond);
@@ -339,18 +353,41 @@ namespace PacketTester
             bool[] frameReceived = new bool[numberOfSensors];
             RawPacket framePacket = new RawPacket();
             //open file stream
-            FileStream outputFile;
-            try
+            FileStream outputFile = null;
+            FileStream[] outputFiles = new FileStream[numberOfSensors];
+            if (streamOutputType == OutputType.individualSensorFiles)
             {
-                debugMessageQueue.Enqueue(String.Format("Openning file: {0}\r\n", dataStreamFilePath));
-                outputFile = File.Open(dataStreamFilePath, FileMode.Create);                
+                string header = "Time(ms),Interval,Qx,Qy,Qz,Qw,Mx,My,Mz,Ax,Ay,Az,Rx,Ry,Rz\r\n";
+                
+                for (int i =0; i < numberOfSensors; i++)
+                {
+                    string filepath = dataStreamFilePath + "\\Sensor_" + i.ToString() + ".csv";
+                    try
+                    {
+                        debugMessageQueue.Enqueue(String.Format("Openning file: {0}\r\n", filepath));
+                        outputFiles[i] = File.Open(filepath, FileMode.Create);
+                        outputFiles[i].Write(ASCIIEncoding.ASCII.GetBytes(header), 0, header.Length);
+                    }
+                    catch
+                    {
+                        debugMessageQueue.Enqueue(String.Format("Failed to create file: {0}\r\n", filepath));
+                        return;
+                    }
+                }
             }
-            catch
+            else
             {
-                debugMessageQueue.Enqueue(String.Format("Failed to create file: {0}\r\n", dataStreamFilePath));
-                return;
+                try
+                {
+                    debugMessageQueue.Enqueue(String.Format("Openning file: {0}\r\n", dataStreamFilePath));
+                    outputFile = File.Open(dataStreamFilePath, FileMode.Create);
+                }
+                catch
+                {
+                    debugMessageQueue.Enqueue(String.Format("Failed to create file: {0}\r\n", dataStreamFilePath));
+                    return;
+                }
             }
-
             while (streamDataEnabled)
             {
                 DateTime startGetFrame = DateTime.Now;
@@ -391,7 +428,7 @@ namespace PacketTester
 
                 string frameString = "";
 
-                if (streamOutputType != OutputType.protoBufFrame)
+                if (streamOutputType == OutputType.legacyFrame || streamOutputType == OutputType.QuaternionFrame)
                 {
 
                     if (streamOutputType == OutputType.legacyFrame)
@@ -421,14 +458,36 @@ namespace PacketTester
                         return;
                     }
                 }
-                else
+                else if(streamOutputType == OutputType.protoBufFrame)
                 {
                     createProtoBufFrame(frameArray, frameReceived, ref outputFile);
                 }
+                else if(streamOutputType == OutputType.individualSensorFiles)
+                {
+                    createIndividualSensorFrames(frameArray, frameReceived, ref outputFiles);
+                }
                 //Thread.Sleep(1); 
             }
-            debugMessageQueue.Enqueue(String.Format("Stream Closed Wrote {0} Bytes\r\n",outputFile.Length));
-            outputFile.Close(); 
+            
+
+            if(streamOutputType == OutputType.individualSensorFiles)
+            {
+                for(int i = 0; i < outputFiles.Length; i++)
+                {
+                    debugMessageQueue.Enqueue(String.Format("Stream {0} Closed Wrote {1} Bytes\r\n",i, outputFiles[i].Length));
+                    outputFiles[i].Close(); 
+                }
+            }
+            else
+            {
+
+                if (outputFile != null)
+                {
+                    debugMessageQueue.Enqueue(String.Format("Stream Closed Wrote {0} Bytes\r\n", outputFile.Length));
+                    outputFile.Close();
+                }
+            }
+             
             //start up other listenning thread again
             processPacketQueueEnabled = true;
             Thread packetProcessorThread = new Thread(processPacketThread);
@@ -664,7 +723,7 @@ namespace PacketTester
             Thread packetProcessorThread = new Thread(processPacketThread);
             packetProcessorThread.Start();
 
-            string[] frameFormats = { "Legacy Frame", "Quaternion Frame", "Protocol Buffer", "Individual Files" };
+            string[] frameFormats = { "Legacy Frame", "Quaternion Frame", "Protocol Buffer", "Individual Sensor Files" };
             cb_OutputFormat.Items.AddRange(frameFormats);
             cb_OutputFormat.SelectedIndex = 1;
 
@@ -781,6 +840,7 @@ namespace PacketTester
             processPacketQueueEnabled = false;
             streamDataEnabled = false;            
             EnableSocketQueue = false;
+            processRobotArmQueueEnabled = false;
             //close the serial port
             if (serialPort.IsOpen)
             {
@@ -1121,30 +1181,46 @@ namespace PacketTester
         {
             if (!streamDataEnabled)
             {
-                if (sfd_saveFileDialog.ShowDialog() == DialogResult.OK)
+                streamOutputType = (OutputType)cb_OutputFormat.SelectedIndex;
+                if (streamOutputType == OutputType.individualSensorFiles)
                 {
-                    dataStreamFilePath = sfd_saveFileDialog.FileName;
-                    Thread streamThread = new Thread(streamDataThread);
-                    streamOutputType = (OutputType)cb_OutputFormat.SelectedIndex;
-
-                    streamDataEnabled = true;
-                    //open the serial port
-                    if (cb_EnableFowardPort.Checked)
+                    if(fbd_folderBrowser.ShowDialog() == DialogResult.OK)
                     {
-                        forwardSerialPort.PortName = cb_forwardPorts.Items[cb_forwardPorts.SelectedIndex].ToString();
-                        forwardSerialPort.BaudRate = int.Parse(cb_fpBaudRate.Items[cb_fpBaudRate.SelectedIndex].ToString());
-                        try
-                        {
-                            forwardSerialPort.Open();
-                            tb_Console.AppendText("Forward Port: " + forwardSerialPort.PortName + " Open\r\n");
-                        }
-                        catch (Exception ex)
-                        {
-                            tb_Console.AppendText("Failed to forward open Port: " + forwardSerialPort.PortName + " \r\n");
-                            tb_Console.AppendText("Exception " + ex.Message + " \r\n");
-                        }
+                        dataStreamFilePath = fbd_folderBrowser.SelectedPath;
+                        //TODO: add check for files here...
+                        Thread streamThread = new Thread(streamDataThread);
+                        streamDataEnabled = true;
+                        streamThread.Start();
                     }
-                    streamThread.Start();
+                }
+                else
+                {
+
+                    if (sfd_saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        dataStreamFilePath = sfd_saveFileDialog.FileName;
+                        Thread streamThread = new Thread(streamDataThread);
+
+
+                        streamDataEnabled = true;
+                        //open the serial port
+                        if (cb_EnableFowardPort.Checked)
+                        {
+                            forwardSerialPort.PortName = cb_forwardPorts.Items[cb_forwardPorts.SelectedIndex].ToString();
+                            forwardSerialPort.BaudRate = int.Parse(cb_fpBaudRate.Items[cb_fpBaudRate.SelectedIndex].ToString());
+                            try
+                            {
+                                forwardSerialPort.Open();
+                                tb_Console.AppendText("Forward Port: " + forwardSerialPort.PortName + " Open\r\n");
+                            }
+                            catch (Exception ex)
+                            {
+                                tb_Console.AppendText("Failed to forward open Port: " + forwardSerialPort.PortName + " \r\n");
+                                tb_Console.AppendText("Exception " + ex.Message + " \r\n");
+                            }
+                        }
+                        streamThread.Start();
+                    }
                 }
             }
         }
@@ -1225,10 +1301,13 @@ namespace PacketTester
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btn_refreshComPorts_Click(object sender, EventArgs e)
         {
+            cb_serialPorts.Items.Clear();
             cb_serialPorts.Items.AddRange(SerialPort.GetPortNames());
+            cb_forwardPorts.Items.Clear();
             cb_forwardPorts.Items.AddRange(SerialPort.GetPortNames());
+            cb_robotPort.Items.Clear();
             cb_robotPort.Items.AddRange(SerialPort.GetPortNames());
         }
 
@@ -1251,7 +1330,7 @@ namespace PacketTester
             }
             if (File.Exists(textBox1.Text) == true)     // only start streaming if the file exists
             {
-                label7.Text = 0.ToString();     // reset the loop executed count
+                lb_loopsExecuted.Text = 0.ToString();     // reset the loop executed count
                 if (robotArmPort.IsOpen)
                 {
                     // stream again, don't open the port
@@ -1305,7 +1384,7 @@ namespace PacketTester
         {
             string fileName = (string) e.Argument;      // get the filename
             string text = null;
-
+            robotArmLoopCount = 0;
             if (fileName.EndsWith(".dat") || fileName.EndsWith(".txt") || fileName.EndsWith(".csv"))    // only move forward if the file has either of these extensions.
             {
                 uarmTable = convertToCsv(fileName); // convert to datatable.
@@ -1342,26 +1421,31 @@ namespace PacketTester
 
                         if (bgw_uarmFileWorker.CancellationPending)
                         {
+                            robotArmLoopCount = 0;
                             return;
                         }
 
                         Thread.Sleep((int)(10*uarmStreamLineDelay));     // specified delay after every line
                     }
                     count++;
-                    if (this.label7.InvokeRequired)
+                    robotArmLoopCount = count;
+                    if (this.lb_loopsExecuted.InvokeRequired)
                     {
-                        this.label7.BeginInvoke((MethodInvoker)delegate () {this.label7.Text = count.ToString(); ;});
+                        this.lb_loopsExecuted.BeginInvoke((MethodInvoker)delegate () {this.lb_loopsExecuted.Text = count.ToString(); ;});
                     }
                     requestSensorFrame = true;
                     
                 }
+                robotArmLoopCount = 0;
                 return;
             }
             else
             {
                 this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Invalid U-Arm source file\r\n")));
+                robotArmLoopCount = 0;
                 return;
             }
+
         }
 
         private void bgw_uarmFileWorker_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
