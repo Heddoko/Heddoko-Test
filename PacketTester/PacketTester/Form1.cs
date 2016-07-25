@@ -30,8 +30,8 @@ namespace PacketTester
         private string saveSensorDataFilename = "";
         private FileStream outputFileStream; 
 
-        enum OutputType { legacyFrame, QuaternionFrame, protoBufFrame};
-        OutputType streamOutputType = OutputType.QuaternionFrame; 
+        enum OutputType { legacyFrame, QuaternionFrame, protoBufFrame, allSensorFiles};
+        OutputType streamOutputType = OutputType.protoBufFrame; 
         string dataStreamFilePath = "";
         int selectedDataType = 0; 
 
@@ -599,7 +599,7 @@ namespace PacketTester
             Thread packetProcessorThread = new Thread(processPacketThread);
             packetProcessorThread.Start();
 
-            string[] frameFormats = { "Legacy Frame", "Quaternion Frame", "Protocol Buffer" };
+            string[] frameFormats = { "Legacy Frame", "Quaternion Frame", "Protocol Buffer", "Individual Files" };
             cb_OutputFormat.Items.AddRange(frameFormats);
             cb_OutputFormat.SelectedIndex = 1;
 
