@@ -9,12 +9,14 @@ using heddoko;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Data;
 
 namespace PacketTester
 {
     public partial class mainForm : Form
     {
         private bool openSerialPort = false;
+        private bool openRobotArmPort = false;
         private bool processDebugThreadEnabled = false;
         public ConcurrentQueue<string> debugMessageQueue;
         private bool processPacketQueueEnabled = false; 
@@ -33,9 +35,21 @@ namespace PacketTester
         enum OutputType { legacyFrame, QuaternionFrame, protoBufFrame, allSensorFiles};
         OutputType streamOutputType = OutputType.protoBufFrame; 
         string dataStreamFilePath = "";
-        int selectedDataType = 0; 
+        int selectedDataType = 0;
 
-
+        public DataTable uarmTable;
+        public UInt16 uarmStreamLoopCount = 1;
+        public UInt32 uarmStreamLineDelay = 100;
+        public bool requestSensorFrame = false;
+        public bool enableArmRecording = false;
+        public bool togglePortButton = false;
+        public bool toggleRecButton = false;
+        private bool processRobotArmQueueEnabled = true;
+        public ConcurrentQueue<String> robotArmQueue;
+        public String robotArmInputStream;
+        public bool robotArmWarningEnable = true;
+        public bool robotArmOutFileIsOpen = false;
+        FileStream robotArmOutFile;
 
         public mainForm()
         {
@@ -119,6 +133,18 @@ namespace PacketTester
 
             while (streamDataToChartEnabled)
             {
+                if (chb_arm_EnableTracing.Checked)      // if sensor precision testing is on
+                {
+                    if (requestSensorFrame)     //if there is a new request for frame then fetch one
+                    {
+                        requestSensorFrame = false;
+                    }
+                    else        // else put the thread to sleep and continue
+                    {
+                        //Thread.Sleep((int)nud_updateRate.Value);
+                        //continue;
+                    }
+                }
                 sendUpdateCommand();
                 Thread.Sleep((int)nud_updateRate.Value);
                 sendGetFrameCommand((byte)nud_SelectedImu.Value);
@@ -140,12 +166,12 @@ namespace PacketTester
                 if(receivedPacket)
                 {
                     updateChart(sensorframe);
+                    updateTable(sensorframe);
                     if (saveSensorDataToFile)
                     {
                         saveSensorFrameToFile(sensorframe,ref outputFile);
                     }
                 }
-
             }
             if(saveSensorDataToFile)
             {
@@ -442,14 +468,52 @@ namespace PacketTester
             return strBuilder.ToString();
 
         }
+
+        private void updateTable(ImuFrame frame)
+        {
+            switch (selectedDataType)
+            {
+                case 0:
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData1.Text = frame.Quaternion_x.ToString(); ; });
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData2.Text = frame.Quaternion_y.ToString(); ; });
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData3.Text = frame.Quaternion_z.ToString(); ; });
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData4.Text = frame.Quaternion_w.ToString(); ; });
+                    break;
+                case 1:
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData1.Text = frame.Magnetic_x.ToString(); ; });
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData2.Text = frame.Magnetic_y.ToString(); ; });
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData3.Text = frame.Magnetic_z.ToString(); ; });
+                    break;
+                case 2:
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData1.Text = frame.Acceleration_x.ToString(); ; });
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData2.Text = frame.Acceleration_y.ToString(); ; });
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData3.Text = frame.Acceleration_z.ToString(); ; });
+                    break;
+                case 3:
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData1.Text = frame.Rotation_x.ToString(); ; });
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData2.Text = frame.Rotation_y.ToString(); ; });
+                    this.BeginInvoke((MethodInvoker)delegate () { lbl_valueData3.Text = frame.Rotation_z.ToString(); ; });
+                    break;
+                default:
+                break;
+            }
+        }
+
         private void updateChart(ImuFrame frame)
         {
             if(selectedDataType == 0 ) //Quaternions
             {
-                this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qx"].Points.AddY((double)frame.Quaternion_x)));
-                this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qy"].Points.AddY((double)frame.Quaternion_y)));
-                this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qz"].Points.AddY((double)frame.Quaternion_z)));
-                this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qw"].Points.AddY((double)frame.Quaternion_w)));
+                try
+                {
+                    this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qx"].Points.AddY((double)frame.Quaternion_x)));
+                    this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qy"].Points.AddY((double)frame.Quaternion_y)));
+                    this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qz"].Points.AddY((double)frame.Quaternion_z)));
+                    this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qw"].Points.AddY((double)frame.Quaternion_w)));
+                }
+                catch (OverflowException)
+                {
+                    tb_Console.AppendText("Overflow exception caused here.\r\n");
+                }
             }
             else if(selectedDataType == 1) //Magnetic
             {
@@ -581,6 +645,7 @@ namespace PacketTester
         {
             cb_serialPorts.Items.AddRange(SerialPort.GetPortNames());
             cb_forwardPorts.Items.AddRange(SerialPort.GetPortNames());
+            cb_robotPort.Items.AddRange(SerialPort.GetPortNames());
             string[] baudrates = { "110", "150", "300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"
                     , "460800","500000", "921600","1000000"};
             cb_BaudRate.Items.AddRange(baudrates);
@@ -607,6 +672,11 @@ namespace PacketTester
             cb_dataType.Items.AddRange(dataTypes);
             cb_dataType.SelectedIndex = 0;
 
+            this.cb_robotPort.SelectedItem = this.cb_robotPort.Items[0];
+            robotArmQueue = new ConcurrentQueue<String>();
+            processRobotArmQueueEnabled = true;
+            Thread robotArmDataThread = new Thread(robotArmThread);
+            robotArmDataThread.Start();
         }
 
         private void bnt_Connect_Click(object sender, EventArgs e)
@@ -811,8 +881,6 @@ namespace PacketTester
 
         private void cb_enableStream_CheckedChanged(object sender, EventArgs e)
         {
-
-
             if (cb_enableStream.Checked)
             {
                 if (cb_saveSensorData.Checked)
@@ -840,6 +908,7 @@ namespace PacketTester
             }
             else
             {
+                chb_arm_EnableTracing.Checked = false;
                 streamDataToChartEnabled = false;
             }
         }
@@ -1142,6 +1211,488 @@ namespace PacketTester
         }
 
         private void cb_saveSensorData_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cb_serialPorts_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cb_robotPort_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            cb_serialPorts.Items.AddRange(SerialPort.GetPortNames());
+            cb_forwardPorts.Items.AddRange(SerialPort.GetPortNames());
+            cb_robotPort.Items.AddRange(SerialPort.GetPortNames());
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void sfd_saveFileDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
+        }
+
+        private void btn_arm_startStreaming_Click(object sender, EventArgs e)
+        {
+            if (bgw_uarmFileWorker.IsBusy)      // don't send file if the backgound worker is busy
+            {
+                tb_Console.AppendText("Cannot send file, worker busy\r\n");
+                return;
+            }
+            if (File.Exists(textBox1.Text) == true)     // only start streaming if the file exists
+            {
+                label7.Text = 0.ToString();     // reset the loop executed count
+                if (robotArmPort.IsOpen)
+                {
+                    // stream again, don't open the port
+                    btn_arm_startStreaming.BackColor = System.Drawing.Color.Tomato;
+                    bgw_uarmFileWorker.RunWorkerAsync(ofd_openUarmFile.FileName);
+                    return;
+                }
+                else
+                {
+                    tb_Console.AppendText("Cannot send file, Com port closed\r\n");
+                }
+            }
+            else
+            {
+                tb_Console.AppendText("Invalid U-Arm file location\r\n");
+                return;
+            }
+        }
+
+        private void textBox1_Click(object sender, EventArgs e)
+        {
+            textBox1.SelectAll();
+        }
+
+        private void btn_arm_browseFile_Click(object sender, EventArgs e)
+        {
+            ofd_openUarmFile.Filter = "comma seperated values(*.csv)|*.csv|Brain pack data(*.dat)|*.dat|All files (*.*)|*.*";
+            ofd_openUarmFile.FilterIndex = 3;
+            ofd_openUarmFile.RestoreDirectory = true;
+
+            if (ofd_openUarmFile.ShowDialog() == DialogResult.OK)
+            {
+                textBox1.Text = ofd_openUarmFile.FileName;      // copy the file name the text box
+            }
+        }
+
+        private DataTable convertToCsv(string fileName)
+        {
+            try
+            {
+                return CSVDataAdapter.Fill(fileName, false);
+            }
+            catch
+            {
+                tb_Console.AppendText("Exception occured in converting U-Arm file.\r\n");
+                return null;
+            }
+        }
+        
+        private void bgw_uarmFileWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            string fileName = (string) e.Argument;      // get the filename
+            string text = null;
+
+            if (fileName.EndsWith(".dat") || fileName.EndsWith(".txt") || fileName.EndsWith(".csv"))    // only move forward if the file has either of these extensions.
+            {
+                uarmTable = convertToCsv(fileName); // convert to datatable.
+                if (uarmTable == null)
+                {
+                    this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Failed to load the file\r\n")));
+                    return;
+                }
+                this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Loaded " + uarmTable.Rows.Count.ToString() + " Rows \r\n")));
+                this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("From File: " + ofd_openUarmFile.FileName + " \r\n")));
+
+                for (int count = 0; count < (int)uarmStreamLoopCount;)
+                {
+                    for (int i = 1; i < uarmTable.Rows.Count; i++)
+                    {
+                        text = "";
+                        for (int column = 0; column < uarmTable.Columns.Count; column++)
+                        {
+                            text += uarmTable.Rows[i][column].ToString();
+                            if (column == (uarmTable.Columns.Count - 1))
+                            {
+                                text += "\r\n";
+                            }
+                            else
+                            {
+                                text += ",";
+                            }
+                        }
+                        
+                        if (robotArmPort.IsOpen)
+                        {
+                            robotArmPort.Write(text);
+                        }
+
+                        if (bgw_uarmFileWorker.CancellationPending)
+                        {
+                            return;
+                        }
+
+                        Thread.Sleep((int)(10*uarmStreamLineDelay));     // specified delay after every line
+                    }
+                    count++;
+                    if (this.label7.InvokeRequired)
+                    {
+                        this.label7.BeginInvoke((MethodInvoker)delegate () {this.label7.Text = count.ToString(); ;});
+                    }
+                    requestSensorFrame = true;
+                    
+                }
+                return;
+            }
+            else
+            {
+                this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Invalid U-Arm source file\r\n")));
+                return;
+            }
+        }
+
+        private void bgw_uarmFileWorker_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+
+        }
+
+        private void bgw_uarmFileWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            btn_arm_startStreaming.BackColor = System.Drawing.Color.LightGreen;
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void trackBar1_ValueChanged(object sender, EventArgs e)
+        {
+            label6.Text = trackBar1.Value.ToString();
+        }
+
+        private void countDelaySel_ValueMemberChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void countDelaySel_TextChanged(object sender, EventArgs e)
+        {
+            if (countDelaySel.SelectedIndex == 0)       // Loop count
+            {
+                label6.Text = uarmStreamLoopCount.ToString();
+                trackBar1.Value = (int)uarmStreamLoopCount;
+            }
+            else if (countDelaySel.SelectedIndex == 1)  // Line Delay
+            {
+                label6.Text = uarmStreamLineDelay.ToString();
+                trackBar1.Value = (int)uarmStreamLineDelay;
+            }
+        }
+
+        private void btn_arm_stopStreaming_Click(object sender, EventArgs e)
+        {
+            btn_arm_startStreaming.BackColor = System.Drawing.Color.LightGreen;
+            tb_Console.AppendText("File streaming to U-Arm stopped.\r\n");
+            if (bgw_uarmFileWorker.IsBusy)
+            {
+                bgw_uarmFileWorker.CancelAsync();      // cancel the background worker.
+            }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void checkBox1_MouseEnter(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void trackBar1_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (countDelaySel.SelectedIndex == 0)       // Loop count
+            {
+                if ((UInt16)trackBar1.Value > 0)
+                {
+                    uarmStreamLoopCount = (UInt16)trackBar1.Value;
+                    label6.Text = uarmStreamLoopCount.ToString();
+                }
+                else
+                {
+                    trackBar1.Value = (int)uarmStreamLoopCount;
+                    label6.Text = uarmStreamLoopCount.ToString();
+                }
+            }
+            else if (countDelaySel.SelectedIndex == 1)  // Line Delay
+            {
+                if (trackBar1.Value <= 20)
+                {
+                    DialogResult result;
+                    result = MessageBox.Show("Having line delay less than 20ms can cause robot behave randomly. Continue?", "Caution", MessageBoxButtons.YesNo);
+                    if (result == System.Windows.Forms.DialogResult.No)
+                    {
+                        uarmStreamLineDelay = 21;
+                        trackBar1.Value = (int)uarmStreamLineDelay;
+                        label6.Text = uarmStreamLineDelay.ToString();
+                        return;
+                    }
+                }
+                uarmStreamLineDelay = (UInt32)trackBar1.Value;
+                label6.Text = uarmStreamLineDelay.ToString();
+            }
+        }
+
+        private void chb_arm_EnableTracing_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chb_arm_EnableTracing.Checked)
+            {
+                if (!cb_enableStream.Checked)
+                {
+                    MessageBox.Show("Stream from 'Debug RS485 sensor' tab needs to be checked first.");
+                    chb_arm_EnableTracing.Checked = false;
+                }
+            }
+        }
+
+        private void robotArmPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            while (robotArmPort.BytesToRead > 0)
+            {
+                int receivedByte = robotArmPort.ReadByte();
+                if (receivedByte != -1)
+                {
+                    //process the byte
+                    char newByte = (char)receivedByte;
+                    robotArmInputStream += newByte.ToString();
+                    if (newByte == '\n')
+                    {
+                        robotArmQueue.Enqueue((String)robotArmInputStream);
+                        robotArmInputStream = "";
+                    }
+                }
+            }
+        }
+
+        public void robotArmThread()
+        {
+            String inputStr;
+
+            while (processRobotArmQueueEnabled)
+            {
+                if (robotArmQueue.Count > 0)
+                {
+                    if (robotArmQueue.TryDequeue(out inputStr))
+                    {
+                        if (enableArmRecording)
+                        {
+                            // Save the incoming Data
+                            if (inputStr.StartsWith("Reading: "))       // save
+                            {
+                                saveArmAnglesData(inputStr.ToString());
+                            }
+                            else if (inputStr.Contains("End of Recording"))
+                            {
+                                this.btn_arm_recMovement.BeginInvoke((MethodInvoker)delegate () { btn_arm_recMovement.BackColor = System.Drawing.Color.Transparent; ; });
+                                this.BeginInvoke((MethodInvoker)delegate () { toggleRecButton = false; ; });
+                                this.BeginInvoke((MethodInvoker)(() => closeRobotArmOutFile()));
+                                //closeRobotArmOutFile();
+                                enableArmRecording = false;
+                            }
+                            this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Arm msg: " + inputStr.ToString())));
+                        }
+                        else
+                        {
+                            //Display on Console
+                            this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Arm msg: " + inputStr.ToString())));
+                        }
+                    }
+                }
+            }
+        }
+
+        private byte[] GetBytes(string str)
+        {
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
+        }
+
+        private void saveArmAnglesData(String str)
+        {
+                if (enableArmRecording)
+                {
+                    if (robotArmOutFileIsOpen)
+                    {
+                        if (robotArmOutFile.CanWrite)
+                        {
+                            str = str.Remove(0, 9);
+                            robotArmOutFile.Write(ASCIIEncoding.ASCII.GetBytes(str), (int)0, (int)(str.Length));
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            debugMessageQueue.Enqueue(String.Format("Openning file: {0}\r\n", textBox1.Text));
+                            robotArmOutFile = File.Open(textBox1.Text, FileMode.Create);    // open file.
+                            str = str.Remove(0, 9);
+                            robotArmOutFile.Write(ASCIIEncoding.ASCII.GetBytes(str), (int)0, (int)(str.Length));    // save the received data
+                            robotArmOutFileIsOpen = true;
+                        }
+                        catch
+                        {
+                            debugMessageQueue.Enqueue(String.Format("Failed to create file: {0}\r\n", textBox1.Text));
+                            return;
+                        }
+                    }
+                }
+        }
+
+        private void closeRobotArmOutFile()
+        {
+            if (robotArmOutFileIsOpen)
+            {
+                robotArmOutFile.Close();
+                robotArmOutFile = null;
+                robotArmOutFileIsOpen = false;
+            }
+        }
+
+        private void btn_arm_togglePort_Click(object sender, EventArgs e)
+        {
+            if (!togglePortButton)
+            {
+                robotArmPort.PortName = cb_robotPort.Items[cb_robotPort.SelectedIndex].ToString();
+                robotArmPort.BaudRate = 115200;
+                try
+                {
+                    openRobotArmPort = true;
+                    robotArmPort.Open();
+
+                    tb_Console.AppendText("Port: " + robotArmPort.PortName + " Open\r\n");
+                    btn_arm_togglePort.Text = "Close";
+                    togglePortButton = !togglePortButton;
+                }
+                catch (Exception ex)
+                {
+                    tb_Console.AppendText("Failed to open Port: " + serialPort.PortName + " \r\n");
+                    tb_Console.AppendText("Exception " + ex.Message + " \r\n");
+                    openRobotArmPort = false;
+                }
+            }
+            else
+            {
+                    try
+                    {
+                        robotArmPort.Close();
+                        openRobotArmPort = false;
+                        tb_Console.AppendText("Port: " + robotArmPort.PortName + " Closed\r\n");
+                        btn_arm_togglePort.Text = "Open";
+                        togglePortButton = !togglePortButton;
+                        chb_arm_easeMovement.Checked = false;
+                    }
+                    catch
+                    {
+                        tb_Console.AppendText("Failed to close Port: " + robotArmPort.PortName + "\r\n");
+                    }
+            }
+        }
+
+        private void btn_arm_recMovement_Click(object sender, EventArgs e)
+        {
+            if (!toggleRecButton)       // Start recording (false)
+            {
+                if (robotArmWarningEnable)
+                {
+                    DialogResult result;
+                    result = MessageBox.Show("It will save data to the file specified in the address. Press Yes to continue, No to enter new Address, Cancel to stop displaying this message",
+                                                "Caution", MessageBoxButtons.YesNoCancel);
+                    if (result == System.Windows.Forms.DialogResult.No)
+                    {
+                        return;
+                    }
+                    else if (result == System.Windows.Forms.DialogResult.Cancel)
+                    {
+                        robotArmWarningEnable = false;
+                    }
+                }
+                if (File.Exists(textBox1.Text))
+                {
+                    if (robotArmPort.IsOpen)
+                    {
+                        robotArmPort.Write("Rec\r");
+                        btn_arm_recMovement.BackColor = System.Drawing.Color.Tomato;
+                        enableArmRecording = true;
+                        toggleRecButton = !toggleRecButton;
+                    }
+                }
+                else
+                {
+                    tb_Console.AppendText("Invalid file address");
+                    return;
+                }
+            }
+            else        // stop recording (true)
+            {
+                if (robotArmPort.IsOpen)
+                {
+                    robotArmPort.Write("End\r");
+                }
+                btn_arm_recMovement.BackColor = System.Drawing.Color.Transparent;
+                //enableArmRecording = false;
+                toggleRecButton = !toggleRecButton;
+            }
+        }
+
+        private void btb_arm_playRecording_Click(object sender, EventArgs e)
+        {
+            if (robotArmPort.IsOpen)
+            {
+                robotArmPort.Write("Play\r");
+            }
+        }
+
+        private void chb_arm_easeMovement_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chb_arm_easeMovement.Checked)
+            {
+                if (robotArmPort.IsOpen)
+                {
+                    robotArmPort.Write("EaseEn\r");
+                    tb_Console.AppendText("Arm movement easing enabled.\r\n");
+                }
+            }
+            else
+            {
+                if (robotArmPort.IsOpen)
+                {
+                    robotArmPort.Write("EaseDis\r");
+                    tb_Console.AppendText("Arm movement easing disabled.\r\n");
+                }
+            }
+        }
+
+        private void btb_arm_playRecording_MouseEnter(object sender, EventArgs e)
         {
 
         }

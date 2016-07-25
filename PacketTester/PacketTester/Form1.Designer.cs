@@ -1,4 +1,7 @@
-﻿namespace PacketTester
+﻿using System;
+using System.ComponentModel;
+
+namespace PacketTester
 {
     partial class mainForm
     {
@@ -86,6 +89,41 @@
             this.cb_forwardPorts = new System.Windows.Forms.ComboBox();
             this.btn_startStream = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btb_arm_playRecording = new System.Windows.Forms.Button();
+            this.btn_arm_recMovement = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btn_arm_startStreaming = new System.Windows.Forms.Button();
+            this.btn_arm_stopStreaming = new System.Windows.Forms.Button();
+            this.splitter1 = new System.Windows.Forms.Splitter();
+            this.btn_arm_togglePort = new System.Windows.Forms.Button();
+            this.chb_arm_EnableTracing = new System.Windows.Forms.CheckBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.countDelaySel = new System.Windows.Forms.ComboBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this.btn_arm_browseFile = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.cb_robotPort = new System.Windows.Forms.ComboBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.robotArmPort = new System.IO.Ports.SerialPort(this.components);
+            this.bgw_uarmFileWorker = new System.ComponentModel.BackgroundWorker();
+            this.ofd_openUarmFile = new System.Windows.Forms.OpenFileDialog();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.lbl_data1 = new System.Windows.Forms.Label();
+            this.lbl_data2 = new System.Windows.Forms.Label();
+            this.lbl_data3 = new System.Windows.Forms.Label();
+            this.lbl_data4 = new System.Windows.Forms.Label();
+            this.lbl_valueData1 = new System.Windows.Forms.Label();
+            this.lbl_valueData2 = new System.Windows.Forms.Label();
+            this.lbl_valueData3 = new System.Windows.Forms.Label();
+            this.lbl_valueData4 = new System.Windows.Forms.Label();
+            this.chb_arm_easeMovement = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -96,6 +134,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.nud_SelectedImu)).BeginInit();
             this.tabPage1.SuspendLayout();
             this.tabControl1.SuspendLayout();
+            this.tabPage4.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_disconnect
@@ -135,6 +177,7 @@
             this.cb_serialPorts.Name = "cb_serialPorts";
             this.cb_serialPorts.Size = new System.Drawing.Size(161, 21);
             this.cb_serialPorts.TabIndex = 16;
+            this.cb_serialPorts.SelectedIndexChanged += new System.EventHandler(this.cb_serialPorts_SelectedIndexChanged);
             // 
             // serialPort
             // 
@@ -261,6 +304,7 @@
             // sfd_saveFileDialog
             // 
             this.sfd_saveFileDialog.Filter = "Comma Separated Files (*.csv)|*.csv|All Files (*.*)|*.*";
+            this.sfd_saveFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.sfd_saveFileDialog_FileOk);
             // 
             // tabPage3
             // 
@@ -599,6 +643,7 @@
             this.cb_fpBaudRate.Name = "cb_fpBaudRate";
             this.cb_fpBaudRate.Size = new System.Drawing.Size(156, 21);
             this.cb_fpBaudRate.TabIndex = 50;
+            this.cb_fpBaudRate.Text = "Baudrate";
             this.cb_fpBaudRate.SelectedIndexChanged += new System.EventHandler(this.cb_fpBaudRate_SelectedIndexChanged);
             // 
             // label2
@@ -673,17 +718,387 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Location = new System.Drawing.Point(12, 368);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(476, 255);
             this.tabControl1.TabIndex = 46;
             // 
+            // tabPage4
+            // 
+            this.tabPage4.Controls.Add(this.groupBox2);
+            this.tabPage4.Controls.Add(this.groupBox1);
+            this.tabPage4.Controls.Add(this.splitter1);
+            this.tabPage4.Controls.Add(this.btn_arm_togglePort);
+            this.tabPage4.Controls.Add(this.chb_arm_EnableTracing);
+            this.tabPage4.Controls.Add(this.label7);
+            this.tabPage4.Controls.Add(this.label5);
+            this.tabPage4.Controls.Add(this.countDelaySel);
+            this.tabPage4.Controls.Add(this.label6);
+            this.tabPage4.Controls.Add(this.trackBar1);
+            this.tabPage4.Controls.Add(this.btn_arm_browseFile);
+            this.tabPage4.Controls.Add(this.label4);
+            this.tabPage4.Controls.Add(this.label3);
+            this.tabPage4.Controls.Add(this.label1);
+            this.tabPage4.Controls.Add(this.textBox1);
+            this.tabPage4.Controls.Add(this.cb_robotPort);
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Size = new System.Drawing.Size(468, 229);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "Robot Arm Control";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.btb_arm_playRecording);
+            this.groupBox2.Controls.Add(this.btn_arm_recMovement);
+            this.groupBox2.Location = new System.Drawing.Point(248, 65);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(86, 80);
+            this.groupBox2.TabIndex = 57;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Record";
+            // 
+            // btb_arm_playRecording
+            // 
+            this.btb_arm_playRecording.Location = new System.Drawing.Point(6, 48);
+            this.btb_arm_playRecording.Name = "btb_arm_playRecording";
+            this.btb_arm_playRecording.Size = new System.Drawing.Size(75, 23);
+            this.btb_arm_playRecording.TabIndex = 18;
+            this.btb_arm_playRecording.Text = "Play";
+            this.btb_arm_playRecording.UseVisualStyleBackColor = true;
+            this.toolTip1.SetToolTip(this.btb_arm_playRecording, "Playback recording from Robot's internal memory\r\n");
+            this.btb_arm_playRecording.Click += new System.EventHandler(this.btb_arm_playRecording_Click);
+            this.btb_arm_playRecording.MouseEnter += new System.EventHandler(this.btb_arm_playRecording_MouseEnter);
+            // 
+            // btn_arm_recMovement
+            // 
+            this.btn_arm_recMovement.Location = new System.Drawing.Point(6, 19);
+            this.btn_arm_recMovement.Name = "btn_arm_recMovement";
+            this.btn_arm_recMovement.Size = new System.Drawing.Size(75, 23);
+            this.btn_arm_recMovement.TabIndex = 17;
+            this.btn_arm_recMovement.Text = "Rec";
+            this.btn_arm_recMovement.UseVisualStyleBackColor = true;
+            this.btn_arm_recMovement.Click += new System.EventHandler(this.btn_arm_recMovement_Click);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.chb_arm_easeMovement);
+            this.groupBox1.Controls.Add(this.btn_arm_startStreaming);
+            this.groupBox1.Controls.Add(this.btn_arm_stopStreaming);
+            this.groupBox1.Location = new System.Drawing.Point(340, 65);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(125, 107);
+            this.groupBox1.TabIndex = 56;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Stream";
+            // 
+            // btn_arm_startStreaming
+            // 
+            this.btn_arm_startStreaming.BackColor = System.Drawing.Color.LightGreen;
+            this.btn_arm_startStreaming.Location = new System.Drawing.Point(12, 19);
+            this.btn_arm_startStreaming.Name = "btn_arm_startStreaming";
+            this.btn_arm_startStreaming.Size = new System.Drawing.Size(90, 23);
+            this.btn_arm_startStreaming.TabIndex = 4;
+            this.btn_arm_startStreaming.Text = "Start movement";
+            this.btn_arm_startStreaming.UseVisualStyleBackColor = false;
+            this.btn_arm_startStreaming.Click += new System.EventHandler(this.btn_arm_startStreaming_Click);
+            // 
+            // btn_arm_stopStreaming
+            // 
+            this.btn_arm_stopStreaming.Location = new System.Drawing.Point(12, 45);
+            this.btn_arm_stopStreaming.Name = "btn_arm_stopStreaming";
+            this.btn_arm_stopStreaming.Size = new System.Drawing.Size(94, 23);
+            this.btn_arm_stopStreaming.TabIndex = 12;
+            this.btn_arm_stopStreaming.Text = "Stop movement";
+            this.btn_arm_stopStreaming.UseVisualStyleBackColor = true;
+            this.btn_arm_stopStreaming.Click += new System.EventHandler(this.btn_arm_stopStreaming_Click);
+            // 
+            // splitter1
+            // 
+            this.splitter1.Location = new System.Drawing.Point(0, 0);
+            this.splitter1.Name = "splitter1";
+            this.splitter1.Size = new System.Drawing.Size(3, 229);
+            this.splitter1.TabIndex = 18;
+            this.splitter1.TabStop = false;
+            // 
+            // btn_arm_togglePort
+            // 
+            this.btn_arm_togglePort.Location = new System.Drawing.Point(136, 91);
+            this.btn_arm_togglePort.Name = "btn_arm_togglePort";
+            this.btn_arm_togglePort.Size = new System.Drawing.Size(75, 23);
+            this.btn_arm_togglePort.TabIndex = 16;
+            this.btn_arm_togglePort.Text = "Open";
+            this.btn_arm_togglePort.UseVisualStyleBackColor = true;
+            this.btn_arm_togglePort.Click += new System.EventHandler(this.btn_arm_togglePort_Click);
+            // 
+            // chb_arm_EnableTracing
+            // 
+            this.chb_arm_EnableTracing.AutoSize = true;
+            this.chb_arm_EnableTracing.Location = new System.Drawing.Point(306, 4);
+            this.chb_arm_EnableTracing.Name = "chb_arm_EnableTracing";
+            this.chb_arm_EnableTracing.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.chb_arm_EnableTracing.Size = new System.Drawing.Size(144, 17);
+            this.chb_arm_EnableTracing.TabIndex = 15;
+            this.chb_arm_EnableTracing.Text = "Enable Precision Tracing";
+            this.toolTip1.SetToolTip(this.chb_arm_EnableTracing, "Checks sensor repeatability.\r\n");
+            this.chb_arm_EnableTracing.UseVisualStyleBackColor = true;
+            this.chb_arm_EnableTracing.CheckedChanged += new System.EventHandler(this.chb_arm_EnableTracing_CheckedChanged);
+            this.chb_arm_EnableTracing.MouseEnter += new System.EventHandler(this.checkBox1_MouseEnter);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(322, 159);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(13, 13);
+            this.label7.TabIndex = 14;
+            this.label7.Text = "0";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(225, 159);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(90, 13);
+            this.label5.TabIndex = 13;
+            this.label5.Text = "Loops Executed: ";
+            // 
+            // countDelaySel
+            // 
+            this.countDelaySel.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Append;
+            this.countDelaySel.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+            this.countDelaySel.FormattingEnabled = true;
+            this.countDelaySel.Items.AddRange(new object[] {
+            "Loop Count",
+            "Line Delay"});
+            this.countDelaySel.Location = new System.Drawing.Point(21, 159);
+            this.countDelaySel.Name = "countDelaySel";
+            this.countDelaySel.Size = new System.Drawing.Size(95, 21);
+            this.countDelaySel.TabIndex = 11;
+            this.countDelaySel.Text = "Count / Delay";
+            this.countDelaySel.ValueMemberChanged += new System.EventHandler(this.countDelaySel_ValueMemberChanged);
+            this.countDelaySel.TextChanged += new System.EventHandler(this.countDelaySel_TextChanged);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(145, 159);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(13, 13);
+            this.label6.TabIndex = 10;
+            this.label6.Text = "0";
+            // 
+            // trackBar1
+            // 
+            this.trackBar1.Location = new System.Drawing.Point(21, 181);
+            this.trackBar1.Maximum = 100;
+            this.trackBar1.Name = "trackBar1";
+            this.trackBar1.Size = new System.Drawing.Size(414, 45);
+            this.trackBar1.TabIndex = 8;
+            this.trackBar1.ValueChanged += new System.EventHandler(this.trackBar1_ValueChanged);
+            this.trackBar1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.trackBar1_MouseUp);
+            // 
+            // btn_arm_browseFile
+            // 
+            this.btn_arm_browseFile.Location = new System.Drawing.Point(306, 27);
+            this.btn_arm_browseFile.Name = "btn_arm_browseFile";
+            this.btn_arm_browseFile.Size = new System.Drawing.Size(75, 23);
+            this.btn_arm_browseFile.TabIndex = 7;
+            this.btn_arm_browseFile.Text = "Browse";
+            this.btn_arm_browseFile.UseVisualStyleBackColor = true;
+            this.btn_arm_browseFile.Click += new System.EventHandler(this.btn_arm_browseFile_Click);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(9, 115);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(134, 13);
+            this.label4.TabIndex = 6;
+            this.label4.Text = "Baudrate is always 115200";
+            this.label4.Click += new System.EventHandler(this.label4_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(9, 75);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(85, 13);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "Output Com Port";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 4);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(124, 13);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "Plotter movement source";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(9, 20);
+            this.textBox1.Multiline = true;
+            this.textBox1.Name = "textBox1";
+            this.textBox1.ReadOnly = true;
+            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+            this.textBox1.Size = new System.Drawing.Size(291, 34);
+            this.textBox1.TabIndex = 2;
+            this.textBox1.Text = "File Address";
+            this.textBox1.WordWrap = false;
+            this.textBox1.Click += new System.EventHandler(this.textBox1_Click);
+            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            // 
+            // cb_robotPort
+            // 
+            this.cb_robotPort.FormattingEnabled = true;
+            this.cb_robotPort.Location = new System.Drawing.Point(9, 91);
+            this.cb_robotPort.MaxDropDownItems = 100;
+            this.cb_robotPort.Name = "cb_robotPort";
+            this.cb_robotPort.Size = new System.Drawing.Size(121, 21);
+            this.cb_robotPort.TabIndex = 1;
+            this.cb_robotPort.SelectedIndexChanged += new System.EventHandler(this.cb_robotPort_SelectedIndexChanged);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(368, 255);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(126, 23);
+            this.button1.TabIndex = 47;
+            this.button1.Text = "Rescan Com Ports";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // robotArmPort
+            // 
+            this.robotArmPort.BaudRate = 115200;
+            this.robotArmPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.robotArmPort_DataReceived);
+            // 
+            // bgw_uarmFileWorker
+            // 
+            this.bgw_uarmFileWorker.WorkerReportsProgress = true;
+            this.bgw_uarmFileWorker.WorkerSupportsCancellation = true;
+            this.bgw_uarmFileWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgw_uarmFileWorker_DoWork);
+            this.bgw_uarmFileWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgw_uarmFileWorker_ProgressChanged);
+            this.bgw_uarmFileWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgw_uarmFileWorker_RunWorkerCompleted);
+            // 
+            // ofd_openUarmFile
+            // 
+            this.ofd_openUarmFile.FileName = "openFileDialog1";
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.AutoPopDelay = 5000;
+            this.toolTip1.InitialDelay = 10;
+            this.toolTip1.ReshowDelay = 100;
+            // 
+            // lbl_data1
+            // 
+            this.lbl_data1.AutoSize = true;
+            this.lbl_data1.Location = new System.Drawing.Point(800, 435);
+            this.lbl_data1.Name = "lbl_data1";
+            this.lbl_data1.Size = new System.Drawing.Size(42, 13);
+            this.lbl_data1.TabIndex = 48;
+            this.lbl_data1.Text = "Data 1:";
+            // 
+            // lbl_data2
+            // 
+            this.lbl_data2.AutoSize = true;
+            this.lbl_data2.Location = new System.Drawing.Point(800, 465);
+            this.lbl_data2.Name = "lbl_data2";
+            this.lbl_data2.Size = new System.Drawing.Size(42, 13);
+            this.lbl_data2.TabIndex = 49;
+            this.lbl_data2.Text = "Data 2:";
+            // 
+            // lbl_data3
+            // 
+            this.lbl_data3.AutoSize = true;
+            this.lbl_data3.Location = new System.Drawing.Point(800, 493);
+            this.lbl_data3.Name = "lbl_data3";
+            this.lbl_data3.Size = new System.Drawing.Size(42, 13);
+            this.lbl_data3.TabIndex = 50;
+            this.lbl_data3.Text = "Data 3:";
+            // 
+            // lbl_data4
+            // 
+            this.lbl_data4.AutoSize = true;
+            this.lbl_data4.Location = new System.Drawing.Point(800, 522);
+            this.lbl_data4.Name = "lbl_data4";
+            this.lbl_data4.Size = new System.Drawing.Size(42, 13);
+            this.lbl_data4.TabIndex = 51;
+            this.lbl_data4.Text = "Data 4:";
+            // 
+            // lbl_valueData1
+            // 
+            this.lbl_valueData1.AutoSize = true;
+            this.lbl_valueData1.Location = new System.Drawing.Point(849, 435);
+            this.lbl_valueData1.Name = "lbl_valueData1";
+            this.lbl_valueData1.Size = new System.Drawing.Size(13, 13);
+            this.lbl_valueData1.TabIndex = 52;
+            this.lbl_valueData1.Text = "0";
+            this.lbl_valueData1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lbl_valueData2
+            // 
+            this.lbl_valueData2.AutoSize = true;
+            this.lbl_valueData2.Location = new System.Drawing.Point(849, 465);
+            this.lbl_valueData2.Name = "lbl_valueData2";
+            this.lbl_valueData2.Size = new System.Drawing.Size(13, 13);
+            this.lbl_valueData2.TabIndex = 53;
+            this.lbl_valueData2.Text = "0";
+            this.lbl_valueData2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lbl_valueData3
+            // 
+            this.lbl_valueData3.AutoSize = true;
+            this.lbl_valueData3.Location = new System.Drawing.Point(848, 493);
+            this.lbl_valueData3.Name = "lbl_valueData3";
+            this.lbl_valueData3.Size = new System.Drawing.Size(13, 13);
+            this.lbl_valueData3.TabIndex = 54;
+            this.lbl_valueData3.Text = "0";
+            this.lbl_valueData3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lbl_valueData4
+            // 
+            this.lbl_valueData4.AutoSize = true;
+            this.lbl_valueData4.Location = new System.Drawing.Point(848, 522);
+            this.lbl_valueData4.Name = "lbl_valueData4";
+            this.lbl_valueData4.Size = new System.Drawing.Size(13, 13);
+            this.lbl_valueData4.TabIndex = 55;
+            this.lbl_valueData4.Text = "0";
+            this.lbl_valueData4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // chb_arm_easeMovement
+            // 
+            this.chb_arm_easeMovement.AutoSize = true;
+            this.chb_arm_easeMovement.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chb_arm_easeMovement.Location = new System.Drawing.Point(12, 74);
+            this.chb_arm_easeMovement.Name = "chb_arm_easeMovement";
+            this.chb_arm_easeMovement.Size = new System.Drawing.Size(102, 17);
+            this.chb_arm_easeMovement.TabIndex = 13;
+            this.chb_arm_easeMovement.Text = "Ease movement";
+            this.chb_arm_easeMovement.UseVisualStyleBackColor = true;
+            this.chb_arm_easeMovement.CheckedChanged += new System.EventHandler(this.chb_arm_easeMovement_CheckedChanged);
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1142, 635);
+            this.Controls.Add(this.lbl_valueData4);
+            this.Controls.Add(this.lbl_valueData3);
+            this.Controls.Add(this.lbl_valueData2);
+            this.Controls.Add(this.lbl_valueData1);
+            this.Controls.Add(this.lbl_data4);
+            this.Controls.Add(this.lbl_data3);
+            this.Controls.Add(this.lbl_data2);
+            this.Controls.Add(this.lbl_data1);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.btn_clearScreen);
             this.Controls.Add(this.chrt_dataChart);
@@ -714,6 +1129,12 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -772,6 +1193,41 @@
         private System.Windows.Forms.CheckBox cb_saveSensorData;
         private System.Windows.Forms.Label lb_updateRate;
         private System.Windows.Forms.NumericUpDown nud_updateRate;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.ComboBox cb_robotPort;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button btn_arm_startStreaming;
+        private System.IO.Ports.SerialPort robotArmPort;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.ComponentModel.BackgroundWorker bgw_uarmFileWorker;
+        private System.Windows.Forms.Button btn_arm_browseFile;
+        private System.Windows.Forms.OpenFileDialog ofd_openUarmFile;
+        private System.Windows.Forms.TrackBar trackBar1;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ComboBox countDelaySel;
+        private System.Windows.Forms.Button btn_arm_stopStreaming;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.CheckBox chb_arm_EnableTracing;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Label lbl_data1;
+        private System.Windows.Forms.Label lbl_data2;
+        private System.Windows.Forms.Label lbl_data3;
+        private System.Windows.Forms.Label lbl_data4;
+        private System.Windows.Forms.Label lbl_valueData1;
+        private System.Windows.Forms.Label lbl_valueData2;
+        private System.Windows.Forms.Label lbl_valueData3;
+        private System.Windows.Forms.Label lbl_valueData4;
+        private System.Windows.Forms.Button btn_arm_togglePort;
+        private System.Windows.Forms.Button btn_arm_recMovement;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Splitter splitter1;
+        private System.Windows.Forms.Button btb_arm_playRecording;
+        private System.Windows.Forms.CheckBox chb_arm_easeMovement;
     }
 }
 
