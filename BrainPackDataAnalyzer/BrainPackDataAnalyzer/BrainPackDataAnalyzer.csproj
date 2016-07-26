@@ -48,6 +48,9 @@
       <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\..\..\..\..\Protocol Buffers\Protobuf-net\Full\net30\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
@@ -68,6 +71,7 @@
   <ItemGroup>
     <Compile Include="CRC_Calculator.cs" />
     <Compile Include="CSVDataAdapter.cs" />
+    <Compile Include="heddokoPacket.cs" />
     <Compile Include="imu.cs" />
     <Compile Include="imuEntry.cs" />
     <Compile Include="mainForm.cs">
@@ -76,8 +80,14 @@
     <Compile Include="mainForm.Designer.cs">
       <DependentUpon>mainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\Device.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RawPacket.cs" />
+    <Compile Include="Services\IReceiverBluetoothService.cs" />
+    <Compile Include="Services\ISenderBluetoothService.cs" />
+    <Compile Include="Services\ReceiverBluetoothService.cs" />
+    <Compile Include="Services\SenderBluetoothService.cs" />
     <EmbeddedResource Include="mainForm.resx">
       <DependentUpon>mainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -106,10 +116,6 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\" />
-    <Folder Include="Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -80,7 +80,44 @@ namespace BrainPackDataAnalyzer
             this.entry.updateImuEntry(rawEntry);
             this.totalEntryCount++;
         }
-        
+
+        public void ProcessEntry(UInt32 timeStamp, heddoko.ImuDataFrame dataFrame)
+        {
+            if (this.lastEntryTime == 0)
+            {
+                this.lastEntryTime = timeStamp;
+            }
+            else
+            {
+                //calculate the new interval
+                this.interval = timeStamp - this.lastEntryTime;
+                if (this.intervalAverage.Count == numAverages)
+                {
+                    //dequeue the oldest value, and subtract it from
+                    //the running average sum
+                    this.intervalSum -= this.intervalAverage.Dequeue();
+                    //add the new value to the running average sum
+                    this.intervalSum += this.interval;
+                    this.averageInterval = intervalSum / numAverages;
+                    this.intervalAverage.Enqueue(this.interval);
+                }
+                else
+                {
+                    this.intervalSum += this.interval;
+                    this.intervalAverage.Enqueue(this.interval);
+                }
+
+                //update the last entry time. 
+                this.lastEntryTime = timeStamp;
+                if (this.interval > this.maxInterval)
+                {
+                    this.maxInterval = this.interval;
+                }
+
+            }
+            this.entry.updateImuEntry(dataFrame);
+            this.totalEntryCount++;
+        }
         public UInt32 GetMaxInterval()
         {
             return this.maxInterval;

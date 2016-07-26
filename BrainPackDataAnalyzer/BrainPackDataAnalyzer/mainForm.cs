@@ -11,6 +11,8 @@ using System.IO.Ports;
 using System.IO;
 using System.Threading;
 using System.Collections.Concurrent;
+using ProtoBuf;
+using heddoko;
 
 namespace BrainPackDataAnalyzer
 {
@@ -24,12 +26,33 @@ namespace BrainPackDataAnalyzer
         public ConcurrentQueue<string> incomingDataQueue; 
         public imu[] imuArray = new imu[9];
         private bool openSerialPort = false;
-        private bool processDataTheadEnabled = true; 
+        private bool processDataTheadEnabled = true;
+        private bool processDebugThreadEnabled = false;
+        public ConcurrentQueue<string> debugMessageQueue;
+        private bool processPacketQueueEnabled = false;
+        public ConcurrentQueue<RawPacket> packetQueue;
         public mainForm()
         {
             InitializeComponent();
         }
-
+        public void processDebugMessagesThread()
+        {
+            while (processDebugThreadEnabled)
+            {
+                string line;
+                if (debugMessageQueue.Count > 0)
+                {
+                    if (debugMessageQueue.TryDequeue(out line))
+                    {
+                        this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText(line)));
+                    }
+                }
+                else
+                {
+                    Thread.Sleep(100);
+                }
+            }
+        }
         public void ReadThread()
         {
             while (true)
@@ -61,6 +84,12 @@ namespace BrainPackDataAnalyzer
                                 }
                             }                            
                         }
+                        else if(line.Length == 14 && line.Contains("&"))
+                        {
+                            //process the quintic frame
+                            processImuEntry(line);
+
+                        }
                         else
                         {
                             this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText(line + "\r\n")));    
@@ -91,7 +120,7 @@ namespace BrainPackDataAnalyzer
                 {
                     if (incomingDataQueue.TryDequeue(out line))
                     {
-                        if (line.Length == 176)
+                        if (line.Length == 176 || line.Length == 175)
                         {
                             processEntry(line);
                             if (dataFile != null)
@@ -106,13 +135,152 @@ namespace BrainPackDataAnalyzer
                                 }
                             }
                         }
+                        else if (line.Length == 14 && line.Contains("&"))
+                        {
+                            //process the quintic frame
+                            processImuEntry(line);
+
+                        }
                         else
                         {
                             this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText(line + "\r\n")));
                         }
                     }
+                    else
+                    {
+                        Thread.Sleep(1);
+                    }
                 }                 
                 
+            }
+        }
+        private void processProtoPacket(Packet packet)
+        {
+            switch (packet.type)
+            {
+                case PacketType.BrainPackVersionResponse:
+                    if (packet.brainPackVersionSpecified)
+                    {
+                        debugMessageQueue.Enqueue("Received Version Response:" +
+                            packet.brainPackVersion + "\r\n");
+                    }
+                    else
+                    {
+                        debugMessageQueue.Enqueue("Error Version not found\r\n");
+                    }
+                    break;
+                case PacketType.BatteryChargeResponse:
+                    debugMessageQueue.Enqueue("Received Battery Charge Response:" +
+                        packet.batteryCharge.ToString() + "\r\n");
+                    break;
+                case PacketType.StateResponse:
+                    break;
+                case PacketType.DataFrame:
+                    if (packet.fullDataFrame != null)
+                    {
+                        //debugMessageQueue.Enqueue("Received Data Frame From Timestamp:" +
+                        //packet.fullDataFrame.timeStamp.ToString() + "\r\n");
+                        processFullDataFrame(packet.fullDataFrame);
+                    }
+                    break;
+            }
+
+        }
+        private void processFullDataFrame(FullDataFrame dataFrame)
+        {
+            try
+            {
+                int selectedImu = System.Convert.ToInt32(nud_SelectedImu.Value);
+                UInt32 timeStamp = dataFrame.timeStamp;
+                //UInt16 sensorMask = UInt16.Parse(entrySplit[1], System.Globalization.NumberStyles.HexNumber);
+                for (int i = 0; i < dataFrame.imuDataFrame.Count; i++)
+                {
+                    int sensorId = (int)dataFrame.imuDataFrame[i].imuId;
+                    //if the frame is valid for this sensor then process it. 
+                    if (sensorId < 9 && dataFrame.imuDataFrame[i].sensorMask != 0)
+                    {
+                        imuArray[dataFrame.imuDataFrame[i].imuId].ProcessEntry(timeStamp, dataFrame.imuDataFrame[i]);
+                        imuArray[i].EntryUpdated = true;
+                    }
+                    else
+                    {
+                        imuArray[i].EntryUpdated = false;
+                        continue;
+                    }                    
+
+                    //DataRow row = sensorStats.NewRow();
+                    sensorStats.Rows[sensorId]["Sensor ID"] = sensorId.ToString();
+                    sensorStats.Rows[sensorId]["Roll"] = imuArray[sensorId].GetCurrentEntry().Roll.ToString("F3") + convertToArrow(imuArray[sensorId].GetCurrentEntry().Roll);
+                    sensorStats.Rows[sensorId]["Pitch"] = imuArray[sensorId].GetCurrentEntry().Pitch.ToString("F3") + convertToArrow(imuArray[sensorId].GetCurrentEntry().Pitch);
+                    sensorStats.Rows[sensorId]["Yaw"] = imuArray[sensorId].GetCurrentEntry().Yaw.ToString("F3") + convertToArrow(imuArray[sensorId].GetCurrentEntry().Yaw);
+                    sensorStats.Rows[sensorId]["Frame Count"] = imuArray[sensorId].GetTotalEntryCount().ToString();
+                    sensorStats.Rows[sensorId]["Interval"] = imuArray[sensorId].GetLastInterval().ToString();
+                    sensorStats.Rows[sensorId]["Max Interval"] = imuArray[sensorId].GetMaxInterval().ToString();
+                    sensorStats.Rows[sensorId]["Average Interval"] = imuArray[sensorId].GetAverageInterval().ToString();
+
+                    if (selectedImu == sensorId)
+                    {
+                        this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Roll"].Points.AddY(imuArray[selectedImu].GetCurrentEntry().Roll)));
+                        this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Pitch"].Points.AddY(imuArray[selectedImu].GetCurrentEntry().Pitch)));
+                        this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Yaw"].Points.AddY(imuArray[selectedImu].GetCurrentEntry().Yaw)));
+
+                        if (chrt_dataChart.Series["Roll"].Points.Count > 150)
+                        {
+                            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Roll"].Points.RemoveAt(0)));
+                            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Pitch"].Points.RemoveAt(0)));
+                            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Yaw"].Points.RemoveAt(0)));
+                        }
+                    }
+
+
+                }
+            }
+            catch
+            {
+                //error
+            }
+        }
+
+        private void processPacket(RawPacket packet)
+        {
+            //check that the packet comes from an IMU sensor
+            if (packet.Payload[0] == 0x03)
+            {
+
+            }
+            else if (packet.Payload[0] == 0x04) //this is a protocol buffer file. 
+            {
+                Stream stream = new MemoryStream(packet.Payload, 1, packet.PayloadSize - 1);
+                try
+                {
+                    Packet protoPacket = Serializer.Deserialize<Packet>(stream);
+                    processProtoPacket(protoPacket);
+                }
+                catch
+                {
+                    debugMessageQueue.Enqueue("Failed to deserialize packet\r\n");
+                }
+
+            }
+
+        }
+
+        public void processPacketThread()
+        {
+            while (processPacketQueueEnabled)
+            {
+                RawPacket packet;
+                if (packetQueue.Count > 0)
+                {
+                    if (packetQueue.TryDequeue(out packet))
+                    {
+                        processPacket(packet);
+                    }
+                }
+                else
+                {
+                    Thread.Sleep(2);
+                }
             }
         }
         public string convertToArrow(double value)
@@ -169,7 +337,38 @@ namespace BrainPackDataAnalyzer
             }
             return retVal; 
         } 
-        
+        public void processImuEntry(string entry)
+        {
+            string formattedEntry = entry.Substring(2, 4) + ";" + entry.Substring(6, 4) + ";" + entry.Substring(10, 4);
+            int i = 0;
+            try
+            {
+                UInt32 timeStamp = 0;
+                imuArray[i].ProcessEntry(timeStamp, formattedEntry);
+                //DataRow row = sensorStats.NewRow();
+                sensorStats.Rows[i]["Sensor ID"] = i.ToString();
+                sensorStats.Rows[i]["Roll"] = imuArray[i].GetCurrentEntry().Roll.ToString("F3") + convertToArrow(imuArray[i].GetCurrentEntry().Roll);
+                sensorStats.Rows[i]["Pitch"] = imuArray[i].GetCurrentEntry().Pitch.ToString("F3") + convertToArrow(imuArray[i].GetCurrentEntry().Pitch);
+                sensorStats.Rows[i]["Yaw"] = imuArray[i].GetCurrentEntry().Yaw.ToString("F3") + convertToArrow(imuArray[i].GetCurrentEntry().Yaw);
+
+
+                this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Roll"].Points.AddY(imuArray[0].GetCurrentEntry().Roll)));
+                this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Pitch"].Points.AddY(imuArray[0].GetCurrentEntry().Pitch)));
+                this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Yaw"].Points.AddY(imuArray[0].GetCurrentEntry().Yaw)));
+
+                if (chrt_dataChart.Series["Roll"].Points.Count > 150)
+                {
+                    this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Roll"].Points.RemoveAt(0)));
+                    this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Pitch"].Points.RemoveAt(0)));
+                    this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Yaw"].Points.RemoveAt(0)));
+                }
+                    
+            }
+            catch
+            {
+                //error
+            }
+        }
         public void processEntry(string entry)
         {            
             string[] entrySplit = entry.Split(',');
@@ -276,7 +475,12 @@ namespace BrainPackDataAnalyzer
         private void mainForm_Load(object sender, EventArgs e)
         {
             cb_serialPorts.Items.AddRange(SerialPort.GetPortNames());
-            cb_serialPassT.Items.AddRange(SerialPort.GetPortNames()); 
+            cb_serialPassT.Items.AddRange(SerialPort.GetPortNames());
+            string[] baudrates = { "110", "150", "300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"
+                    , "460800","500000", "921600","1000000"};
+            cb_Baud.Items.AddRange(baudrates);
+            cb_Baud.SelectedIndex = 10;
+
             serialPort.NewLine = "\r\n";
             serialPortPassThrough.NewLine = "\r\n"; 
             //start read thread --> automatically put things in list box            
@@ -310,6 +514,17 @@ namespace BrainPackDataAnalyzer
             bindingSource1.DataSource = sensorStats;
             dgv_SensorStats.DataSource = bindingSource1; 
             dgv_SensorStats.Update();
+            //initialize the message queue
+            debugMessageQueue = new ConcurrentQueue<string>();
+            //start the debug message thread
+            processDebugThreadEnabled = true;
+            Thread debugMessageThread = new Thread(processDebugMessagesThread);
+            debugMessageThread.Start();
+
+            packetQueue = new ConcurrentQueue<RawPacket>();
+            processPacketQueueEnabled = true;
+            Thread packetProcessorThread = new Thread(processPacketThread);
+            packetProcessorThread.Start();
 
             //initialize queue
             incomingDataQueue = new ConcurrentQueue<string>();
@@ -332,17 +547,12 @@ namespace BrainPackDataAnalyzer
             this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Roll"].Points.Clear()));
             this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Pitch"].Points.Clear()));
             this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Yaw"].Points.Clear()));
-
             serialPort.PortName = cb_serialPorts.Text;
-
             try
             {
+                serialPort.BaudRate = int.Parse(cb_Baud.Text);
                 openSerialPort = true;
                 serialPort.Open();
-                //if (serialPort.IsOpen)
-                //{
-                //    serialThread.Start();
-                //}
                 tb_Console.AppendText("Port: " + serialPort.PortName + " Open\r\n");
             }
             catch(Exception ex)
@@ -590,30 +800,37 @@ namespace BrainPackDataAnalyzer
                 for (int i = 1; i < analysisData.Rows.Count; i++)
                 {
                     pb_processingProgress.Value = (i * 100) / analysisData.Rows.Count;
-                    Int32 val1 = Int32.Parse(analysisData.Rows[i][0].ToString());
-                    Int32 val2 = Int32.Parse(analysisData.Rows[i - 1][0].ToString());
-                    Int32 interval = val1 - val2;
-                    if (interval > maxTime)
+                    try
                     {
-                        maxTime = interval;
-                    }
-                    DataRow row = convertedData.NewRow();
-                    row[0] = (float)(val1 - startTime) / 1000; //convert to float
+                        Int32 val1 = Int32.Parse(analysisData.Rows[i][0].ToString());
+                        Int32 val2 = Int32.Parse(analysisData.Rows[i - 1][0].ToString());
+                        Int32 interval = val1 - val2;
+                        if (interval > maxTime)
+                        {
+                            maxTime = interval;
+                        }
+                        DataRow row = convertedData.NewRow();
+                        row[0] = (float)(val1 - startTime) / 1000; //convert to float
 
-                    for (int j = 1, k = 2; j < 18; j += 2, k++)
-                    {
-                        row[j + 1] = new ImuEntry(analysisData.Rows[i][k].ToString());
+                        for (int j = 1, k = 2; j < 18; j += 2, k++)
+                        {
+                            row[j + 1] = new ImuEntry(analysisData.Rows[i][k].ToString());
+                        }
+                        string[] fabSense = analysisData.Rows[i][11].ToString().Split(';');
+                        if (fabSense.Length == 5)
+                        {
+                            row["SS1"] = fabSense[0];
+                            row["SS2"] = fabSense[1];
+                            row["SS3"] = fabSense[2];
+                            row["SS4"] = fabSense[3];
+                            row["SS5"] = fabSense[4];
+                        }
+                        convertedData.Rows.Add(row);
                     }
-                    string[] fabSense = analysisData.Rows[i][11].ToString().Split(';');
-                    if (fabSense.Length == 5)
+                    catch
                     {
-                        row["SS1"] = fabSense[0];
-                        row["SS2"] = fabSense[1];
-                        row["SS3"] = fabSense[2];
-                        row["SS4"] = fabSense[3];
-                        row["SS5"] = fabSense[4];
+                        tb_Console.AppendText("Failed on Row " + i.ToString() + "\r\n");
                     }
-                    convertedData.Rows.Add(row);
 
                 }
                 //analysisDataStream.Close();
@@ -865,7 +1082,9 @@ namespace BrainPackDataAnalyzer
 
         private void mainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            processDataTheadEnabled = false; 
+            processDataTheadEnabled = false;
+            processDebugThreadEnabled = false;
+            processPacketQueueEnabled = false;
         }
 
         private void cb_serialPassEn_CheckedChanged(object sender, EventArgs e)
@@ -917,30 +1136,73 @@ namespace BrainPackDataAnalyzer
 
             }
         }
-
+        RawPacket packet = new RawPacket();
         private void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             if (serialPort.IsOpen)
             {
-                try
+                if (cb_protobuf.Checked)
                 {
-                    while (serialPort.BytesToRead > 0)
+                    try
                     {
-                        string line = serialPort.ReadLine();
-                        lock (serialPortPassThrough)
+                        while (serialPort.BytesToRead > 0)
                         {
-                            if (serialPortPassThrough.IsOpen)
+                            int receivedByte = serialPort.ReadByte();
+                            if (receivedByte != -1)
                             {
-                                serialPortPassThrough.WriteLine(line);
+                                //process the byte
+                                byte newByte = (byte)receivedByte;
+                                int bytesReceived = packet.BytesReceived + 1;
+                                PacketStatus status = packet.processByte((byte)receivedByte);
+                                switch (status)
+                                {
+                                    case PacketStatus.PacketComplete:
+                                        // debugMessageQueue.Enqueue(String.Format("Packet Received {0} bytes\r\n", packet.PayloadSize));
+                                        RawPacket packetCopy = new RawPacket(packet);
+                                        packetQueue.Enqueue(packetCopy);
+                                        packet.resetPacket();
+                                        break;
+                                    case PacketStatus.PacketError:
+                                        //if (cb_logErrors.Checked)
+                                        //{
+                                        //debugMessageQueue.Enqueue(String.Format("Packet ERROR! {1} bytes received\r\n", bytesReceived));
+                                        //}
+                                        packet.resetPacket();
+                                        break;
+                                    case PacketStatus.Processing:
+                                    case PacketStatus.newPacketDetected:
+                                        break;
+                                }
                             }
                         }
-                        incomingDataQueue.Enqueue(line); 
                     }
+                    catch
+                    {
 
+                    }
                 }
-                catch
+                else
                 {
-                    //do nothing, this is alright
+                    try
+                    {
+                        while (serialPort.BytesToRead > 0)
+                        {
+                            string line = serialPort.ReadLine();
+                            lock (serialPortPassThrough)
+                            {
+                                if (serialPortPassThrough.IsOpen)
+                                {
+                                    serialPortPassThrough.WriteLine(line);
+                                }
+                            }
+                            incomingDataQueue.Enqueue(line);
+                        }
+
+                    }
+                    catch
+                    {
+                        //do nothing, this is alright
+                    }
                 }
 
             }
@@ -1007,7 +1269,6 @@ namespace BrainPackDataAnalyzer
                     {
                         maxTime = interval;
                     }
-
                     processDataRow(analysisData.Rows[i]);
                 }
                 catch

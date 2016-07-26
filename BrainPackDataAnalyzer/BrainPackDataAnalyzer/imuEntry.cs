@@ -52,6 +52,21 @@ namespace BrainPackDataAnalyzer
             this.pitch = convertRawDataToFloat(separatedEntry[1]);
             this.yaw = convertRawDataToFloat(separatedEntry[2]);
         }
+        public void updateImuEntry(heddoko.ImuDataFrame dataFrame)
+        {
+            if (dataFrame.quat_z_rollSpecified)
+            {
+                this.roll = dataFrame.quat_z_roll;
+            }
+            if (dataFrame.quat_y_pitchSpecified)
+            {
+                this.pitch = dataFrame.quat_y_pitch;
+            }
+            if (dataFrame.quat_x_yawSpecified)
+            {
+                this.yaw = dataFrame.quat_x_yaw;
+            }
+        }
         public double Yaw
         {
             get

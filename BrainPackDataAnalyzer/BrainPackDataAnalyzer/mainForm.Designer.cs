@@ -46,7 +46,6 @@
             this.sfd_ConvertedFile = new System.Windows.Forms.SaveFileDialog();
             this.btn_EncryptSettings = new System.Windows.Forms.Button();
             this.btn_CreateFwBin = new System.Windows.Forms.Button();
-            this.dgv_SensorStats = new System.Windows.Forms.DataGridView();
             this.btn_disconnect = new System.Windows.Forms.Button();
             this.tb_stretchData = new System.Windows.Forms.TextBox();
             this.lb_stretchdata = new System.Windows.Forms.Label();
@@ -61,26 +60,30 @@
             this.cb_serialPassT = new System.Windows.Forms.ComboBox();
             this.cb_serialPassEn = new System.Windows.Forms.CheckBox();
             this.serialPortPassThrough = new System.IO.Ports.SerialPort(this.components);
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.chrt_dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.nud_SelectedImu = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
-            this.pb_processingProgress = new System.Windows.Forms.ProgressBar();
             this.bgw_AnalysisBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.btn_EnterBootloader = new System.Windows.Forms.Button();
             this.btn_exitBootloader = new System.Windows.Forms.Button();
             this.btn_Convert = new System.Windows.Forms.Button();
             this.btn_CheckVersion = new System.Windows.Forms.Button();
             this.cb_commands = new System.Windows.Forms.ComboBox();
+            this.cb_Baud = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.chrt_dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.nud_SelectedImu = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.dgv_SensorStats = new System.Windows.Forms.DataGridView();
+            this.pb_processingProgress = new System.Windows.Forms.ProgressBar();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.cb_protobuf = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_SensorStats)).BeginInit();
-            this.tabControl1.SuspendLayout();
-            this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_SelectedImu)).BeginInit();
+            this.tabPage1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_SensorStats)).BeginInit();
+            this.tabControl1.SuspendLayout();
             this.SuspendLayout();
             // 
             // serialPort
@@ -93,7 +96,7 @@
             // cb_serialPorts
             // 
             this.cb_serialPorts.FormattingEnabled = true;
-            this.cb_serialPorts.Location = new System.Drawing.Point(115, 264);
+            this.cb_serialPorts.Location = new System.Drawing.Point(115, 255);
             this.cb_serialPorts.Name = "cb_serialPorts";
             this.cb_serialPorts.Size = new System.Drawing.Size(161, 21);
             this.cb_serialPorts.TabIndex = 1;
@@ -103,7 +106,7 @@
             // l_COM_Port
             // 
             this.l_COM_Port.AutoSize = true;
-            this.l_COM_Port.Location = new System.Drawing.Point(41, 271);
+            this.l_COM_Port.Location = new System.Drawing.Point(56, 263);
             this.l_COM_Port.Name = "l_COM_Port";
             this.l_COM_Port.Size = new System.Drawing.Size(53, 13);
             this.l_COM_Port.TabIndex = 2;
@@ -121,7 +124,7 @@
             // 
             // btn_SendCmd
             // 
-            this.btn_SendCmd.Location = new System.Drawing.Point(311, 310);
+            this.btn_SendCmd.Location = new System.Drawing.Point(299, 310);
             this.btn_SendCmd.Name = "btn_SendCmd";
             this.btn_SendCmd.Size = new System.Drawing.Size(117, 23);
             this.btn_SendCmd.TabIndex = 4;
@@ -173,18 +176,6 @@
             this.btn_CreateFwBin.Text = "Create Firmware Binary";
             this.btn_CreateFwBin.UseVisualStyleBackColor = true;
             this.btn_CreateFwBin.Click += new System.EventHandler(this.btn_CreateFwBin_Click);
-            // 
-            // dgv_SensorStats
-            // 
-            this.dgv_SensorStats.AllowUserToAddRows = false;
-            this.dgv_SensorStats.AllowUserToDeleteRows = false;
-            this.dgv_SensorStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgv_SensorStats.Location = new System.Drawing.Point(20, 22);
-            this.dgv_SensorStats.Name = "dgv_SensorStats";
-            this.dgv_SensorStats.ReadOnly = true;
-            this.dgv_SensorStats.Size = new System.Drawing.Size(845, 302);
-            this.dgv_SensorStats.TabIndex = 14;
-            this.dgv_SensorStats.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.dgv_SensorStats_DataError);
             // 
             // btn_disconnect
             // 
@@ -244,7 +235,7 @@
             // 
             // btn_clearStats
             // 
-            this.btn_clearStats.Location = new System.Drawing.Point(491, 308);
+            this.btn_clearStats.Location = new System.Drawing.Point(447, 309);
             this.btn_clearStats.Name = "btn_clearStats";
             this.btn_clearStats.Size = new System.Drawing.Size(73, 23);
             this.btn_clearStats.TabIndex = 22;
@@ -316,27 +307,82 @@
             this.serialPortPassThrough.WriteTimeout = 5;
             this.serialPortPassThrough.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPortPassThrough_DataReceived);
             // 
-            // tabControl1
+            // bgw_AnalysisBackgroundWorker
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(20, 339);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(901, 432);
-            this.tabControl1.TabIndex = 29;
+            this.bgw_AnalysisBackgroundWorker.WorkerReportsProgress = true;
+            this.bgw_AnalysisBackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgw_AnalysisBackgroundWorker_DoWork);
+            this.bgw_AnalysisBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgw_AnalysisBackgroundWorker_ProgressChanged);
+            this.bgw_AnalysisBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgw_AnalysisBackgroundWorker_RunWorkerCompleted);
             // 
-            // tabPage1
+            // btn_EnterBootloader
             // 
-            this.tabPage1.Controls.Add(this.pb_processingProgress);
-            this.tabPage1.Controls.Add(this.dgv_SensorStats);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(893, 406);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Table";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.btn_EnterBootloader.Location = new System.Drawing.Point(742, 29);
+            this.btn_EnterBootloader.Name = "btn_EnterBootloader";
+            this.btn_EnterBootloader.Size = new System.Drawing.Size(134, 23);
+            this.btn_EnterBootloader.TabIndex = 31;
+            this.btn_EnterBootloader.Text = "Enter Bootloader";
+            this.btn_EnterBootloader.UseVisualStyleBackColor = true;
+            this.btn_EnterBootloader.Click += new System.EventHandler(this.btn_EnterBootloader_Click);
+            // 
+            // btn_exitBootloader
+            // 
+            this.btn_exitBootloader.Location = new System.Drawing.Point(742, 58);
+            this.btn_exitBootloader.Name = "btn_exitBootloader";
+            this.btn_exitBootloader.Size = new System.Drawing.Size(134, 23);
+            this.btn_exitBootloader.TabIndex = 32;
+            this.btn_exitBootloader.Text = "Exit Bootloader";
+            this.btn_exitBootloader.UseVisualStyleBackColor = true;
+            this.btn_exitBootloader.Click += new System.EventHandler(this.btn_exitBootloader_Click);
+            // 
+            // btn_Convert
+            // 
+            this.btn_Convert.Location = new System.Drawing.Point(571, 58);
+            this.btn_Convert.Name = "btn_Convert";
+            this.btn_Convert.Size = new System.Drawing.Size(117, 23);
+            this.btn_Convert.TabIndex = 33;
+            this.btn_Convert.Text = "Convert File";
+            this.btn_Convert.UseVisualStyleBackColor = true;
+            this.btn_Convert.Click += new System.EventHandler(this.btn_Convert_Click);
+            // 
+            // btn_CheckVersion
+            // 
+            this.btn_CheckVersion.Location = new System.Drawing.Point(742, 87);
+            this.btn_CheckVersion.Name = "btn_CheckVersion";
+            this.btn_CheckVersion.Size = new System.Drawing.Size(134, 23);
+            this.btn_CheckVersion.TabIndex = 34;
+            this.btn_CheckVersion.Text = "Check Version";
+            this.btn_CheckVersion.UseVisualStyleBackColor = true;
+            this.btn_CheckVersion.Click += new System.EventHandler(this.btn_CheckVersion_Click);
+            // 
+            // cb_commands
+            // 
+            this.cb_commands.FormattingEnabled = true;
+            this.cb_commands.Items.AddRange(new object[] {
+            "?",
+            "getCharge",
+            "getRawCharge",
+            "Power"});
+            this.cb_commands.Location = new System.Drawing.Point(115, 311);
+            this.cb_commands.Name = "cb_commands";
+            this.cb_commands.Size = new System.Drawing.Size(161, 21);
+            this.cb_commands.TabIndex = 35;
+            // 
+            // cb_Baud
+            // 
+            this.cb_Baud.FormattingEnabled = true;
+            this.cb_Baud.Location = new System.Drawing.Point(115, 282);
+            this.cb_Baud.Name = "cb_Baud";
+            this.cb_Baud.Size = new System.Drawing.Size(161, 21);
+            this.cb_Baud.TabIndex = 36;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(59, 282);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(32, 13);
+            this.label2.TabIndex = 37;
+            this.label2.Text = "Baud";
             // 
             // tabPage2
             // 
@@ -406,6 +452,30 @@
             this.label1.TabIndex = 31;
             this.label1.Text = "Selected IMU";
             // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.pb_processingProgress);
+            this.tabPage1.Controls.Add(this.dgv_SensorStats);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(893, 406);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "Table";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // dgv_SensorStats
+            // 
+            this.dgv_SensorStats.AllowUserToAddRows = false;
+            this.dgv_SensorStats.AllowUserToDeleteRows = false;
+            this.dgv_SensorStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgv_SensorStats.Location = new System.Drawing.Point(20, 22);
+            this.dgv_SensorStats.Name = "dgv_SensorStats";
+            this.dgv_SensorStats.ReadOnly = true;
+            this.dgv_SensorStats.Size = new System.Drawing.Size(845, 302);
+            this.dgv_SensorStats.TabIndex = 14;
+            this.dgv_SensorStats.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.dgv_SensorStats_DataError);
+            // 
             // pb_processingProgress
             // 
             this.pb_processingProgress.Location = new System.Drawing.Point(20, 348);
@@ -415,71 +485,34 @@
             this.pb_processingProgress.TabIndex = 15;
             this.pb_processingProgress.Visible = false;
             // 
-            // bgw_AnalysisBackgroundWorker
+            // tabControl1
             // 
-            this.bgw_AnalysisBackgroundWorker.WorkerReportsProgress = true;
-            this.bgw_AnalysisBackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgw_AnalysisBackgroundWorker_DoWork);
-            this.bgw_AnalysisBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgw_AnalysisBackgroundWorker_ProgressChanged);
-            this.bgw_AnalysisBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgw_AnalysisBackgroundWorker_RunWorkerCompleted);
+            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Location = new System.Drawing.Point(20, 339);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(901, 432);
+            this.tabControl1.TabIndex = 29;
             // 
-            // btn_EnterBootloader
+            // cb_protobuf
             // 
-            this.btn_EnterBootloader.Location = new System.Drawing.Point(742, 29);
-            this.btn_EnterBootloader.Name = "btn_EnterBootloader";
-            this.btn_EnterBootloader.Size = new System.Drawing.Size(134, 23);
-            this.btn_EnterBootloader.TabIndex = 31;
-            this.btn_EnterBootloader.Text = "Enter Bootloader";
-            this.btn_EnterBootloader.UseVisualStyleBackColor = true;
-            this.btn_EnterBootloader.Click += new System.EventHandler(this.btn_EnterBootloader_Click);
-            // 
-            // btn_exitBootloader
-            // 
-            this.btn_exitBootloader.Location = new System.Drawing.Point(742, 58);
-            this.btn_exitBootloader.Name = "btn_exitBootloader";
-            this.btn_exitBootloader.Size = new System.Drawing.Size(134, 23);
-            this.btn_exitBootloader.TabIndex = 32;
-            this.btn_exitBootloader.Text = "Exit Bootloader";
-            this.btn_exitBootloader.UseVisualStyleBackColor = true;
-            this.btn_exitBootloader.Click += new System.EventHandler(this.btn_exitBootloader_Click);
-            // 
-            // btn_Convert
-            // 
-            this.btn_Convert.Location = new System.Drawing.Point(571, 58);
-            this.btn_Convert.Name = "btn_Convert";
-            this.btn_Convert.Size = new System.Drawing.Size(117, 23);
-            this.btn_Convert.TabIndex = 33;
-            this.btn_Convert.Text = "Convert File";
-            this.btn_Convert.UseVisualStyleBackColor = true;
-            this.btn_Convert.Click += new System.EventHandler(this.btn_Convert_Click);
-            // 
-            // btn_CheckVersion
-            // 
-            this.btn_CheckVersion.Location = new System.Drawing.Point(742, 87);
-            this.btn_CheckVersion.Name = "btn_CheckVersion";
-            this.btn_CheckVersion.Size = new System.Drawing.Size(134, 23);
-            this.btn_CheckVersion.TabIndex = 34;
-            this.btn_CheckVersion.Text = "Check Version";
-            this.btn_CheckVersion.UseVisualStyleBackColor = true;
-            this.btn_CheckVersion.Click += new System.EventHandler(this.btn_CheckVersion_Click);
-            // 
-            // cb_commands
-            // 
-            this.cb_commands.FormattingEnabled = true;
-            this.cb_commands.Items.AddRange(new object[] {
-            "?",
-            "getCharge",
-            "getRawCharge",
-            "Power"});
-            this.cb_commands.Location = new System.Drawing.Point(115, 311);
-            this.cb_commands.Name = "cb_commands";
-            this.cb_commands.Size = new System.Drawing.Size(161, 21);
-            this.cb_commands.TabIndex = 35;
+            this.cb_protobuf.AutoSize = true;
+            this.cb_protobuf.Location = new System.Drawing.Point(391, 259);
+            this.cb_protobuf.Name = "cb_protobuf";
+            this.cb_protobuf.Size = new System.Drawing.Size(132, 17);
+            this.cb_protobuf.TabIndex = 38;
+            this.cb_protobuf.Text = "Parse Protobuf Stream";
+            this.cb_protobuf.UseVisualStyleBackColor = true;
             // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(970, 783);
+            this.Controls.Add(this.cb_protobuf);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.cb_Baud);
             this.Controls.Add(this.cb_commands);
             this.Controls.Add(this.btn_CheckVersion);
             this.Controls.Add(this.btn_Convert);
@@ -513,13 +546,13 @@
             this.Load += new System.EventHandler(this.mainForm_Load);
             this.DoubleClick += new System.EventHandler(this.mainForm_DoubleClick);
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_SensorStats)).EndInit();
-            this.tabControl1.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_SelectedImu)).EndInit();
+            this.tabPage1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_SensorStats)).EndInit();
+            this.tabControl1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -539,7 +572,6 @@
         private System.Windows.Forms.SaveFileDialog sfd_ConvertedFile;
         private System.Windows.Forms.Button btn_EncryptSettings;
         private System.Windows.Forms.Button btn_CreateFwBin;
-        private System.Windows.Forms.DataGridView dgv_SensorStats;
         private System.Windows.Forms.Button btn_disconnect;
         private System.Windows.Forms.TextBox tb_stretchData;
         private System.Windows.Forms.Label lb_stretchdata;
@@ -554,19 +586,23 @@
         private System.Windows.Forms.ComboBox cb_serialPassT;
         private System.Windows.Forms.CheckBox cb_serialPassEn;
         private System.IO.Ports.SerialPort serialPortPassThrough;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chrt_dataChart;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown nud_SelectedImu;
-        private System.Windows.Forms.ProgressBar pb_processingProgress;
         private System.ComponentModel.BackgroundWorker bgw_AnalysisBackgroundWorker;
         private System.Windows.Forms.Button btn_EnterBootloader;
         private System.Windows.Forms.Button btn_exitBootloader;
         private System.Windows.Forms.Button btn_Convert;
         private System.Windows.Forms.Button btn_CheckVersion;
         private System.Windows.Forms.ComboBox cb_commands;
+        private System.Windows.Forms.ComboBox cb_Baud;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.NumericUpDown nud_SelectedImu;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chrt_dataChart;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.ProgressBar pb_processingProgress;
+        private System.Windows.Forms.DataGridView dgv_SensorStats;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.CheckBox cb_protobuf;
     }
 }
 
