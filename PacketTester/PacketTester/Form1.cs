@@ -10,6 +10,8 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Data;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace PacketTester
 {
@@ -1778,6 +1780,49 @@ namespace PacketTester
 
         private void btb_arm_playRecording_MouseEnter(object sender, EventArgs e)
         {
+
+        }
+        UInt32 timestampCounter = 0;
+        private void btn_pbFullRawFrame_Click(object sender, EventArgs e)
+        {
+            FullRawFrame dataFrame = new FullRawFrame(9);
+            UInt16 numBytes = 0;
+            dataFrame.populateFrameWithTestData();
+            dataFrame.setTimestamp(timestampCounter++);
+            byte[] serializedBytes = dataFrame.serializeFrame(out numBytes);     
+            sendPacket(serializedBytes, numBytes);
+        }
+        bool streamRawFramesEnabled = false; 
+
+        void sendRawFrames()
+        {
+            FullRawFrame dataFrame = new FullRawFrame(9);
+            UInt16 numBytes = 0;
+            dataFrame.populateFrameWithTestData();
+            
+            while(streamRawFramesEnabled)
+            {
+                Thread.Sleep(20);
+                dataFrame.setTimestamp(timestampCounter++);
+                byte[] serializedBytes = dataFrame.serializeFrame(out numBytes);
+                sendPacket(serializedBytes, numBytes);
+            }
+
+        }
+        private void cb_streamRawFrames_CheckedChanged(object sender, EventArgs e)
+        {
+            
+            if (cb_streamRawFrames.Checked)
+            {
+                timestampCounter = 0;
+                Thread streamThread = new Thread(sendRawFrames);
+                streamRawFramesEnabled = true;
+                streamThread.Start();
+            }
+            else
+            {
+                streamRawFramesEnabled = false;
+            }
 
         }
     }

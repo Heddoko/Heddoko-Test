@@ -56,6 +56,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="fullRawFrame.cs" />
     <Compile Include="heddokoPacket.cs" />
     <Compile Include="ImuFrame.cs" />
     <Compile Include="packetHandler.cs" />

@@ -32,12 +32,12 @@ namespace PacketTester
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series11 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series12 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.btn_disconnect = new System.Windows.Forms.Button();
             this.tb_Console = new System.Windows.Forms.TextBox();
             this.bnt_Connect = new System.Windows.Forms.Button();
@@ -125,6 +125,10 @@ namespace PacketTester
             this.lbl_valueData3 = new System.Windows.Forms.Label();
             this.lbl_valueData4 = new System.Windows.Forms.Label();
             this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.btn_pbFullRawFrame = new System.Windows.Forms.Button();
+            this.cb_streamRawFrames = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -139,6 +143,8 @@ namespace PacketTester
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+            this.tabPage5.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // btn_disconnect
@@ -197,44 +203,44 @@ namespace PacketTester
             // 
             // chrt_dataChart
             // 
-            chartArea3.AxisY.Maximum = 1.1D;
-            chartArea3.AxisY.Minimum = -1.1D;
-            chartArea3.Name = "ChartArea1";
-            this.chrt_dataChart.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.chrt_dataChart.Legends.Add(legend3);
+            chartArea1.AxisY.Maximum = 1.1D;
+            chartArea1.AxisY.Minimum = -1.1D;
+            chartArea1.Name = "ChartArea1";
+            this.chrt_dataChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chrt_dataChart.Legends.Add(legend1);
             this.chrt_dataChart.Location = new System.Drawing.Point(541, 30);
             this.chrt_dataChart.Name = "chrt_dataChart";
             this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
-            series9.BorderWidth = 5;
-            series9.ChartArea = "ChartArea1";
-            series9.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series9.Legend = "Legend1";
-            series9.MarkerSize = 1;
-            series9.Name = "Qx";
-            series9.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            series10.BorderWidth = 5;
-            series10.ChartArea = "ChartArea1";
-            series10.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series10.Legend = "Legend1";
-            series10.MarkerSize = 1;
-            series10.Name = "Qy";
-            series11.BorderWidth = 5;
-            series11.ChartArea = "ChartArea1";
-            series11.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series11.Legend = "Legend1";
-            series11.MarkerSize = 1;
-            series11.Name = "Qz";
-            series12.BorderWidth = 5;
-            series12.ChartArea = "ChartArea1";
-            series12.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series12.Legend = "Legend1";
-            series12.MarkerSize = 1;
-            series12.Name = "Qw";
-            this.chrt_dataChart.Series.Add(series9);
-            this.chrt_dataChart.Series.Add(series10);
-            this.chrt_dataChart.Series.Add(series11);
-            this.chrt_dataChart.Series.Add(series12);
+            series1.BorderWidth = 5;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Legend = "Legend1";
+            series1.MarkerSize = 1;
+            series1.Name = "Qx";
+            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            series2.BorderWidth = 5;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Legend = "Legend1";
+            series2.MarkerSize = 1;
+            series2.Name = "Qy";
+            series3.BorderWidth = 5;
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.Legend = "Legend1";
+            series3.MarkerSize = 1;
+            series3.Name = "Qz";
+            series4.BorderWidth = 5;
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series4.Legend = "Legend1";
+            series4.MarkerSize = 1;
+            series4.Name = "Qw";
+            this.chrt_dataChart.Series.Add(series1);
+            this.chrt_dataChart.Series.Add(series2);
+            this.chrt_dataChart.Series.Add(series3);
+            this.chrt_dataChart.Series.Add(series4);
             this.chrt_dataChart.Size = new System.Drawing.Size(589, 377);
             this.chrt_dataChart.TabIndex = 28;
             this.chrt_dataChart.Text = "chart1";
@@ -720,6 +726,7 @@ namespace PacketTester
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
+            this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Location = new System.Drawing.Point(12, 368);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -1086,6 +1093,49 @@ namespace PacketTester
             this.lbl_valueData4.Text = "0";
             this.lbl_valueData4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // tabPage5
+            // 
+            this.tabPage5.Controls.Add(this.groupBox3);
+            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage5.Size = new System.Drawing.Size(468, 335);
+            this.tabPage5.TabIndex = 4;
+            this.tabPage5.Text = "tabPage5";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.cb_streamRawFrames);
+            this.groupBox3.Controls.Add(this.btn_pbFullRawFrame);
+            this.groupBox3.Location = new System.Drawing.Point(6, 6);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(218, 323);
+            this.groupBox3.TabIndex = 0;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Power Board Packets";
+            // 
+            // btn_pbFullRawFrame
+            // 
+            this.btn_pbFullRawFrame.Location = new System.Drawing.Point(10, 28);
+            this.btn_pbFullRawFrame.Name = "btn_pbFullRawFrame";
+            this.btn_pbFullRawFrame.Size = new System.Drawing.Size(100, 23);
+            this.btn_pbFullRawFrame.TabIndex = 0;
+            this.btn_pbFullRawFrame.Text = "Full Raw Frame";
+            this.btn_pbFullRawFrame.UseVisualStyleBackColor = true;
+            this.btn_pbFullRawFrame.Click += new System.EventHandler(this.btn_pbFullRawFrame_Click);
+            // 
+            // cb_streamRawFrames
+            // 
+            this.cb_streamRawFrames.AutoSize = true;
+            this.cb_streamRawFrames.Location = new System.Drawing.Point(117, 32);
+            this.cb_streamRawFrames.Name = "cb_streamRawFrames";
+            this.cb_streamRawFrames.Size = new System.Drawing.Size(95, 17);
+            this.cb_streamRawFrames.TabIndex = 1;
+            this.cb_streamRawFrames.Text = "Stream Enable";
+            this.cb_streamRawFrames.UseVisualStyleBackColor = true;
+            this.cb_streamRawFrames.CheckedChanged += new System.EventHandler(this.cb_streamRawFrames_CheckedChanged);
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1136,6 +1186,9 @@ namespace PacketTester
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+            this.tabPage5.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1230,6 +1283,10 @@ namespace PacketTester
         private System.Windows.Forms.Button btb_arm_playRecording;
         private System.Windows.Forms.CheckBox chb_arm_easeMovement;
         private System.Windows.Forms.FolderBrowserDialog fbd_folderBrowser;
+        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.Button btn_pbFullRawFrame;
+        private System.Windows.Forms.CheckBox cb_streamRawFrames;
     }
 }
 

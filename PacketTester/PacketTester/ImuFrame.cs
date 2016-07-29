@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -139,6 +142,24 @@ namespace PacketTester
             strBuilder.Append(String.Format("Ax{0}:Ay{1}:Az{2}\r\n", Acceleration_x, Acceleration_y, Acceleration_z));
             strBuilder.Append(String.Format("Rx{0}:Ry{1}:Rz{2}\r\n", Rotation_x, Rotation_y, Rotation_z));
             return strBuilder.ToString();
+        }
+        public void serialize(ref MemoryStream serializerStream)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            serializerStream.Write(BitConverter.GetBytes(this.ImuId), 0, 1);
+            serializerStream.Write(BitConverter.GetBytes(this.Quaternion_x), 0, 4);
+            serializerStream.Write(BitConverter.GetBytes(this.Quaternion_y), 0, 4);
+            serializerStream.Write(BitConverter.GetBytes(this.Quaternion_z), 0, 4);
+            serializerStream.Write(BitConverter.GetBytes(this.Quaternion_w), 0, 4);
+            serializerStream.Write(BitConverter.GetBytes(this.Magnetic_x), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Magnetic_y), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Magnetic_z), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Acceleration_x), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Acceleration_y), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Acceleration_z), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Rotation_x), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Rotation_y), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Rotation_z), 0, 2);
         }
 
 
