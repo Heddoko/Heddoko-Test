@@ -1802,7 +1802,7 @@ namespace PacketTester
             
             while(streamRawFramesEnabled)
             {
-                Thread.Sleep(20);
+                Thread.Sleep(10);
                 dataFrame.setTimestamp(timestampCounter++);
                 byte[] serializedBytes = dataFrame.serializeFrame(out numBytes);
                 sendPacket(serializedBytes, numBytes);
