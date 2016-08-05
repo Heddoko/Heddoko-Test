@@ -153,6 +153,7 @@ namespace PacketTester
             this.lbl_valueData4 = new System.Windows.Forms.Label();
             this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.dataBoardPort = new System.IO.Ports.SerialPort(this.components);
+            this.chb_arm_recPoints = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -787,18 +788,19 @@ namespace PacketTester
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.chb_arm_recPoints);
             this.groupBox2.Controls.Add(this.btb_arm_playRecording);
             this.groupBox2.Controls.Add(this.btn_arm_recMovement);
             this.groupBox2.Location = new System.Drawing.Point(248, 65);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(86, 80);
+            this.groupBox2.Size = new System.Drawing.Size(86, 107);
             this.groupBox2.TabIndex = 57;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Record";
             // 
             // btb_arm_playRecording
             // 
-            this.btb_arm_playRecording.Location = new System.Drawing.Point(6, 48);
+            this.btb_arm_playRecording.Location = new System.Drawing.Point(6, 46);
             this.btb_arm_playRecording.Name = "btb_arm_playRecording";
             this.btb_arm_playRecording.Size = new System.Drawing.Size(75, 23);
             this.btb_arm_playRecording.TabIndex = 18;
@@ -898,7 +900,7 @@ namespace PacketTester
             // lb_loopsExecuted
             // 
             this.lb_loopsExecuted.AutoSize = true;
-            this.lb_loopsExecuted.Location = new System.Drawing.Point(322, 159);
+            this.lb_loopsExecuted.Location = new System.Drawing.Point(122, 218);
             this.lb_loopsExecuted.Name = "lb_loopsExecuted";
             this.lb_loopsExecuted.Size = new System.Drawing.Size(13, 13);
             this.lb_loopsExecuted.TabIndex = 14;
@@ -907,7 +909,7 @@ namespace PacketTester
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(225, 159);
+            this.label5.Location = new System.Drawing.Point(26, 218);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(90, 13);
             this.label5.TabIndex = 13;
@@ -921,7 +923,7 @@ namespace PacketTester
             this.countDelaySel.Items.AddRange(new object[] {
             "Loop Count",
             "Line Delay"});
-            this.countDelaySel.Location = new System.Drawing.Point(21, 159);
+            this.countDelaySel.Location = new System.Drawing.Point(21, 162);
             this.countDelaySel.Name = "countDelaySel";
             this.countDelaySel.Size = new System.Drawing.Size(95, 21);
             this.countDelaySel.TabIndex = 11;
@@ -932,7 +934,7 @@ namespace PacketTester
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(145, 159);
+            this.label6.Location = new System.Drawing.Point(122, 165);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(13, 13);
             this.label6.TabIndex = 10;
@@ -1413,6 +1415,17 @@ namespace PacketTester
             // 
             this.dataBoardPort.BaudRate = 115200;
             // 
+            // chb_arm_recPoints
+            // 
+            this.chb_arm_recPoints.AutoSize = true;
+            this.chb_arm_recPoints.Location = new System.Drawing.Point(3, 77);
+            this.chb_arm_recPoints.Name = "chb_arm_recPoints";
+            this.chb_arm_recPoints.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.chb_arm_recPoints.Size = new System.Drawing.Size(78, 17);
+            this.chb_arm_recPoints.TabIndex = 19;
+            this.chb_arm_recPoints.Text = "Rec Points";
+            this.chb_arm_recPoints.UseVisualStyleBackColor = true;
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1461,6 +1474,7 @@ namespace PacketTester
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
             this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
@@ -1592,6 +1606,7 @@ namespace PacketTester
         private System.Windows.Forms.Button btn_dbSetDateTime;
         private System.IO.Ports.SerialPort dataBoardPort;
         private System.Windows.Forms.Button btn_dbStream;
+        private System.Windows.Forms.CheckBox chb_arm_recPoints;
     }
 }
 
