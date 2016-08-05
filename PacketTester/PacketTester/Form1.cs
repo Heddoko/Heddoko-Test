@@ -671,6 +671,19 @@ namespace PacketTester
                         break;
                 }
             }
+            else if(packet.Payload[0] == 0x01) //this is a databoard packet
+            {
+                switch (packet.Payload[1])
+                {
+                    case 0x51:
+                        debugMessageQueue.Enqueue(String.Format("{0}:Received get Status from data board\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond)));
+                        break;
+
+                    default:
+                        debugMessageQueue.Enqueue(String.Format("{0}:Received get Status from data board\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond)));
+                        break;
+                }
+            }
             else if(packet.Payload[0] == 0x04) //this is a protocol buffer file. 
             {
                 Stream stream = new MemoryStream(packet.Payload,1,packet.PayloadSize-1);

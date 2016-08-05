@@ -44,6 +44,7 @@
             this.cp_openForwardPort = new System.Windows.Forms.CheckBox();
             this.pb_progressBar = new System.Windows.Forms.ProgressBar();
             this.cb_decodeForApp = new System.Windows.Forms.CheckBox();
+            this.bgw_ProcessingWorker = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // btn_disconnect
@@ -171,6 +172,13 @@
             this.cb_decodeForApp.Text = "Decode For Heddoko App";
             this.cb_decodeForApp.UseVisualStyleBackColor = true;
             // 
+            // bgw_ProcessingWorker
+            // 
+            this.bgw_ProcessingWorker.WorkerReportsProgress = true;
+            this.bgw_ProcessingWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgw_ProcessingWorker_DoWork);
+            this.bgw_ProcessingWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgw_ProcessingWorker_ProgressChanged);
+            this.bgw_ProcessingWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgw_ProcessingWorker_RunWorkerCompleted);
+            // 
             // form_decoder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -213,6 +221,7 @@
         private System.Windows.Forms.CheckBox cp_openForwardPort;
         private System.Windows.Forms.ProgressBar pb_progressBar;
         private System.Windows.Forms.CheckBox cb_decodeForApp;
+        private System.ComponentModel.BackgroundWorker bgw_ProcessingWorker;
     }
 }
 

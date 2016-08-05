@@ -244,7 +244,11 @@ namespace ProtobufDecoder
         }
         private void btn_decode_Click(object sender, EventArgs e)
         {
-            RawPacket packet = new RawPacket();
+            //RawPacket packet = new RawPacket();
+            if(bgw_ProcessingWorker.IsBusy)
+            {
+                debugMessageQueue.Enqueue(String.Format("Cannot decode file, waiting for completion\r\n"));
+            }
             if (ofd_OpenFile.ShowDialog() != DialogResult.OK)
             {
                 return; 
@@ -253,75 +257,75 @@ namespace ProtobufDecoder
             {
                 return; 
             }
-
-            UInt32 packetCount = 0, packetErrors = 0; ;
-            try
-            {
-                FileStream dataFile = File.Open(ofd_OpenFile.FileName, FileMode.Open);
-                FileStream outputFile = File.Open(sfd_SaveFile.FileName, FileMode.Create);
-                debugMessageQueue.Enqueue(String.Format("Processing File: {0}\r\n", ofd_OpenFile.FileName));
-                int percent = 0;
-                //initialize the start time of the file. 
-                startTime = 0;
-                if(cb_decodeForApp.Checked)
-                {
-                    //have to create header for the file before writting it in. 
-                    string line1 = Guid.NewGuid().ToString() + "\r\n";
-                    string line2 = Guid.NewGuid().ToString() + "\r\n";
-                    string line3 = Guid.NewGuid().ToString() + "\r\n";                    
-                    outputFile.Write(ASCIIEncoding.ASCII.GetBytes(line1), 0, line1.Length);
-                    outputFile.Write(ASCIIEncoding.ASCII.GetBytes(line2), 0, line2.Length);
-                    outputFile.Write(ASCIIEncoding.ASCII.GetBytes(line3), 0, line3.Length);
-                }                
-                for (int i = 0; i < dataFile.Length; i++)
-                {
-                    int newPercent = (i * 100) / (int)dataFile.Length;
-                    if(newPercent != percent)
-                    {
-                        pb_progressBar.Value = newPercent;
-                        percent = newPercent; 
-                    }
-                    int dataByte = dataFile.ReadByte();
-                    if (dataByte == -1)
-                    {
-                        //we've reached the end of the stream
-                        break;
-                    }
-                    byte newByte = (byte)dataByte;
-                    int bytesReceived = packet.BytesReceived + 1;
-                    PacketStatus status = packet.processByte(newByte);
-                    switch (status)
-                    {
-                        case PacketStatus.PacketComplete:
-                            //debugMessageQueue.Enqueue(String.Format("{0} Packet Received {1} bytes\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), packet.PayloadSize));
-                            RawPacket packetCopy = new RawPacket(packet);
-                            string frameString = processRawPacket(packetCopy);                            
-                            if (frameString.Length > 0)
-                            {
-                                outputFile.Write(ASCIIEncoding.ASCII.GetBytes(frameString), 0, frameString.Length);
-                                packetCount++;
-                            }
-                            packet.resetPacket();
-                            break;
-                        case PacketStatus.PacketError:
-                            debugMessageQueue.Enqueue(String.Format("Packet ERROR! {0} bytes received\r\n", bytesReceived));
-                            packetErrors++;
-                            packet.resetPacket();
-                            break;
-                        case PacketStatus.Processing:
-                        case PacketStatus.newPacketDetected:
-                            break;
-                    }
-                }
-                debugMessageQueue.Enqueue(String.Format("Processed File Size:{0} Bytes, {1} frames extracted ,{2} Errors \r\n", dataFile.Length, packetCount, packetErrors));
-                dataFile.Close();
-                outputFile.Close(); 
-            }
-            catch
-            {
-                debugMessageQueue.Enqueue(String.Format("Error Processing file, {0} errors found\r\n", packetErrors));
-            }
-            pb_progressBar.Value = 0;
+            bgw_ProcessingWorker.RunWorkerAsync();
+            //UInt32 packetCount = 0, packetErrors = 0; ;
+            //try
+            //{
+            //    FileStream dataFile = File.Open(ofd_OpenFile.FileName, FileMode.Open);
+            //    FileStream outputFile = File.Open(sfd_SaveFile.FileName, FileMode.Create);
+            //    debugMessageQueue.Enqueue(String.Format("Processing File: {0}\r\n", ofd_OpenFile.FileName));
+            //    int percent = 0;
+            //    //initialize the start time of the file. 
+            //    startTime = 0;
+            //    if(cb_decodeForApp.Checked)
+            //    {
+            //        //have to create header for the file before writting it in. 
+            //        string line1 = Guid.NewGuid().ToString() + "\r\n";
+            //        string line2 = Guid.NewGuid().ToString() + "\r\n";
+            //        string line3 = Guid.NewGuid().ToString() + "\r\n";                    
+            //        outputFile.Write(ASCIIEncoding.ASCII.GetBytes(line1), 0, line1.Length);
+            //        outputFile.Write(ASCIIEncoding.ASCII.GetBytes(line2), 0, line2.Length);
+            //        outputFile.Write(ASCIIEncoding.ASCII.GetBytes(line3), 0, line3.Length);
+            //    }                
+            //    for (int i = 0; i < dataFile.Length; i++)
+            //    {
+            //        int newPercent = (i * 100) / (int)dataFile.Length;
+            //        if(newPercent != percent)
+            //        {
+            //            pb_progressBar.Value = newPercent;
+            //            percent = newPercent; 
+            //        }
+            //        int dataByte = dataFile.ReadByte();
+            //        if (dataByte == -1)
+            //        {
+            //            //we've reached the end of the stream
+            //            break;
+            //        }
+            //        byte newByte = (byte)dataByte;
+            //        int bytesReceived = packet.BytesReceived + 1;
+            //        PacketStatus status = packet.processByte(newByte);
+            //        switch (status)
+            //        {
+            //            case PacketStatus.PacketComplete:
+            //                //debugMessageQueue.Enqueue(String.Format("{0} Packet Received {1} bytes\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), packet.PayloadSize));
+            //                RawPacket packetCopy = new RawPacket(packet);
+            //                string frameString = processRawPacket(packetCopy);                            
+            //                if (frameString.Length > 0)
+            //                {
+            //                    outputFile.Write(ASCIIEncoding.ASCII.GetBytes(frameString), 0, frameString.Length);
+            //                    packetCount++;
+            //                }
+            //                packet.resetPacket();
+            //                break;
+            //            case PacketStatus.PacketError:
+            //                debugMessageQueue.Enqueue(String.Format("Packet ERROR! {0} bytes received\r\n", bytesReceived));
+            //                packetErrors++;
+            //                packet.resetPacket();
+            //                break;
+            //            case PacketStatus.Processing:
+            //            case PacketStatus.newPacketDetected:
+            //                break;
+            //        }
+            //    }
+            //    debugMessageQueue.Enqueue(String.Format("Processed File Size:{0} Bytes, {1} frames extracted ,{2} Errors \r\n", dataFile.Length, packetCount, packetErrors));
+            //    dataFile.Close();
+            //    outputFile.Close(); 
+            //}
+            //catch
+            //{
+            //    debugMessageQueue.Enqueue(String.Format("Error Processing file, {0} errors found\r\n", packetErrors));
+            //}
+            //pb_progressBar.Value = 0;
 
         }
         public void processDebugMessagesThread()
@@ -455,6 +459,94 @@ namespace ProtobufDecoder
                 cb_serialPorts.Items.Clear();
                 cb_serialPorts.Items.AddRange(SerialPort.GetPortNames());
             }
+        }
+
+        private void bgw_ProcessingWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            UInt32 packetCount = 0, packetErrors = 0; ;
+            RawPacket packet = new RawPacket();
+            try
+            {
+                FileStream dataFile = File.Open(ofd_OpenFile.FileName, FileMode.Open);
+                FileStream outputFile = File.Open(sfd_SaveFile.FileName, FileMode.Create);
+                debugMessageQueue.Enqueue(String.Format("Processing File: {0}\r\n", ofd_OpenFile.FileName));
+                long percent = 0;
+                //initialize the start time of the file. 
+                startTime = 0;
+                if (cb_decodeForApp.Checked)
+                {
+                    //have to create header for the file before writting it in. 
+                    string line1 = Guid.NewGuid().ToString() + "\r\n";
+                    string line2 = Guid.NewGuid().ToString() + "\r\n";
+                    string line3 = Guid.NewGuid().ToString() + "\r\n";
+                    outputFile.Write(ASCIIEncoding.ASCII.GetBytes(line1), 0, line1.Length);
+                    outputFile.Write(ASCIIEncoding.ASCII.GetBytes(line2), 0, line2.Length);
+                    outputFile.Write(ASCIIEncoding.ASCII.GetBytes(line3), 0, line3.Length);
+                }
+                for (long i = 0; i < dataFile.Length; i++)
+                {
+                    long newPercent = (i * 100) / (int)dataFile.Length;
+                    float percentageFloat = (i * 100) / dataFile.Length;
+                    if (newPercent != percent)
+                    {
+                        bgw_ProcessingWorker.ReportProgress((int)percentageFloat);
+                        percent = newPercent;
+                    }
+                    int dataByte = dataFile.ReadByte();
+                    if (dataByte == -1)
+                    {
+                        //we've reached the end of the stream
+                        break;
+                    }
+                    byte newByte = (byte)dataByte;
+                    int bytesReceived = packet.BytesReceived + 1;
+                    PacketStatus status = packet.processByte(newByte);
+                    switch (status)
+                    {
+                        case PacketStatus.PacketComplete:
+                            //debugMessageQueue.Enqueue(String.Format("{0} Packet Received {1} bytes\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), packet.PayloadSize));
+                            RawPacket packetCopy = new RawPacket(packet);
+                            string frameString = processRawPacket(packetCopy);
+                            if (frameString.Length > 0)
+                            {
+                                outputFile.Write(ASCIIEncoding.ASCII.GetBytes(frameString), 0, frameString.Length);
+                                packetCount++;
+                            }
+                            packet.resetPacket();
+                            break;
+                        case PacketStatus.PacketError:
+                            debugMessageQueue.Enqueue(String.Format("Packet ERROR! {0} bytes received\r\n", bytesReceived));
+                            packetErrors++;
+                            packet.resetPacket();
+                            break;
+                        case PacketStatus.Processing:
+                        case PacketStatus.newPacketDetected:
+                            break;
+                    }
+                }
+                debugMessageQueue.Enqueue(String.Format("Processed File Size:{0} Bytes, {1} frames extracted ,{2} Errors \r\n", dataFile.Length, packetCount, packetErrors));
+                dataFile.Close();
+                outputFile.Close();
+            }
+            catch
+            {
+                debugMessageQueue.Enqueue(String.Format("Error Processing file, {0} errors found\r\n", packetErrors));
+            }
+            
+        }
+
+        private void bgw_ProcessingWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+
+            if (e.ProgressPercentage > 0 && e.ProgressPercentage <= 100)
+            {
+                pb_progressBar.Value = e.ProgressPercentage;
+            }
+        }
+
+        private void bgw_ProcessingWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            pb_progressBar.Value = 0;
         }
     }
 }
