@@ -54,6 +54,14 @@ namespace PacketTester
         FileStream robotArmOutFile;
         public int robotArmLoopCount = 0;
 
+        // Data board emulator part
+        public bool toggleDbPort = false;
+        public bool dbPortOpen = false;
+        public int dbDataRate = 20;
+        public Int32 setSensorMask = 0, rxSensorMask = 0;
+        public bool dbEnableSen0 = false, dbEnableSen1 = false, dbEnableSen2 = false, dbEnableSen3 = false, dbEnableSen4 = false;
+        public bool dbEnableSen5 = false, dbEnableSen6 = false, dbEnableSen7 = false, dbEnableSen8 = false;
+
         public mainForm()
         {
             InitializeComponent();
@@ -720,6 +728,7 @@ namespace PacketTester
             cb_serialPorts.Items.AddRange(SerialPort.GetPortNames());
             cb_forwardPorts.Items.AddRange(SerialPort.GetPortNames());
             cb_robotPort.Items.AddRange(SerialPort.GetPortNames());
+            cb_dbComPorts.Items.AddRange(SerialPort.GetPortNames());
             string[] baudrates = { "110", "150", "300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"
                     , "460800","500000", "921600","1000000"};
             cb_BaudRate.Items.AddRange(baudrates);
@@ -751,6 +760,9 @@ namespace PacketTester
             processRobotArmQueueEnabled = true;
             Thread robotArmDataThread = new Thread(robotArmThread);
             robotArmDataThread.Start();
+
+            this.cb_dbComPorts.SelectedItem = this.cb_dbComPorts.Items[0];
+            nud_dbDataRate.Value = dbDataRate;
         }
 
         private void bnt_Connect_Click(object sender, EventArgs e)
@@ -847,6 +859,20 @@ namespace PacketTester
             }
         }
 
+        private void sendPacketTo(SerialPort port, byte[] payload, UInt16 size)
+        {
+            RawPacket packetToSend = new RawPacket(payload, size);
+            UInt16 rawPacketSize = 0;
+            byte[] rawPacketBytes = packetToSend.createRawPacket(ref rawPacketSize);
+            try
+            {
+                port.Write(rawPacketBytes, 0, rawPacketSize);
+            }
+            catch
+            {
+                debugMessageQueue.Enqueue(String.Format("{0} Failed to send packet\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond)));
+            }
+        }
 
         private void mainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -1324,6 +1350,8 @@ namespace PacketTester
             cb_forwardPorts.Items.AddRange(SerialPort.GetPortNames());
             cb_robotPort.Items.Clear();
             cb_robotPort.Items.AddRange(SerialPort.GetPortNames());
+            cb_dbComPorts.Items.Clear();
+            cb_dbComPorts.Items.AddRange(SerialPort.GetPortNames());
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -1796,6 +1824,7 @@ namespace PacketTester
 
         }
         UInt32 timestampCounter = 0;
+
         private void btn_pbFullRawFrame_Click(object sender, EventArgs e)
         {
             FullRawFrame dataFrame = new FullRawFrame(9);
@@ -1805,6 +1834,7 @@ namespace PacketTester
             byte[] serializedBytes = dataFrame.serializeFrame(out numBytes);     
             sendPacket(serializedBytes, numBytes);
         }
+
         bool streamRawFramesEnabled = false; 
 
         void sendRawFrames()
@@ -1837,6 +1867,307 @@ namespace PacketTester
                 streamRawFramesEnabled = false;
             }
 
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btn_dbTogglePort_Click(object sender, EventArgs e)
+        {
+            if (!toggleDbPort)
+            {
+                dataBoardPort.PortName = cb_dbComPorts.Items[cb_dbComPorts.SelectedIndex].ToString();
+                dataBoardPort.BaudRate = 115200;
+                try
+                {
+                    dbPortOpen = true;
+                    dataBoardPort.Open();
+
+                    tb_Console.AppendText("Port: " + dataBoardPort.PortName + " Open\r\n");
+                    btn_dbTogglePort.Text = "Close";
+                    toggleDbPort = !toggleDbPort;
+                }
+                catch (Exception ex)
+                {
+                    tb_Console.AppendText("Failed to open Port: " + dataBoardPort.PortName + " \r\n");
+                    tb_Console.AppendText("Exception " + ex.Message + " \r\n");
+                    toggleDbPort = false;
+                    dbPortOpen = false;
+                }
+            }
+
+            else
+            {
+                try
+                {
+                    dataBoardPort.Close();
+                    dbPortOpen = false;
+                    tb_Console.AppendText("Port: " + dataBoardPort.PortName + " Closed\r\n");
+                    btn_dbTogglePort.Text = "Open";
+                    toggleDbPort = !toggleDbPort;
+                }
+                catch
+                {
+                    tb_Console.AppendText("Failed to close Port: " + dataBoardPort.PortName + "\r\n");
+                }
+            }
+        }
+
+        private void nud_dbDataRate_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            
+        }
+
+        private void btn_dbSetConfig_Click(object sender, EventArgs e)
+        {
+            if (dataBoardPort.IsOpen)
+            {
+                MemoryStream stream = new MemoryStream();
+                byte[] header = { 0x01, 0x53, (byte)nud_dbDataRate.Value};
+                stream.Write(header, 0, 3);
+                stream.Write(BitConverter.GetBytes(setSensorMask), 0, 4);   // NOTE: Bit converter is little endian
+                sendPacketTo(dataBoardPort, stream.ToArray(), 7);
+            }
+        }
+
+        private int convertToBcd(int twoDigitInteger)
+        {
+            int tens, units;
+            tens = twoDigitInteger / 10;
+            units = twoDigitInteger % 10;
+            return ((tens << 4) | units);
+        }
+
+        private void btn_dbSetDateTime_Click(object sender, EventArgs e)
+        {
+            int dateCentury, dateYear, dateMonth, dateDay, dateDate;
+            int timeSeconds, timeMinutes, timeHour, timeAmPm;
+            Int32 time, date;
+            
+            DateTime localDateTime = DateTime.Now;
+            // convert dateTime format to BCD as NUMBER = TENS(MSB) | UNITS(LSB)
+            timeSeconds = convertToBcd(localDateTime.Second);
+            timeMinutes = convertToBcd(localDateTime.Minute);
+            timeHour = convertToBcd(localDateTime.Hour);        // only supports 24-hour mode
+            timeAmPm = 0;
+
+            dateCentury = convertToBcd(localDateTime.Year / 100);
+            dateYear = convertToBcd(localDateTime.Year % 100);
+            dateMonth = convertToBcd(localDateTime.Month);
+            dateDay = (int)localDateTime.DayOfWeek;
+            dateDate = convertToBcd(localDateTime.Day);
+
+            // convert the data specific to the data accepted by ATSAM4S2A
+            time = timeSeconds | (timeMinutes << 8) | (timeHour << 16) | (timeAmPm << 22);
+            date = dateCentury | (dateYear << 8) | (dateMonth << 16) | (dateDay << 21) | (dateDate << 24);
+            
+            tb_Console.AppendText(localDateTime.ToString() + "\r\n");
+
+            if (dataBoardPort.IsOpen)
+            {
+                MemoryStream stream = new MemoryStream();
+                byte[] header = { 0x01, 0x5a };
+                stream.Write(header, 0, 2);
+                stream.Write(BitConverter.GetBytes(time), 0, 4);
+                stream.Write(BitConverter.GetBytes(date), 0, 4);
+                sendPacketTo(dataBoardPort, stream.ToArray(), 10);
+            }
+        }
+
+        private void btn_dbGetStatus_Click(object sender, EventArgs e)
+        {
+            if (dataBoardPort.IsOpen)
+            {
+                byte[] header = { 0x01, 0x51 };
+                sendPacketTo(dataBoardPort, header, 2);
+            }
+        }
+
+        private void btn_dbStream_Click(object sender, EventArgs e)
+        {
+            if (dataBoardPort.IsOpen)
+            {
+                if (btn_dbStream.BackColor == System.Drawing.Color.Transparent)
+                {
+                    byte[] header = { 0x01, 0x54, 0x01 };
+                    sendPacketTo(dataBoardPort, header, 3);
+                    btn_dbStream.BackColor = System.Drawing.Color.LightGreen;
+                }
+                else
+                {
+                    byte[] header = { 0x01, 0x54, 0x00 };
+                    sendPacketTo(dataBoardPort, header, 3);
+                    btn_dbStream.BackColor = System.Drawing.Color.Transparent;
+                }
+            }
+            else
+            {
+                tb_Console.AppendText("Com port not open.\r\n");
+            }
+        }
+
+        private void btn_dbGetDateTime_Click(object sender, EventArgs e)
+        {
+            if (dataBoardPort.IsOpen)
+            {
+                byte[] header = { 0x01, 0x58 };
+                sendPacketTo(dataBoardPort, header, 2);
+            }
+        }
+
+        private void btn_dbEnableSen0_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_dbEnableSen0.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                dbEnableSen0 = true;
+                btn_dbEnableSen0.BackColor = System.Drawing.Color.LightGreen;
+                setSensorMask |= (0x01 << 0);
+            }
+            else // sensor is enabled (before click)
+            {
+                dbEnableSen0 = false;
+                btn_dbEnableSen0.BackColor = System.Drawing.Color.Transparent;
+                setSensorMask &= ~(0x01 << 0);
+            }
+        }
+
+        private void btn_dbEnableSen1_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_dbEnableSen1.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                dbEnableSen1 = true;
+                btn_dbEnableSen1.BackColor = System.Drawing.Color.LightGreen;
+                setSensorMask |= (0x01 << 1);
+            }
+            else // sensor is enabled (before click)
+            {
+                dbEnableSen1 = false;
+                btn_dbEnableSen1.BackColor = System.Drawing.Color.Transparent;
+                setSensorMask &= ~(0x01 << 1);
+            }
+        }
+
+        private void btn_dbEnableSen2_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_dbEnableSen2.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                dbEnableSen2 = true;
+                btn_dbEnableSen2.BackColor = System.Drawing.Color.LightGreen;
+                setSensorMask |= (0x01 << 2);
+            }
+            else // sensor is enabled (before click)
+            {
+                dbEnableSen2 = false;
+                btn_dbEnableSen2.BackColor = System.Drawing.Color.Transparent;
+                setSensorMask &= ~(0x01 << 2);
+            }
+        }
+
+        private void btn_dbEnableSen3_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_dbEnableSen3.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                dbEnableSen3 = true;
+                btn_dbEnableSen3.BackColor = System.Drawing.Color.LightGreen;
+                setSensorMask |= (0x01 << 3);
+            }
+            else // sensor is enabled (before click)
+            {
+                dbEnableSen3 = false;
+                btn_dbEnableSen3.BackColor = System.Drawing.Color.Transparent;
+                setSensorMask &= ~(0x01 << 3);
+            }
+        }
+
+        private void btn_dbEnableSen4_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_dbEnableSen4.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                dbEnableSen4 = true;
+                btn_dbEnableSen4.BackColor = System.Drawing.Color.LightGreen;
+                setSensorMask |= (0x01 << 4);
+            }
+            else // sensor is enabled (before click)
+            {
+                dbEnableSen4 = false;
+                btn_dbEnableSen4.BackColor = System.Drawing.Color.Transparent;
+                setSensorMask &= ~(0x01 << 4);
+            }
+        }
+
+        private void btn_dbEnableSen5_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_dbEnableSen5.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                dbEnableSen5 = true;
+                btn_dbEnableSen5.BackColor = System.Drawing.Color.LightGreen;
+                setSensorMask |= (0x01 << 5);
+            }
+            else // sensor is enabled (before click)
+            {
+                dbEnableSen5 = false;
+                btn_dbEnableSen5.BackColor = System.Drawing.Color.Transparent;
+                setSensorMask &= ~(0x01 << 5);
+            }
+        }
+
+        private void btn_dbEnableSen6_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_dbEnableSen6.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                dbEnableSen6 = true;
+                btn_dbEnableSen6.BackColor = System.Drawing.Color.LightGreen;
+                setSensorMask |= (0x01 << 6);
+            }
+            else // sensor is enabled (before click)
+            {
+                dbEnableSen6 = false;
+                btn_dbEnableSen6.BackColor = System.Drawing.Color.Transparent;
+                setSensorMask &= ~(0x01 << 6);
+            }
+        }
+
+        private void btn_dbEnableSen7_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_dbEnableSen7.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                dbEnableSen7 = true;
+                btn_dbEnableSen7.BackColor = System.Drawing.Color.LightGreen;
+                setSensorMask |= (0x01 << 7);
+            }
+            else // sensor is enabled (before click)
+            {
+                dbEnableSen7 = false;
+                btn_dbEnableSen7.BackColor = System.Drawing.Color.Transparent;
+                setSensorMask &= ~(0x01 << 7);
+            }
+        }
+
+        private void btn_dbEnableSen8_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_dbEnableSen8.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                dbEnableSen8 = true;
+                btn_dbEnableSen8.BackColor = System.Drawing.Color.LightGreen;
+                setSensorMask |= (0x01 << 8);
+            }
+            else // sensor is enabled (before click)
+            {
+                dbEnableSen8 = false;
+                btn_dbEnableSen8.BackColor = System.Drawing.Color.Transparent;
+                setSensorMask &= ~(0x01 << 8);
+            }
         }
     }
 }

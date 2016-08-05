@@ -32,12 +32,13 @@ namespace PacketTester
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
             this.btn_disconnect = new System.Windows.Forms.Button();
             this.tb_Console = new System.Windows.Forms.TextBox();
             this.bnt_Connect = new System.Windows.Forms.Button();
@@ -111,6 +112,32 @@ namespace PacketTester
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.cb_robotPort = new System.Windows.Forms.ComboBox();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.btn_dbStream = new System.Windows.Forms.Button();
+            this.btn_dbGetDateTime = new System.Windows.Forms.Button();
+            this.btn_dbSetDateTime = new System.Windows.Forms.Button();
+            this.btn_dbEnableSen8 = new System.Windows.Forms.Button();
+            this.btn_dbEnableSen7 = new System.Windows.Forms.Button();
+            this.btn_dbEnableSen6 = new System.Windows.Forms.Button();
+            this.btn_dbEnableSen4 = new System.Windows.Forms.Button();
+            this.btn_dbEnableSen5 = new System.Windows.Forms.Button();
+            this.btn_dbEnableSen3 = new System.Windows.Forms.Button();
+            this.btn_dbEnableSen2 = new System.Windows.Forms.Button();
+            this.lbl_dbEnableSensors = new System.Windows.Forms.Label();
+            this.btn_dbEnableSen1 = new System.Windows.Forms.Button();
+            this.btn_dbEnableSen0 = new System.Windows.Forms.Button();
+            this.lbl_dbDataRate = new System.Windows.Forms.Label();
+            this.nud_dbDataRate = new System.Windows.Forms.NumericUpDown();
+            this.btn_dbTogglePort = new System.Windows.Forms.Button();
+            this.lbl_dbBaudRate = new System.Windows.Forms.Label();
+            this.cb_dbComPorts = new System.Windows.Forms.ComboBox();
+            this.btn_dbGetStatus = new System.Windows.Forms.Button();
+            this.grp_dbConfigurePB = new System.Windows.Forms.GroupBox();
+            this.btn_dbSetConfig = new System.Windows.Forms.Button();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.cb_streamRawFrames = new System.Windows.Forms.CheckBox();
+            this.btn_pbFullRawFrame = new System.Windows.Forms.Button();
             this.btn_refreshComPorts = new System.Windows.Forms.Button();
             this.robotArmPort = new System.IO.Ports.SerialPort(this.components);
             this.bgw_uarmFileWorker = new System.ComponentModel.BackgroundWorker();
@@ -125,10 +152,7 @@ namespace PacketTester
             this.lbl_valueData3 = new System.Windows.Forms.Label();
             this.lbl_valueData4 = new System.Windows.Forms.Label();
             this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.btn_pbFullRawFrame = new System.Windows.Forms.Button();
-            this.cb_streamRawFrames = new System.Windows.Forms.CheckBox();
+            this.dataBoardPort = new System.IO.Ports.SerialPort(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -144,6 +168,9 @@ namespace PacketTester
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.tabPage5.SuspendLayout();
+            this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_dbDataRate)).BeginInit();
+            this.grp_dbConfigurePB.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -203,44 +230,44 @@ namespace PacketTester
             // 
             // chrt_dataChart
             // 
-            chartArea2.AxisY.Maximum = 1.1D;
-            chartArea2.AxisY.Minimum = -1.1D;
-            chartArea2.Name = "ChartArea1";
-            this.chrt_dataChart.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.chrt_dataChart.Legends.Add(legend2);
+            chartArea1.AxisY.Maximum = 1.1D;
+            chartArea1.AxisY.Minimum = -1.1D;
+            chartArea1.Name = "ChartArea1";
+            this.chrt_dataChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chrt_dataChart.Legends.Add(legend1);
             this.chrt_dataChart.Location = new System.Drawing.Point(541, 30);
             this.chrt_dataChart.Name = "chrt_dataChart";
             this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
-            series5.BorderWidth = 5;
-            series5.ChartArea = "ChartArea1";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series5.Legend = "Legend1";
-            series5.MarkerSize = 1;
-            series5.Name = "Qx";
-            series5.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            series6.BorderWidth = 5;
-            series6.ChartArea = "ChartArea1";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series6.Legend = "Legend1";
-            series6.MarkerSize = 1;
-            series6.Name = "Qy";
-            series7.BorderWidth = 5;
-            series7.ChartArea = "ChartArea1";
-            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series7.Legend = "Legend1";
-            series7.MarkerSize = 1;
-            series7.Name = "Qz";
-            series8.BorderWidth = 5;
-            series8.ChartArea = "ChartArea1";
-            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series8.Legend = "Legend1";
-            series8.MarkerSize = 1;
-            series8.Name = "Qw";
-            this.chrt_dataChart.Series.Add(series5);
-            this.chrt_dataChart.Series.Add(series6);
-            this.chrt_dataChart.Series.Add(series7);
-            this.chrt_dataChart.Series.Add(series8);
+            series1.BorderWidth = 5;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Legend = "Legend1";
+            series1.MarkerSize = 1;
+            series1.Name = "Qx";
+            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            series2.BorderWidth = 5;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Legend = "Legend1";
+            series2.MarkerSize = 1;
+            series2.Name = "Qy";
+            series3.BorderWidth = 5;
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.Legend = "Legend1";
+            series3.MarkerSize = 1;
+            series3.Name = "Qz";
+            series4.BorderWidth = 5;
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series4.Legend = "Legend1";
+            series4.MarkerSize = 1;
+            series4.Name = "Qw";
+            this.chrt_dataChart.Series.Add(series1);
+            this.chrt_dataChart.Series.Add(series2);
+            this.chrt_dataChart.Series.Add(series3);
+            this.chrt_dataChart.Series.Add(series4);
             this.chrt_dataChart.Size = new System.Drawing.Size(589, 377);
             this.chrt_dataChart.TabIndex = 28;
             this.chrt_dataChart.Text = "chart1";
@@ -323,7 +350,7 @@ namespace PacketTester
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(468, 335);
+            this.tabPage3.Size = new System.Drawing.Size(508, 335);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "TCP IP Debug";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -398,7 +425,7 @@ namespace PacketTester
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(468, 335);
+            this.tabPage2.Size = new System.Drawing.Size(508, 335);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Debug 485 Sensors";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -638,7 +665,7 @@ namespace PacketTester
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(468, 335);
+            this.tabPage1.Size = new System.Drawing.Size(508, 335);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Record 485 Frames";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -753,7 +780,7 @@ namespace PacketTester
             this.tabPage4.Controls.Add(this.cb_robotPort);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(468, 335);
+            this.tabPage4.Size = new System.Drawing.Size(508, 335);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Robot Arm Control";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -984,6 +1011,295 @@ namespace PacketTester
             this.cb_robotPort.TabIndex = 1;
             this.cb_robotPort.SelectedIndexChanged += new System.EventHandler(this.cb_robotPort_SelectedIndexChanged);
             // 
+            // tabPage5
+            // 
+            this.tabPage5.Controls.Add(this.groupBox4);
+            this.tabPage5.Controls.Add(this.groupBox3);
+            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage5.Size = new System.Drawing.Size(508, 335);
+            this.tabPage5.TabIndex = 4;
+            this.tabPage5.Text = "Emulators";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.btn_dbStream);
+            this.groupBox4.Controls.Add(this.btn_dbGetDateTime);
+            this.groupBox4.Controls.Add(this.btn_dbSetDateTime);
+            this.groupBox4.Controls.Add(this.btn_dbEnableSen8);
+            this.groupBox4.Controls.Add(this.btn_dbEnableSen7);
+            this.groupBox4.Controls.Add(this.btn_dbEnableSen6);
+            this.groupBox4.Controls.Add(this.btn_dbEnableSen4);
+            this.groupBox4.Controls.Add(this.btn_dbEnableSen5);
+            this.groupBox4.Controls.Add(this.btn_dbEnableSen3);
+            this.groupBox4.Controls.Add(this.btn_dbEnableSen2);
+            this.groupBox4.Controls.Add(this.lbl_dbEnableSensors);
+            this.groupBox4.Controls.Add(this.btn_dbEnableSen1);
+            this.groupBox4.Controls.Add(this.btn_dbEnableSen0);
+            this.groupBox4.Controls.Add(this.lbl_dbDataRate);
+            this.groupBox4.Controls.Add(this.nud_dbDataRate);
+            this.groupBox4.Controls.Add(this.btn_dbTogglePort);
+            this.groupBox4.Controls.Add(this.lbl_dbBaudRate);
+            this.groupBox4.Controls.Add(this.cb_dbComPorts);
+            this.groupBox4.Controls.Add(this.btn_dbGetStatus);
+            this.groupBox4.Controls.Add(this.grp_dbConfigurePB);
+            this.groupBox4.Location = new System.Drawing.Point(231, 6);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(271, 187);
+            this.groupBox4.TabIndex = 1;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Data Board Emulator";
+            // 
+            // btn_dbStream
+            // 
+            this.btn_dbStream.Location = new System.Drawing.Point(214, 103);
+            this.btn_dbStream.Name = "btn_dbStream";
+            this.btn_dbStream.Size = new System.Drawing.Size(51, 23);
+            this.btn_dbStream.TabIndex = 20;
+            this.btn_dbStream.Text = "Stream";
+            this.btn_dbStream.UseVisualStyleBackColor = true;
+            this.btn_dbStream.Click += new System.EventHandler(this.btn_dbStream_Click);
+            // 
+            // btn_dbGetDateTime
+            // 
+            this.btn_dbGetDateTime.Location = new System.Drawing.Point(7, 54);
+            this.btn_dbGetDateTime.Name = "btn_dbGetDateTime";
+            this.btn_dbGetDateTime.Size = new System.Drawing.Size(119, 23);
+            this.btn_dbGetDateTime.TabIndex = 19;
+            this.btn_dbGetDateTime.Text = "Get Date && Time";
+            this.btn_dbGetDateTime.UseVisualStyleBackColor = true;
+            this.btn_dbGetDateTime.Click += new System.EventHandler(this.btn_dbGetDateTime_Click);
+            // 
+            // btn_dbSetDateTime
+            // 
+            this.btn_dbSetDateTime.Location = new System.Drawing.Point(7, 27);
+            this.btn_dbSetDateTime.Name = "btn_dbSetDateTime";
+            this.btn_dbSetDateTime.Size = new System.Drawing.Size(119, 23);
+            this.btn_dbSetDateTime.TabIndex = 18;
+            this.btn_dbSetDateTime.Text = "Set Date && Time";
+            this.btn_dbSetDateTime.UseVisualStyleBackColor = true;
+            this.btn_dbSetDateTime.Click += new System.EventHandler(this.btn_dbSetDateTime_Click);
+            // 
+            // btn_dbEnableSen8
+            // 
+            this.btn_dbEnableSen8.Location = new System.Drawing.Point(180, 154);
+            this.btn_dbEnableSen8.Name = "btn_dbEnableSen8";
+            this.btn_dbEnableSen8.Size = new System.Drawing.Size(20, 20);
+            this.btn_dbEnableSen8.TabIndex = 16;
+            this.btn_dbEnableSen8.Text = "8";
+            this.btn_dbEnableSen8.UseVisualStyleBackColor = true;
+            this.btn_dbEnableSen8.Click += new System.EventHandler(this.btn_dbEnableSen8_Click);
+            // 
+            // btn_dbEnableSen7
+            // 
+            this.btn_dbEnableSen7.Location = new System.Drawing.Point(159, 154);
+            this.btn_dbEnableSen7.Name = "btn_dbEnableSen7";
+            this.btn_dbEnableSen7.Size = new System.Drawing.Size(20, 20);
+            this.btn_dbEnableSen7.TabIndex = 15;
+            this.btn_dbEnableSen7.Text = "7";
+            this.btn_dbEnableSen7.UseVisualStyleBackColor = true;
+            this.btn_dbEnableSen7.Click += new System.EventHandler(this.btn_dbEnableSen7_Click);
+            // 
+            // btn_dbEnableSen6
+            // 
+            this.btn_dbEnableSen6.Location = new System.Drawing.Point(138, 154);
+            this.btn_dbEnableSen6.Name = "btn_dbEnableSen6";
+            this.btn_dbEnableSen6.Size = new System.Drawing.Size(20, 20);
+            this.btn_dbEnableSen6.TabIndex = 14;
+            this.btn_dbEnableSen6.Text = "6";
+            this.btn_dbEnableSen6.UseVisualStyleBackColor = true;
+            this.btn_dbEnableSen6.Click += new System.EventHandler(this.btn_dbEnableSen6_Click);
+            // 
+            // btn_dbEnableSen4
+            // 
+            this.btn_dbEnableSen4.Location = new System.Drawing.Point(96, 154);
+            this.btn_dbEnableSen4.Name = "btn_dbEnableSen4";
+            this.btn_dbEnableSen4.Size = new System.Drawing.Size(20, 20);
+            this.btn_dbEnableSen4.TabIndex = 13;
+            this.btn_dbEnableSen4.Text = "4";
+            this.btn_dbEnableSen4.UseVisualStyleBackColor = true;
+            this.btn_dbEnableSen4.Click += new System.EventHandler(this.btn_dbEnableSen4_Click);
+            // 
+            // btn_dbEnableSen5
+            // 
+            this.btn_dbEnableSen5.Location = new System.Drawing.Point(117, 154);
+            this.btn_dbEnableSen5.Name = "btn_dbEnableSen5";
+            this.btn_dbEnableSen5.Size = new System.Drawing.Size(20, 20);
+            this.btn_dbEnableSen5.TabIndex = 12;
+            this.btn_dbEnableSen5.Text = "5";
+            this.btn_dbEnableSen5.UseVisualStyleBackColor = true;
+            this.btn_dbEnableSen5.Click += new System.EventHandler(this.btn_dbEnableSen5_Click);
+            // 
+            // btn_dbEnableSen3
+            // 
+            this.btn_dbEnableSen3.Location = new System.Drawing.Point(75, 154);
+            this.btn_dbEnableSen3.Name = "btn_dbEnableSen3";
+            this.btn_dbEnableSen3.Size = new System.Drawing.Size(20, 20);
+            this.btn_dbEnableSen3.TabIndex = 11;
+            this.btn_dbEnableSen3.Text = "3";
+            this.btn_dbEnableSen3.UseVisualStyleBackColor = true;
+            this.btn_dbEnableSen3.Click += new System.EventHandler(this.btn_dbEnableSen3_Click);
+            // 
+            // btn_dbEnableSen2
+            // 
+            this.btn_dbEnableSen2.Location = new System.Drawing.Point(54, 154);
+            this.btn_dbEnableSen2.Name = "btn_dbEnableSen2";
+            this.btn_dbEnableSen2.Size = new System.Drawing.Size(20, 20);
+            this.btn_dbEnableSen2.TabIndex = 10;
+            this.btn_dbEnableSen2.Text = "2";
+            this.btn_dbEnableSen2.UseVisualStyleBackColor = true;
+            this.btn_dbEnableSen2.Click += new System.EventHandler(this.btn_dbEnableSen2_Click);
+            // 
+            // lbl_dbEnableSensors
+            // 
+            this.lbl_dbEnableSensors.AutoSize = true;
+            this.lbl_dbEnableSensors.Location = new System.Drawing.Point(12, 138);
+            this.lbl_dbEnableSensors.Name = "lbl_dbEnableSensors";
+            this.lbl_dbEnableSensors.Size = new System.Drawing.Size(84, 13);
+            this.lbl_dbEnableSensors.TabIndex = 9;
+            this.lbl_dbEnableSensors.Text = "Enable Sensors:";
+            // 
+            // btn_dbEnableSen1
+            // 
+            this.btn_dbEnableSen1.Location = new System.Drawing.Point(33, 154);
+            this.btn_dbEnableSen1.Name = "btn_dbEnableSen1";
+            this.btn_dbEnableSen1.Size = new System.Drawing.Size(20, 20);
+            this.btn_dbEnableSen1.TabIndex = 8;
+            this.btn_dbEnableSen1.Text = "1";
+            this.btn_dbEnableSen1.UseVisualStyleBackColor = true;
+            this.btn_dbEnableSen1.Click += new System.EventHandler(this.btn_dbEnableSen1_Click);
+            // 
+            // btn_dbEnableSen0
+            // 
+            this.btn_dbEnableSen0.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_dbEnableSen0.Location = new System.Drawing.Point(12, 154);
+            this.btn_dbEnableSen0.Name = "btn_dbEnableSen0";
+            this.btn_dbEnableSen0.Size = new System.Drawing.Size(20, 20);
+            this.btn_dbEnableSen0.TabIndex = 7;
+            this.btn_dbEnableSen0.Text = "0";
+            this.btn_dbEnableSen0.UseVisualStyleBackColor = true;
+            this.btn_dbEnableSen0.Click += new System.EventHandler(this.btn_dbEnableSen0_Click);
+            // 
+            // lbl_dbDataRate
+            // 
+            this.lbl_dbDataRate.AutoSize = true;
+            this.lbl_dbDataRate.Location = new System.Drawing.Point(12, 99);
+            this.lbl_dbDataRate.Name = "lbl_dbDataRate";
+            this.lbl_dbDataRate.Size = new System.Drawing.Size(59, 13);
+            this.lbl_dbDataRate.TabIndex = 6;
+            this.lbl_dbDataRate.Text = "Data Rate:";
+            this.lbl_dbDataRate.Click += new System.EventHandler(this.label7_Click);
+            // 
+            // nud_dbDataRate
+            // 
+            this.nud_dbDataRate.Location = new System.Drawing.Point(12, 115);
+            this.nud_dbDataRate.Minimum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.nud_dbDataRate.Name = "nud_dbDataRate";
+            this.nud_dbDataRate.Size = new System.Drawing.Size(59, 20);
+            this.nud_dbDataRate.TabIndex = 5;
+            this.nud_dbDataRate.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.nud_dbDataRate.Value = new decimal(new int[] {
+            20,
+            0,
+            0,
+            0});
+            this.nud_dbDataRate.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.nud_dbDataRate_KeyPress);
+            // 
+            // btn_dbTogglePort
+            // 
+            this.btn_dbTogglePort.Location = new System.Drawing.Point(209, 54);
+            this.btn_dbTogglePort.Name = "btn_dbTogglePort";
+            this.btn_dbTogglePort.Size = new System.Drawing.Size(56, 23);
+            this.btn_dbTogglePort.TabIndex = 4;
+            this.btn_dbTogglePort.Text = "Open";
+            this.btn_dbTogglePort.UseVisualStyleBackColor = true;
+            this.btn_dbTogglePort.Click += new System.EventHandler(this.btn_dbTogglePort_Click);
+            // 
+            // lbl_dbBaudRate
+            // 
+            this.lbl_dbBaudRate.AutoSize = true;
+            this.lbl_dbBaudRate.Location = new System.Drawing.Point(141, 11);
+            this.lbl_dbBaudRate.Name = "lbl_dbBaudRate";
+            this.lbl_dbBaudRate.Size = new System.Drawing.Size(92, 13);
+            this.lbl_dbBaudRate.TabIndex = 3;
+            this.lbl_dbBaudRate.Text = "Baudrate: 115200";
+            // 
+            // cb_dbComPorts
+            // 
+            this.cb_dbComPorts.FormattingEnabled = true;
+            this.cb_dbComPorts.Location = new System.Drawing.Point(144, 27);
+            this.cb_dbComPorts.Name = "cb_dbComPorts";
+            this.cb_dbComPorts.Size = new System.Drawing.Size(121, 21);
+            this.cb_dbComPorts.TabIndex = 2;
+            // 
+            // btn_dbGetStatus
+            // 
+            this.btn_dbGetStatus.Location = new System.Drawing.Point(214, 132);
+            this.btn_dbGetStatus.Name = "btn_dbGetStatus";
+            this.btn_dbGetStatus.Size = new System.Drawing.Size(51, 49);
+            this.btn_dbGetStatus.TabIndex = 0;
+            this.btn_dbGetStatus.Text = "Get Status";
+            this.btn_dbGetStatus.UseVisualStyleBackColor = true;
+            this.btn_dbGetStatus.Click += new System.EventHandler(this.btn_dbGetStatus_Click);
+            // 
+            // grp_dbConfigurePB
+            // 
+            this.grp_dbConfigurePB.Controls.Add(this.btn_dbSetConfig);
+            this.grp_dbConfigurePB.Location = new System.Drawing.Point(7, 83);
+            this.grp_dbConfigurePB.Name = "grp_dbConfigurePB";
+            this.grp_dbConfigurePB.Size = new System.Drawing.Size(204, 100);
+            this.grp_dbConfigurePB.TabIndex = 17;
+            this.grp_dbConfigurePB.TabStop = false;
+            this.grp_dbConfigurePB.Text = "Configure Power Board";
+            // 
+            // btn_dbSetConfig
+            // 
+            this.btn_dbSetConfig.Location = new System.Drawing.Point(98, 29);
+            this.btn_dbSetConfig.Name = "btn_dbSetConfig";
+            this.btn_dbSetConfig.Size = new System.Drawing.Size(75, 23);
+            this.btn_dbSetConfig.TabIndex = 1;
+            this.btn_dbSetConfig.Text = "Set Config";
+            this.btn_dbSetConfig.UseVisualStyleBackColor = true;
+            this.btn_dbSetConfig.Click += new System.EventHandler(this.btn_dbSetConfig_Click);
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.cb_streamRawFrames);
+            this.groupBox3.Controls.Add(this.btn_pbFullRawFrame);
+            this.groupBox3.Location = new System.Drawing.Point(6, 6);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(218, 323);
+            this.groupBox3.TabIndex = 0;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Power Board Packets";
+            // 
+            // cb_streamRawFrames
+            // 
+            this.cb_streamRawFrames.AutoSize = true;
+            this.cb_streamRawFrames.Location = new System.Drawing.Point(117, 32);
+            this.cb_streamRawFrames.Name = "cb_streamRawFrames";
+            this.cb_streamRawFrames.Size = new System.Drawing.Size(95, 17);
+            this.cb_streamRawFrames.TabIndex = 1;
+            this.cb_streamRawFrames.Text = "Stream Enable";
+            this.cb_streamRawFrames.UseVisualStyleBackColor = true;
+            this.cb_streamRawFrames.CheckedChanged += new System.EventHandler(this.cb_streamRawFrames_CheckedChanged);
+            // 
+            // btn_pbFullRawFrame
+            // 
+            this.btn_pbFullRawFrame.Location = new System.Drawing.Point(10, 28);
+            this.btn_pbFullRawFrame.Name = "btn_pbFullRawFrame";
+            this.btn_pbFullRawFrame.Size = new System.Drawing.Size(100, 23);
+            this.btn_pbFullRawFrame.TabIndex = 0;
+            this.btn_pbFullRawFrame.Text = "Full Raw Frame";
+            this.btn_pbFullRawFrame.UseVisualStyleBackColor = true;
+            this.btn_pbFullRawFrame.Click += new System.EventHandler(this.btn_pbFullRawFrame_Click);
+            // 
             // btn_refreshComPorts
             // 
             this.btn_refreshComPorts.Location = new System.Drawing.Point(368, 255);
@@ -1093,48 +1409,9 @@ namespace PacketTester
             this.lbl_valueData4.Text = "0";
             this.lbl_valueData4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // tabPage5
+            // dataBoardPort
             // 
-            this.tabPage5.Controls.Add(this.groupBox3);
-            this.tabPage5.Location = new System.Drawing.Point(4, 22);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(508, 335);
-            this.tabPage5.TabIndex = 4;
-            this.tabPage5.Text = "Emulators";
-            this.tabPage5.UseVisualStyleBackColor = true;
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.cb_streamRawFrames);
-            this.groupBox3.Controls.Add(this.btn_pbFullRawFrame);
-            this.groupBox3.Location = new System.Drawing.Point(6, 6);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(218, 323);
-            this.groupBox3.TabIndex = 0;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Power Board Packets";
-            // 
-            // btn_pbFullRawFrame
-            // 
-            this.btn_pbFullRawFrame.Location = new System.Drawing.Point(10, 28);
-            this.btn_pbFullRawFrame.Name = "btn_pbFullRawFrame";
-            this.btn_pbFullRawFrame.Size = new System.Drawing.Size(100, 23);
-            this.btn_pbFullRawFrame.TabIndex = 0;
-            this.btn_pbFullRawFrame.Text = "Full Raw Frame";
-            this.btn_pbFullRawFrame.UseVisualStyleBackColor = true;
-            this.btn_pbFullRawFrame.Click += new System.EventHandler(this.btn_pbFullRawFrame_Click);
-            // 
-            // cb_streamRawFrames
-            // 
-            this.cb_streamRawFrames.AutoSize = true;
-            this.cb_streamRawFrames.Location = new System.Drawing.Point(117, 32);
-            this.cb_streamRawFrames.Name = "cb_streamRawFrames";
-            this.cb_streamRawFrames.Size = new System.Drawing.Size(95, 17);
-            this.cb_streamRawFrames.TabIndex = 1;
-            this.cb_streamRawFrames.Text = "Stream Enable";
-            this.cb_streamRawFrames.UseVisualStyleBackColor = true;
-            this.cb_streamRawFrames.CheckedChanged += new System.EventHandler(this.cb_streamRawFrames_CheckedChanged);
+            this.dataBoardPort.BaudRate = 115200;
             // 
             // mainForm
             // 
@@ -1163,6 +1440,7 @@ namespace PacketTester
             this.Controls.Add(this.lb_y_max);
             this.Controls.Add(this.bnt_Connect);
             this.Controls.Add(this.cb_serialPorts);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "mainForm";
             this.Text = "Sean\'s Packet Tester";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.mainForm_FormClosing);
@@ -1187,6 +1465,10 @@ namespace PacketTester
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.tabPage5.ResumeLayout(false);
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_dbDataRate)).EndInit();
+            this.grp_dbConfigurePB.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
@@ -1287,6 +1569,29 @@ namespace PacketTester
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Button btn_pbFullRawFrame;
         private System.Windows.Forms.CheckBox cb_streamRawFrames;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Button btn_dbGetStatus;
+        private System.Windows.Forms.Button btn_dbSetConfig;
+        private System.Windows.Forms.Button btn_dbTogglePort;
+        private System.Windows.Forms.Label lbl_dbBaudRate;
+        private System.Windows.Forms.ComboBox cb_dbComPorts;
+        private System.Windows.Forms.Label lbl_dbDataRate;
+        private System.Windows.Forms.NumericUpDown nud_dbDataRate;
+        private System.Windows.Forms.Button btn_dbEnableSen8;
+        private System.Windows.Forms.Button btn_dbEnableSen7;
+        private System.Windows.Forms.Button btn_dbEnableSen6;
+        private System.Windows.Forms.Button btn_dbEnableSen4;
+        private System.Windows.Forms.Button btn_dbEnableSen5;
+        private System.Windows.Forms.Button btn_dbEnableSen3;
+        private System.Windows.Forms.Button btn_dbEnableSen2;
+        private System.Windows.Forms.Label lbl_dbEnableSensors;
+        private System.Windows.Forms.Button btn_dbEnableSen1;
+        private System.Windows.Forms.Button btn_dbEnableSen0;
+        private System.Windows.Forms.GroupBox grp_dbConfigurePB;
+        private System.Windows.Forms.Button btn_dbGetDateTime;
+        private System.Windows.Forms.Button btn_dbSetDateTime;
+        private System.IO.Ports.SerialPort dataBoardPort;
+        private System.Windows.Forms.Button btn_dbStream;
     }
 }
 
