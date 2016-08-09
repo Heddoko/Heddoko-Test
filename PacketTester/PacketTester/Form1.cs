@@ -1734,47 +1734,57 @@ namespace PacketTester
 
         private void btn_arm_recMovement_Click(object sender, EventArgs e)
         {
-            if (!toggleRecButton)       // Start recording (false)
-            {
-                if (robotArmWarningEnable)
-                {
-                    DialogResult result;
-                    result = MessageBox.Show("It will save data to the file specified in the address. Press Yes to continue, No to enter new Address, Cancel to stop displaying this message",
-                                                "Caution", MessageBoxButtons.YesNoCancel);
-                    if (result == System.Windows.Forms.DialogResult.No)
-                    {
-                        return;
-                    }
-                    else if (result == System.Windows.Forms.DialogResult.Cancel)
-                    {
-                        robotArmWarningEnable = false;
-                    }
-                }
-                if (File.Exists(textBox1.Text))
-                {
-                    if (robotArmPort.IsOpen)
-                    {
-                        robotArmPort.Write("Rec\r");
-                        btn_arm_recMovement.BackColor = System.Drawing.Color.Tomato;
-                        enableArmRecording = true;
-                        toggleRecButton = !toggleRecButton;
-                    }
-                }
-                else
-                {
-                    tb_Console.AppendText("Invalid file address");
-                    return;
-                }
-            }
-            else        // stop recording (true)
+            if (chb_arm_recPoints.Checked)
             {
                 if (robotArmPort.IsOpen)
                 {
-                    robotArmPort.Write("End\r");
+                    robotArmPort.Write("Rec\r");
                 }
-                btn_arm_recMovement.BackColor = System.Drawing.Color.Transparent;
-                //enableArmRecording = false;
-                toggleRecButton = !toggleRecButton;
+            }
+            else
+            {
+                if (!toggleRecButton)       // Start recording (false)
+                {
+                    if (robotArmWarningEnable)
+                    {
+                        DialogResult result;
+                        result = MessageBox.Show("It will save data to the file specified in the address. Press Yes to continue, No to enter new Address, Cancel to stop displaying this message",
+                                                    "Caution", MessageBoxButtons.YesNoCancel);
+                        if (result == System.Windows.Forms.DialogResult.No)
+                        {
+                            return;
+                        }
+                        else if (result == System.Windows.Forms.DialogResult.Cancel)
+                        {
+                            robotArmWarningEnable = false;
+                        }
+                    }
+                    if (File.Exists(textBox1.Text))
+                    {
+                        if (robotArmPort.IsOpen)
+                        {
+                            robotArmPort.Write("Rec\r");
+                            btn_arm_recMovement.BackColor = System.Drawing.Color.Tomato;
+                            enableArmRecording = true;
+                            toggleRecButton = !toggleRecButton;
+                        }
+                    }
+                    else
+                    {
+                        tb_Console.AppendText("Invalid file address");
+                        return;
+                    }
+                }
+                else        // stop recording (true)
+                {
+                    if (robotArmPort.IsOpen)
+                    {
+                        robotArmPort.Write("End\r");
+                    }
+                    btn_arm_recMovement.BackColor = System.Drawing.Color.Transparent;
+                    //enableArmRecording = false;
+                    toggleRecButton = !toggleRecButton;
+                }
             }
         }
 
@@ -1919,6 +1929,11 @@ namespace PacketTester
             }
         }
 
+        private int convertFromBcd(int bcdNumber)
+        {
+            return (((bcdNumber & 0xF0) >> 4) * 10 + (bcdNumber & 0x0F));
+        }
+
         private int convertToBcd(int twoDigitInteger)
         {
             int tens, units;
@@ -2018,6 +2033,202 @@ namespace PacketTester
                 dbEnableSen0 = false;
                 btn_dbEnableSen0.BackColor = System.Drawing.Color.Transparent;
                 setSensorMask &= ~(0x01 << 0);
+            }
+        }
+
+        private void chb_arm_recPoints_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chb_arm_recPoints.Checked)
+            {
+                if (File.Exists(textBox1.Text))
+                {
+                    if (robotArmPort.IsOpen)
+                    {
+                        robotArmPort.Write("RecPoints\r");
+                        tb_Console.AppendText("Manual Recording started\r\n");
+                        enableArmRecording = true;
+                    }
+                }
+                else
+                {
+                    tb_Console.AppendText("Invalid file address\r\n");
+                    chb_arm_recPoints.Checked = false;
+                    return;
+                }
+            }
+            else
+            {
+                if (robotArmPort.IsOpen)
+                {
+                    robotArmPort.Write("End\r");
+                    tb_Console.AppendText("End of Recording\r\n");
+                    //enableArmRecording = false;
+                }
+            }
+        }
+
+        private void displaySubpStatus(ref RawPacket packet)
+        {
+            // charge level
+            debugMessageQueue.Enqueue(String.Format("Charge Level: {0}\r\n", packet.Payload[2]));
+
+            // charge state
+            if (packet.Payload[3] == 0)
+                debugMessageQueue.Enqueue("Charge state: Battery Lowr\r\n");
+            else if (packet.Payload[3] == 1)
+                debugMessageQueue.Enqueue("Charge state: Battery Nominal\r\n");
+            else if (packet.Payload[3] == 2)
+                debugMessageQueue.Enqueue("Charge state: Battery Full\r\n");
+            else
+                debugMessageQueue.Enqueue("Charge state: Charging\r\n");
+
+            // USB comm state
+            if (packet.Payload[4] == 0)
+                debugMessageQueue.Enqueue("USB state: USB comm not connected\r\n");
+            else
+                debugMessageQueue.Enqueue("USB state: USB comm detected\r\n");
+
+            // Jack detect state
+            if (packet.Payload[5] == 0)
+                debugMessageQueue.Enqueue("Jack detect: No jacks detected\r\n");
+            else
+                debugMessageQueue.Enqueue("Jack detect: Both jacks detected\r\n");
+
+            // Sensor Stream state
+            if (packet.Payload[6] == 0)
+                debugMessageQueue.Enqueue("Sensor state: Sensor idle\r\n");
+            else if (packet.Payload[6] == 1)
+                debugMessageQueue.Enqueue("Sensor state: Sensor streaming\r\n");
+            else
+                debugMessageQueue.Enqueue("Sensor state: Sensor error\r\n");
+
+            // Sensor Mask
+            int presentSensors = 0, absentSensors = 0;
+            byte[] sensorPresent = new byte[9];
+            byte[] sensorAbsent = new byte[9];
+            debugMessageQueue.Enqueue("Sensor present: ");
+            for (int i = 0; i < 9; i++) // we only have a max of 9 sensors
+            {
+                if (i < 8)
+                {
+                    if (((packet.Payload[7] >> i) & 0x01) > 0)
+                    {
+                        sensorPresent[presentSensors] = (byte)i;
+                        presentSensors++;
+                        debugMessageQueue.Enqueue(String.Format("{0}", i));
+                    }
+                    else
+                    {
+                        sensorAbsent[absentSensors] = (byte)i;
+                        absentSensors++;
+                    }
+                }
+                else
+                {
+                    if ((packet.Payload[8] & 0x01) > 0)
+                    {
+                        sensorPresent[presentSensors] = (byte)i;
+                        presentSensors++;
+                        debugMessageQueue.Enqueue(String.Format("{0}", i));
+                    }
+                    else
+                    {
+                        sensorAbsent[absentSensors] = (byte)i;
+                        absentSensors++;
+                    }
+                }
+            }
+            debugMessageQueue.Enqueue("\r\nSensor absent: ");
+            for (int i = 0; i < absentSensors; i++)
+            {
+                debugMessageQueue.Enqueue(String.Format("{0}", sensorAbsent[i]));
+            }
+            debugMessageQueue.Enqueue("\r\n");
+        }
+
+        private void displayDateTime(ref RawPacket packet)
+        {
+            // date
+            int date, dayOfWeek, month, year;
+            year = (convertFromBcd(packet.Payload[6]) * 100) + convertFromBcd(packet.Payload[7]);
+            month = convertFromBcd(packet.Payload[8] & 0x1F);  // lower 5 bits are for months
+            dayOfWeek = convertFromBcd(packet.Payload[8] & 0xE0) >> 4; // higher 3 bits are for day
+            date = convertFromBcd(packet.Payload[9]);
+            debugMessageQueue.Enqueue(String.Format("{0}/{1}/{2}, ", date, month, year));
+
+            // time
+            int hour, minute, second;
+            hour = convertFromBcd(packet.Payload[4]);
+            minute = convertFromBcd(packet.Payload[3]);
+            second = convertFromBcd(packet.Payload[2]);
+            debugMessageQueue.Enqueue(String.Format("{0}:{1}:{2}\r\n", hour, minute, second));
+        }
+
+        private void processSubpPacket(RawPacket packet)
+        {
+            if (packet.Payload[0] == 0x05)  // verify if the packet is coming from Sub processor
+            {
+                switch (packet.Payload[1])
+                {
+                    case 0x52:  // get status response
+                        displaySubpStatus(ref packet);
+                        break;
+                    case 0x55:  // Sensor full frame
+                        // do something with this frame
+                        break;
+                    case 0x56:  // power down request
+                        // don't know what to do, may be send power down response
+                        break;
+                    case 0x59:  // get date time response
+                        displayDateTime(ref packet);
+                        break;
+                    case 0x5B:  // set date time response
+                        if (packet.Payload[2] == 1)
+                        {
+                            debugMessageQueue.Enqueue("Time and date set successfully\r\n");
+                        }
+                        else
+                        {
+                            debugMessageQueue.Enqueue("Setting date and time failed\r\n");
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        RawPacket dataBoardPacket = new RawPacket();
+        private void dataBoardPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            while (dataBoardPort.BytesToRead > 0)
+            {
+                int receivedByte = dataBoardPort.ReadByte();
+                if (receivedByte != -1)
+                {
+                    //process the byte
+                    byte newByte = (byte)receivedByte;
+                    int bytesReceived = dataBoardPacket.BytesReceived + 1;
+                    PacketStatus status = dataBoardPacket.processByte((byte)receivedByte);
+                    switch (status)
+                    {
+                        case PacketStatus.PacketComplete:
+                            RawPacket packetCopy = new RawPacket(dataBoardPacket);
+                            processSubpPacket(dataBoardPacket);
+                            dataBoardPacket.resetPacket();
+                            break;
+                        case PacketStatus.PacketError:
+                            if (cb_logErrors.Checked)
+                            {
+                                debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));
+                            }
+                            dataBoardPacket.resetPacket();
+                            break;
+                        case PacketStatus.Processing:
+                        case PacketStatus.newPacketDetected:
+                            break;
+                    }
+                }
             }
         }
 
