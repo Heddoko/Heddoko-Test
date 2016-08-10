@@ -61,6 +61,9 @@ namespace PacketTester
         public Int32 setSensorMask = 0, rxSensorMask = 0;
         public bool dbEnableSen0 = false, dbEnableSen1 = false, dbEnableSen2 = false, dbEnableSen3 = false, dbEnableSen4 = false;
         public bool dbEnableSen5 = false, dbEnableSen6 = false, dbEnableSen7 = false, dbEnableSen8 = false;
+        bool dbDataMonitorEnable = false;
+        private bool dataMonitorQueueEnabled = false;
+        public ConcurrentQueue<RawPacket> dataMonitorQueue;
 
         public mainForm()
         {
@@ -750,6 +753,9 @@ namespace PacketTester
 
             this.cb_dbComPorts.SelectedItem = this.cb_dbComPorts.Items[0];
             nud_dbDataRate.Value = dbDataRate;
+
+            dataMonitorQueue = new ConcurrentQueue<RawPacket>();
+            dataMonitorQueueEnabled = true;
         }
 
         private void bnt_Connect_Click(object sender, EventArgs e)
@@ -2164,6 +2170,49 @@ namespace PacketTester
             debugMessageQueue.Enqueue(String.Format("{0}:{1}:{2}\r\n", hour, minute, second));
         }
 
+        private void displayFrameData(ref RawPacket packet)
+        {
+            if (chb_dbDataMonitorEnable.Checked)
+            {
+                if (!streamDataToChartEnabled)  // make sure no other thread is writing to the table and the chart
+                {
+                    // get the sensor id from the nud
+                    int expectedSensorId = (int)nud_dbSensorId.Value;
+                    int frameOffset = ((expectedSensorId) * 35) + 7;    // location of the data in the frame
+                    ImuFrame dataFrame = new ImuFrame();
+                    dataFrame.ParseDataFromFullFrame(packet, frameOffset, expectedSensorId);
+                    //updateChart(dataFrame);
+                    updateTable(dataFrame);
+                }
+                else
+                {
+                    tb_Console.AppendText("Other sensor stream writing to the chart and table\r\n");
+                }
+            }
+        }
+
+        public void DataMonitorThread()
+        {
+            /* */
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qx"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qy"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qz"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qw"].Points.Clear()));
+            
+            RawPacket framePacket = new RawPacket();
+
+            while (dbDataMonitorEnable)
+            {
+                Thread.Sleep(10);
+                if (dataMonitorQueue.TryDequeue(out framePacket))
+                {
+                    displayFrameData(ref framePacket);
+                } 
+                                   
+                //Thread.Yield();                
+            }
+        }
+
         private void processSubpPacket(RawPacket packet)
         {
             if (packet.Payload[0] == 0x05)  // verify if the packet is coming from Sub processor
@@ -2174,10 +2223,18 @@ namespace PacketTester
                         displaySubpStatus(ref packet);
                         break;
                     case 0x55:  // Sensor full frame
-                        // do something with this frame
+                        // handle the complete packet containing data from all sensors.
+                        RawPacket packetCopy = new RawPacket(packet);
+                        dataMonitorQueue.Enqueue(packetCopy);
+                        packet.resetPacket();
                         break;
                     case 0x56:  // power down request
-                        // don't know what to do, may be send power down response
+                        // may be send power down response
+                        if (dataBoardPort.IsOpen)
+                        {
+                            byte[] header = { 0x01, 0x57 };
+                            this.BeginInvoke((MethodInvoker)(() => sendPacketTo(dataBoardPort, header, 2)));
+                        }
                         break;
                     case 0x59:  // get date time response
                         displayDateTime(ref packet);
@@ -2230,6 +2287,36 @@ namespace PacketTester
                     }
                 }
             }
+        }
+
+        private void groupBox5_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chb_dbDataMonitorEnable_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chb_dbDataMonitorEnable.Checked)
+            {
+                if (cb_enableStream.Checked)
+                {
+                    tb_Console.AppendText("Failed: Debug 485 thread writing to chart and table\r\n");
+                    chb_dbDataMonitorEnable.Checked = false;
+                    return;
+                }
+                Thread dbDataMonitorThread = new Thread(DataMonitorThread);
+                dbDataMonitorEnable = true;
+                dbDataMonitorThread.Start();
+            }
+            else
+            {
+                dbDataMonitorEnable = false;
+            }
+        }
+
+        private void cb_dbDataType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            selectedDataType = cb_dbDataType.SelectedIndex;
         }
 
         private void btn_dbEnableSen1_Click(object sender, EventArgs e)

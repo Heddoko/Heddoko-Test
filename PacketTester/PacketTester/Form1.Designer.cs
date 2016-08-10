@@ -32,12 +32,12 @@ namespace PacketTester
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
             this.btn_disconnect = new System.Windows.Forms.Button();
             this.tb_Console = new System.Windows.Forms.TextBox();
@@ -92,6 +92,7 @@ namespace PacketTester
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.chb_arm_recPoints = new System.Windows.Forms.CheckBox();
             this.btb_arm_playRecording = new System.Windows.Forms.Button();
             this.btn_arm_recMovement = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -114,6 +115,12 @@ namespace PacketTester
             this.cb_robotPort = new System.Windows.Forms.ComboBox();
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.gb_dbDataMonitor = new System.Windows.Forms.GroupBox();
+            this.chb_dbDataMonitorEnable = new System.Windows.Forms.CheckBox();
+            this.cb_dbDataType = new System.Windows.Forms.ComboBox();
+            this.lbl_dbDataType = new System.Windows.Forms.Label();
+            this.lbl_dbSensorId = new System.Windows.Forms.Label();
+            this.nud_dbSensorId = new System.Windows.Forms.NumericUpDown();
             this.btn_dbStream = new System.Windows.Forms.Button();
             this.btn_dbGetDateTime = new System.Windows.Forms.Button();
             this.btn_dbSetDateTime = new System.Windows.Forms.Button();
@@ -153,7 +160,6 @@ namespace PacketTester
             this.lbl_valueData4 = new System.Windows.Forms.Label();
             this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.dataBoardPort = new System.IO.Ports.SerialPort(this.components);
-            this.chb_arm_recPoints = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -170,6 +176,8 @@ namespace PacketTester
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.tabPage5.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            this.gb_dbDataMonitor.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_dbSensorId)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_dbDataRate)).BeginInit();
             this.grp_dbConfigurePB.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -231,44 +239,44 @@ namespace PacketTester
             // 
             // chrt_dataChart
             // 
-            chartArea2.AxisY.Maximum = 1.1D;
-            chartArea2.AxisY.Minimum = -1.1D;
-            chartArea2.Name = "ChartArea1";
-            this.chrt_dataChart.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.chrt_dataChart.Legends.Add(legend2);
+            chartArea1.AxisY.Maximum = 1.1D;
+            chartArea1.AxisY.Minimum = -1.1D;
+            chartArea1.Name = "ChartArea1";
+            this.chrt_dataChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chrt_dataChart.Legends.Add(legend1);
             this.chrt_dataChart.Location = new System.Drawing.Point(541, 30);
             this.chrt_dataChart.Name = "chrt_dataChart";
             this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
-            series5.BorderWidth = 5;
-            series5.ChartArea = "ChartArea1";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series5.Legend = "Legend1";
-            series5.MarkerSize = 1;
-            series5.Name = "Qx";
-            series5.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            series6.BorderWidth = 5;
-            series6.ChartArea = "ChartArea1";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series6.Legend = "Legend1";
-            series6.MarkerSize = 1;
-            series6.Name = "Qy";
-            series7.BorderWidth = 5;
-            series7.ChartArea = "ChartArea1";
-            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series7.Legend = "Legend1";
-            series7.MarkerSize = 1;
-            series7.Name = "Qz";
-            series8.BorderWidth = 5;
-            series8.ChartArea = "ChartArea1";
-            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series8.Legend = "Legend1";
-            series8.MarkerSize = 1;
-            series8.Name = "Qw";
-            this.chrt_dataChart.Series.Add(series5);
-            this.chrt_dataChart.Series.Add(series6);
-            this.chrt_dataChart.Series.Add(series7);
-            this.chrt_dataChart.Series.Add(series8);
+            series1.BorderWidth = 5;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Legend = "Legend1";
+            series1.MarkerSize = 1;
+            series1.Name = "Qx";
+            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            series2.BorderWidth = 5;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Legend = "Legend1";
+            series2.MarkerSize = 1;
+            series2.Name = "Qy";
+            series3.BorderWidth = 5;
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.Legend = "Legend1";
+            series3.MarkerSize = 1;
+            series3.Name = "Qz";
+            series4.BorderWidth = 5;
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series4.Legend = "Legend1";
+            series4.MarkerSize = 1;
+            series4.Name = "Qw";
+            this.chrt_dataChart.Series.Add(series1);
+            this.chrt_dataChart.Series.Add(series2);
+            this.chrt_dataChart.Series.Add(series3);
+            this.chrt_dataChart.Series.Add(series4);
             this.chrt_dataChart.Size = new System.Drawing.Size(589, 377);
             this.chrt_dataChart.TabIndex = 28;
             this.chrt_dataChart.Text = "chart1";
@@ -642,6 +650,7 @@ namespace PacketTester
             this.nud_SelectedImu.Name = "nud_SelectedImu";
             this.nud_SelectedImu.Size = new System.Drawing.Size(120, 20);
             this.nud_SelectedImu.TabIndex = 36;
+            this.nud_SelectedImu.Value = 0;
             // 
             // cb_logErrors
             // 
@@ -797,6 +806,18 @@ namespace PacketTester
             this.groupBox2.TabIndex = 57;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Record";
+            // 
+            // chb_arm_recPoints
+            // 
+            this.chb_arm_recPoints.AutoSize = true;
+            this.chb_arm_recPoints.Location = new System.Drawing.Point(3, 77);
+            this.chb_arm_recPoints.Name = "chb_arm_recPoints";
+            this.chb_arm_recPoints.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.chb_arm_recPoints.Size = new System.Drawing.Size(78, 17);
+            this.chb_arm_recPoints.TabIndex = 19;
+            this.chb_arm_recPoints.Text = "Rec Points";
+            this.chb_arm_recPoints.UseVisualStyleBackColor = true;
+            this.chb_arm_recPoints.CheckedChanged += new System.EventHandler(this.chb_arm_recPoints_CheckedChanged);
             // 
             // btb_arm_playRecording
             // 
@@ -1027,6 +1048,7 @@ namespace PacketTester
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.gb_dbDataMonitor);
             this.groupBox4.Controls.Add(this.btn_dbStream);
             this.groupBox4.Controls.Add(this.btn_dbGetDateTime);
             this.groupBox4.Controls.Add(this.btn_dbSetDateTime);
@@ -1049,14 +1071,87 @@ namespace PacketTester
             this.groupBox4.Controls.Add(this.grp_dbConfigurePB);
             this.groupBox4.Location = new System.Drawing.Point(231, 6);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(271, 187);
+            this.groupBox4.Size = new System.Drawing.Size(271, 323);
             this.groupBox4.TabIndex = 1;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Data Board Emulator";
             // 
+            // gb_dbDataMonitor
+            // 
+            this.gb_dbDataMonitor.Controls.Add(this.chb_dbDataMonitorEnable);
+            this.gb_dbDataMonitor.Controls.Add(this.cb_dbDataType);
+            this.gb_dbDataMonitor.Controls.Add(this.lbl_dbDataType);
+            this.gb_dbDataMonitor.Controls.Add(this.lbl_dbSensorId);
+            this.gb_dbDataMonitor.Controls.Add(this.nud_dbSensorId);
+            this.gb_dbDataMonitor.Location = new System.Drawing.Point(7, 189);
+            this.gb_dbDataMonitor.Name = "gb_dbDataMonitor";
+            this.gb_dbDataMonitor.Size = new System.Drawing.Size(258, 57);
+            this.gb_dbDataMonitor.TabIndex = 22;
+            this.gb_dbDataMonitor.TabStop = false;
+            this.gb_dbDataMonitor.Text = "Data monitor";
+            this.gb_dbDataMonitor.Enter += new System.EventHandler(this.groupBox5_Enter);
+            // 
+            // chb_dbDataMonitorEnable
+            // 
+            this.chb_dbDataMonitorEnable.AutoSize = true;
+            this.chb_dbDataMonitorEnable.Location = new System.Drawing.Point(182, 33);
+            this.chb_dbDataMonitorEnable.Name = "chb_dbDataMonitorEnable";
+            this.chb_dbDataMonitorEnable.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.chb_dbDataMonitorEnable.Size = new System.Drawing.Size(59, 17);
+            this.chb_dbDataMonitorEnable.TabIndex = 25;
+            this.chb_dbDataMonitorEnable.Text = "Enable";
+            this.chb_dbDataMonitorEnable.UseVisualStyleBackColor = true;
+            this.chb_dbDataMonitorEnable.CheckedChanged += new System.EventHandler(this.chb_dbDataMonitorEnable_CheckedChanged);
+            // 
+            // cb_dbDataType
+            // 
+            this.cb_dbDataType.FormattingEnabled = true;
+            this.cb_dbDataType.Items.AddRange(new object[] {
+            "Quaternion",
+            "Magnetic",
+            "Acceleration",
+            "Rotation"});
+            this.cb_dbDataType.Location = new System.Drawing.Point(77, 30);
+            this.cb_dbDataType.Name = "cb_dbDataType";
+            this.cb_dbDataType.Size = new System.Drawing.Size(96, 21);
+            this.cb_dbDataType.TabIndex = 24;
+            this.cb_dbDataType.SelectedIndexChanged += new System.EventHandler(this.cb_dbDataType_SelectedIndexChanged);
+            this.cb_dbDataType.SelectedIndex = 0;
+            // 
+            // lbl_dbDataType
+            // 
+            this.lbl_dbDataType.AutoSize = true;
+            this.lbl_dbDataType.Location = new System.Drawing.Point(74, 16);
+            this.lbl_dbDataType.Name = "lbl_dbDataType";
+            this.lbl_dbDataType.Size = new System.Drawing.Size(56, 13);
+            this.lbl_dbDataType.TabIndex = 23;
+            this.lbl_dbDataType.Text = "Data type:";
+            // 
+            // lbl_dbSensorId
+            // 
+            this.lbl_dbSensorId.AutoSize = true;
+            this.lbl_dbSensorId.Location = new System.Drawing.Point(8, 16);
+            this.lbl_dbSensorId.Name = "lbl_dbSensorId";
+            this.lbl_dbSensorId.Size = new System.Drawing.Size(55, 13);
+            this.lbl_dbSensorId.TabIndex = 22;
+            this.lbl_dbSensorId.Text = "Sensor Id:";
+            // 
+            // nud_dbSensorId
+            // 
+            this.nud_dbSensorId.Location = new System.Drawing.Point(6, 32);
+            this.nud_dbSensorId.Maximum = new decimal(new int[] {
+            8,
+            0,
+            0,
+            0});
+            this.nud_dbSensorId.Name = "nud_dbSensorId";
+            this.nud_dbSensorId.Size = new System.Drawing.Size(57, 20);
+            this.nud_dbSensorId.TabIndex = 21;
+            this.nud_dbSensorId.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // btn_dbStream
             // 
-            this.btn_dbStream.Location = new System.Drawing.Point(214, 103);
+            this.btn_dbStream.Location = new System.Drawing.Point(214, 105);
             this.btn_dbStream.Name = "btn_dbStream";
             this.btn_dbStream.Size = new System.Drawing.Size(51, 23);
             this.btn_dbStream.TabIndex = 20;
@@ -1242,7 +1337,7 @@ namespace PacketTester
             // 
             // btn_dbGetStatus
             // 
-            this.btn_dbGetStatus.Location = new System.Drawing.Point(214, 132);
+            this.btn_dbGetStatus.Location = new System.Drawing.Point(214, 134);
             this.btn_dbGetStatus.Name = "btn_dbGetStatus";
             this.btn_dbGetStatus.Size = new System.Drawing.Size(51, 49);
             this.btn_dbGetStatus.TabIndex = 0;
@@ -1416,18 +1511,6 @@ namespace PacketTester
             this.dataBoardPort.BaudRate = 115200;
             this.dataBoardPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.dataBoardPort_DataReceived);
             // 
-            // chb_arm_recPoints
-            // 
-            this.chb_arm_recPoints.AutoSize = true;
-            this.chb_arm_recPoints.Location = new System.Drawing.Point(3, 77);
-            this.chb_arm_recPoints.Name = "chb_arm_recPoints";
-            this.chb_arm_recPoints.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.chb_arm_recPoints.Size = new System.Drawing.Size(78, 17);
-            this.chb_arm_recPoints.TabIndex = 19;
-            this.chb_arm_recPoints.Text = "Rec Points";
-            this.chb_arm_recPoints.UseVisualStyleBackColor = true;
-            this.chb_arm_recPoints.CheckedChanged += new System.EventHandler(this.chb_arm_recPoints_CheckedChanged);
-            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1483,6 +1566,9 @@ namespace PacketTester
             this.tabPage5.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            this.gb_dbDataMonitor.ResumeLayout(false);
+            this.gb_dbDataMonitor.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_dbSensorId)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_dbDataRate)).EndInit();
             this.grp_dbConfigurePB.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
@@ -1609,6 +1695,12 @@ namespace PacketTester
         private System.IO.Ports.SerialPort dataBoardPort;
         private System.Windows.Forms.Button btn_dbStream;
         private System.Windows.Forms.CheckBox chb_arm_recPoints;
+        private System.Windows.Forms.GroupBox gb_dbDataMonitor;
+        private System.Windows.Forms.NumericUpDown nud_dbSensorId;
+        private System.Windows.Forms.Label lbl_dbSensorId;
+        private System.Windows.Forms.ComboBox cb_dbDataType;
+        private System.Windows.Forms.Label lbl_dbDataType;
+        private System.Windows.Forms.CheckBox chb_dbDataMonitorEnable;
     }
 }
 
