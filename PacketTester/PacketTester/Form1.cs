@@ -61,9 +61,14 @@ namespace PacketTester
         public Int32 setSensorMask = 0, rxSensorMask = 0;
         public bool dbEnableSen0 = false, dbEnableSen1 = false, dbEnableSen2 = false, dbEnableSen3 = false, dbEnableSen4 = false;
         public bool dbEnableSen5 = false, dbEnableSen6 = false, dbEnableSen7 = false, dbEnableSen8 = false;
-        bool dbDataMonitorEnable = false;
+        bool dbDataMonitorEnable = false, dbDataReceiveEnable = false;
         private bool dataMonitorQueueEnabled = false;
         public ConcurrentQueue<RawPacket> dataMonitorQueue;
+        public UInt32 sensorDataRate = 0, sensorAvgRate = 0;
+        public UInt32 curSensorFrameTick = 0, preSensorFrameTick = 0;
+        public int dbSensorFrameCount = 0, debugCount = 0;
+        public ConcurrentQueue<byte> dbDataReceiveQueue;
+        private bool dbDataReceiveQueueEnabled = false;
 
         public mainForm()
         {
@@ -756,6 +761,9 @@ namespace PacketTester
 
             dataMonitorQueue = new ConcurrentQueue<RawPacket>();
             dataMonitorQueueEnabled = true;
+
+            dbDataReceiveQueue = new ConcurrentQueue<byte>();
+            dbDataReceiveQueueEnabled = true;
         }
 
         private void bnt_Connect_Click(object sender, EventArgs e)
@@ -1877,9 +1885,47 @@ namespace PacketTester
 
         }
 
+        public void dbDataReceive()
+        {
+            byte receivedByte;
+            while (dbDataReceiveEnable)
+            {
+                if (dbDataReceiveQueue.Count == 0)
+                {
+                    Thread.Sleep(1);
+                    //Thread.Yield();
+                }
+
+                if (dbDataReceiveQueue.TryDequeue(out receivedByte))
+                {
+                    int bytesReceived = dataBoardPacket.BytesReceived + 1;
+                    PacketStatus status = dataBoardPacket.processByte((byte)receivedByte);
+                    switch (status)
+                    {
+                        case PacketStatus.PacketComplete:
+                            RawPacket packetCopy = new RawPacket(dataBoardPacket);
+                            processSubpPacket(dataBoardPacket);
+                            dataBoardPacket.resetPacket();
+                            break;
+                        case PacketStatus.PacketError:
+                            if (cb_logErrors.Checked)
+                            {
+                                debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));
+                            }
+                            dataBoardPacket.resetPacket();
+                            break;
+                        case PacketStatus.Processing:
+                            break;
+                        case PacketStatus.newPacketDetected:
+                            break;
+                    }
+                }
+            }
+        }
+
         private void btn_dbTogglePort_Click(object sender, EventArgs e)
         {
-            if (!toggleDbPort)
+            if (!toggleDbPort)  // try to open the port
             {
                 dataBoardPort.PortName = cb_dbComPorts.Items[cb_dbComPorts.SelectedIndex].ToString();
                 dataBoardPort.BaudRate = 115200;
@@ -1891,6 +1937,9 @@ namespace PacketTester
                     tb_Console.AppendText("Port: " + dataBoardPort.PortName + " Open\r\n");
                     btn_dbTogglePort.Text = "Close";
                     toggleDbPort = !toggleDbPort;
+                    Thread dbDataReceiveThread = new Thread(dbDataReceive);
+                    dbDataReceiveEnable = true;
+                    dbDataReceiveThread.Start();
                 }
                 catch (Exception ex)
                 {
@@ -1898,18 +1947,24 @@ namespace PacketTester
                     tb_Console.AppendText("Exception " + ex.Message + " \r\n");
                     toggleDbPort = false;
                     dbPortOpen = false;
+                    dbDataReceiveEnable = false;  // close the data reveive thread
                 }
             }
 
-            else
+            else    // try to close the port
             {
                 try
                 {
+                    if (btn_dbStream.BackColor == System.Drawing.Color.LightGreen)
+                    {
+                        btn_dbStream.PerformClick();    // stop the stream if enabled
+                    }
                     dataBoardPort.Close();
                     dbPortOpen = false;
                     tb_Console.AppendText("Port: " + dataBoardPort.PortName + " Closed\r\n");
                     btn_dbTogglePort.Text = "Open";
                     toggleDbPort = !toggleDbPort;
+                    dataBoardPacket.resetPacket();
                 }
                 catch
                 {
@@ -1997,15 +2052,18 @@ namespace PacketTester
         {
             if (dataBoardPort.IsOpen)
             {
-                if (btn_dbStream.BackColor == System.Drawing.Color.Transparent)
+                if (btn_dbStream.BackColor == System.Drawing.Color.Transparent) // use back color to check the state of the button
                 {
-                    byte[] header = { 0x01, 0x54, 0x01 };
+                    byte[] header = { 0x01, 0x54, 0x01 };   // Stream enable
                     sendPacketTo(dataBoardPort, header, 3);
                     btn_dbStream.BackColor = System.Drawing.Color.LightGreen;
+                    sensorDataRate = 0;
+                    sensorAvgRate = 0;
+                    dbSensorFrameCount = 0;
                 }
                 else
                 {
-                    byte[] header = { 0x01, 0x54, 0x00 };
+                    byte[] header = { 0x01, 0x54, 0x00 };   // stream disable
                     sendPacketTo(dataBoardPort, header, 3);
                     btn_dbStream.BackColor = System.Drawing.Color.Transparent;
                 }
@@ -2097,8 +2155,10 @@ namespace PacketTester
             // Jack detect state
             if (packet.Payload[5] == 0)
                 debugMessageQueue.Enqueue("Jack detect: No jacks detected\r\n");
-            else
+            else if (packet.Payload[5] == 3)
                 debugMessageQueue.Enqueue("Jack detect: Both jacks detected\r\n");
+            else
+                debugMessageQueue.Enqueue("Jack detect: One jack detected\r\n");
 
             // Sensor Stream state
             if (packet.Payload[6] == 0)
@@ -2115,29 +2175,30 @@ namespace PacketTester
             debugMessageQueue.Enqueue("Sensor present: ");
             for (int i = 0; i < 9; i++) // we only have a max of 9 sensors
             {
+                // get the IDs for the sensors present and absent
                 if (i < 8)
                 {
-                    if (((packet.Payload[7] >> i) & 0x01) > 0)
+                    if (((packet.Payload[7] >> i) & 0x01) > 0)      // the sensor is present
                     {
                         sensorPresent[presentSensors] = (byte)i;
                         presentSensors++;
                         debugMessageQueue.Enqueue(String.Format("{0}", i));
                     }
-                    else
+                    else    // the sensor is absent
                     {
                         sensorAbsent[absentSensors] = (byte)i;
                         absentSensors++;
                     }
                 }
-                else
+                else      // check the next byte for sensorID 8
                 {
-                    if ((packet.Payload[8] & 0x01) > 0)
+                    if ((packet.Payload[8] & 0x01) > 0)      // the sensor is present
                     {
                         sensorPresent[presentSensors] = (byte)i;
                         presentSensors++;
                         debugMessageQueue.Enqueue(String.Format("{0}", i));
                     }
-                    else
+                    else    // the sensor is absent
                     {
                         sensorAbsent[absentSensors] = (byte)i;
                         absentSensors++;
@@ -2150,6 +2211,66 @@ namespace PacketTester
                 debugMessageQueue.Enqueue(String.Format("{0}", sensorAbsent[i]));
             }
             debugMessageQueue.Enqueue("\r\n");
+            rxSensorMask = ((int)packet.Payload[7]) | ((int)packet.Payload[8] << 8);
+            displaySensorState(setSensorMask, rxSensorMask);
+        }
+        
+        private void displaySensorState(int setMask, int rxMask)
+        {
+            if (btn_dbStream.BackColor == System.Drawing.Color.LightGreen)  // display the sensor state only if the stream is enabled
+            {
+                // flash red color on the buttons with sensor error
+                for (int i = 0; i < 9; i++)
+                {
+                    if (((setMask >> i) & 0x01) != 0)   // check if the sensor was requested
+                    {
+                        if (((rxMask >> i) & 0x01) != 0)    // check if the sensor is in error 
+                        {
+                            setSensorBtnColor(i, System.Drawing.Color.LightGreen);
+                        }
+                        else
+                        {
+                            setSensorBtnColor(i, System.Drawing.Color.Tomato);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void setSensorBtnColor(int sensorId, System.Drawing.Color color)
+        {
+            switch (sensorId)
+            {
+                case 0:
+                    btn_dbEnableSen0.BackColor = color;
+                    break;
+                case 1:
+                    btn_dbEnableSen1.BackColor = color;
+                    break;
+                case 2:
+                    btn_dbEnableSen2.BackColor = color;
+                    break;
+                case 3:
+                    btn_dbEnableSen3.BackColor = color;
+                    break;
+                case 4:
+                    btn_dbEnableSen4.BackColor = color;
+                    break;
+                case 5:
+                    btn_dbEnableSen5.BackColor = color;
+                    break;
+                case 6:
+                    btn_dbEnableSen6.BackColor = color;
+                    break;
+                case 7:
+                    btn_dbEnableSen7.BackColor = color;
+                    break;
+                case 8:
+                    btn_dbEnableSen8.BackColor = color;
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void displayDateTime(ref RawPacket packet)
@@ -2183,6 +2304,11 @@ namespace PacketTester
                     dataFrame.ParseDataFromFullFrame(packet, frameOffset, expectedSensorId);
                     //updateChart(dataFrame);
                     updateTable(dataFrame);
+                    // calculate data rate
+                    curSensorFrameTick = BitConverter.ToUInt32(packet.Payload, 3);
+                    sensorDataRate = curSensorFrameTick - preSensorFrameTick;
+                    preSensorFrameTick = curSensorFrameTick;
+                    this.BeginInvoke((MethodInvoker)(() => lbl_dbDataInterval.Text = sensorDataRate.ToString()));
                 }
                 else
                 {
@@ -2203,10 +2329,15 @@ namespace PacketTester
 
             while (dbDataMonitorEnable)
             {
-                Thread.Sleep(10);
+                if (dataMonitorQueue.Count == 0)
+                {
+                    Thread.Sleep(1);
+                }
+
                 if (dataMonitorQueue.TryDequeue(out framePacket))
                 {
                     displayFrameData(ref framePacket);
+                    framePacket.resetPacket();
                 } 
                                    
                 //Thread.Yield();                
@@ -2227,9 +2358,11 @@ namespace PacketTester
                         RawPacket packetCopy = new RawPacket(packet);
                         dataMonitorQueue.Enqueue(packetCopy);
                         packet.resetPacket();
+                        dbSensorFrameCount++;
+                        this.BeginInvoke((MethodInvoker)(() => lbl_dbFrameCount.Text = dbSensorFrameCount.ToString()));
                         break;
                     case 0x56:  // power down request
-                        // may be send power down response
+                        // send power down response
                         if (dataBoardPort.IsOpen)
                         {
                             byte[] header = { 0x01, 0x57 };
@@ -2249,6 +2382,12 @@ namespace PacketTester
                             debugMessageQueue.Enqueue("Setting date and time failed\r\n");
                         }
                         break;
+                    case 0x5C:  // this is debug string. Store it in debug Logs
+                        byte[] debugStr = new byte[100];
+                        Buffer.BlockCopy(packet.Payload, 2, debugStr, 0, 100);
+                        String asciiString = System.Text.Encoding.ASCII.GetString(debugStr);    // TODO: this will print nulls, solve it
+                        debugMessageQueue.Enqueue(asciiString);
+                        break;
                     default:
                         break;
                 }
@@ -2258,34 +2397,43 @@ namespace PacketTester
         RawPacket dataBoardPacket = new RawPacket();
         private void dataBoardPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            while (dataBoardPort.BytesToRead > 0)
+            int bytesToRead = dataBoardPort.BytesToRead;
+            while (bytesToRead > 0)
             {
+                if (!dataBoardPort.IsOpen)
+                {
+                    return;
+                }
                 int receivedByte = dataBoardPort.ReadByte();
                 if (receivedByte != -1)
                 {
                     //process the byte
                     byte newByte = (byte)receivedByte;
-                    int bytesReceived = dataBoardPacket.BytesReceived + 1;
-                    PacketStatus status = dataBoardPacket.processByte((byte)receivedByte);
-                    switch (status)
-                    {
-                        case PacketStatus.PacketComplete:
-                            RawPacket packetCopy = new RawPacket(dataBoardPacket);
-                            processSubpPacket(dataBoardPacket);
-                            dataBoardPacket.resetPacket();
-                            break;
-                        case PacketStatus.PacketError:
-                            if (cb_logErrors.Checked)
-                            {
-                                debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));
-                            }
-                            dataBoardPacket.resetPacket();
-                            break;
-                        case PacketStatus.Processing:
-                        case PacketStatus.newPacketDetected:
-                            break;
-                    }
+
+                    dbDataReceiveQueue.Enqueue(newByte);
+
+                    //int bytesReceived = dataBoardPacket.BytesReceived + 1;
+                    //PacketStatus status = dataBoardPacket.processByte((byte)receivedByte);
+                    //switch (status)
+                    //{
+                    //    case PacketStatus.PacketComplete:
+                    //        RawPacket packetCopy = new RawPacket(dataBoardPacket);
+                    //        processSubpPacket(dataBoardPacket);
+                    //        dataBoardPacket.resetPacket();
+                    //        break;
+                    //    case PacketStatus.PacketError:
+                    //        if (cb_logErrors.Checked)
+                    //        {
+                    //            debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));
+                    //        }
+                    //        dataBoardPacket.resetPacket();
+                    //        break;
+                    //    case PacketStatus.Processing:
+                    //    case PacketStatus.newPacketDetected:
+                    //        break;
+                    //}
                 }
+                bytesToRead = dataBoardPort.BytesToRead;
             }
         }
 
@@ -2317,6 +2465,11 @@ namespace PacketTester
         private void cb_dbDataType_SelectedIndexChanged(object sender, EventArgs e)
         {
             selectedDataType = cb_dbDataType.SelectedIndex;
+        }
+
+        private void label7_Click_1(object sender, EventArgs e)
+        {
+
         }
 
         private void btn_dbEnableSen1_Click(object sender, EventArgs e)

@@ -139,7 +139,7 @@ namespace PacketTester
             if (packet.Payload[offset] == (byte) expectedId)
             {
                 ImuId = packet.Payload[offset]; //this is the IMU ID
-                Quaternion_x = BitConverter.ToSingle(packet.Payload, offset + 0 + 1);
+                Quaternion_x = BitConverter.ToSingle(packet.Payload, offset + 0 + 1);   // 1 byte is for sensor Id
                 Quaternion_y = BitConverter.ToSingle(packet.Payload, offset + 4 + 1);
                 Quaternion_z = BitConverter.ToSingle(packet.Payload, offset + 8 + 1);
                 Quaternion_w = BitConverter.ToSingle(packet.Payload, offset + 12 + 1);

@@ -32,12 +32,12 @@ namespace PacketTester
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series17 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series18 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series19 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series20 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
             this.btn_disconnect = new System.Windows.Forms.Button();
             this.tb_Console = new System.Windows.Forms.TextBox();
@@ -115,6 +115,12 @@ namespace PacketTester
             this.cb_robotPort = new System.Windows.Forms.ComboBox();
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.lbl_dbTotalFrames = new System.Windows.Forms.Label();
+            this.lbl_dbFrameCount = new System.Windows.Forms.Label();
+            this.lbl_dbAvgRate = new System.Windows.Forms.Label();
+            this.lbl_dbAvgDataRate = new System.Windows.Forms.Label();
+            this.lbl_dbDataInterval = new System.Windows.Forms.Label();
+            this.lbl_dbSensorDataRate = new System.Windows.Forms.Label();
             this.gb_dbDataMonitor = new System.Windows.Forms.GroupBox();
             this.chb_dbDataMonitorEnable = new System.Windows.Forms.CheckBox();
             this.cb_dbDataType = new System.Windows.Forms.ComboBox();
@@ -239,44 +245,44 @@ namespace PacketTester
             // 
             // chrt_dataChart
             // 
-            chartArea1.AxisY.Maximum = 1.1D;
-            chartArea1.AxisY.Minimum = -1.1D;
-            chartArea1.Name = "ChartArea1";
-            this.chrt_dataChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chrt_dataChart.Legends.Add(legend1);
+            chartArea5.AxisY.Maximum = 1.1D;
+            chartArea5.AxisY.Minimum = -1.1D;
+            chartArea5.Name = "ChartArea1";
+            this.chrt_dataChart.ChartAreas.Add(chartArea5);
+            legend5.Name = "Legend1";
+            this.chrt_dataChart.Legends.Add(legend5);
             this.chrt_dataChart.Location = new System.Drawing.Point(541, 30);
             this.chrt_dataChart.Name = "chrt_dataChart";
             this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
-            series1.BorderWidth = 5;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Legend = "Legend1";
-            series1.MarkerSize = 1;
-            series1.Name = "Qx";
-            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            series2.BorderWidth = 5;
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series2.Legend = "Legend1";
-            series2.MarkerSize = 1;
-            series2.Name = "Qy";
-            series3.BorderWidth = 5;
-            series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series3.Legend = "Legend1";
-            series3.MarkerSize = 1;
-            series3.Name = "Qz";
-            series4.BorderWidth = 5;
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series4.Legend = "Legend1";
-            series4.MarkerSize = 1;
-            series4.Name = "Qw";
-            this.chrt_dataChart.Series.Add(series1);
-            this.chrt_dataChart.Series.Add(series2);
-            this.chrt_dataChart.Series.Add(series3);
-            this.chrt_dataChart.Series.Add(series4);
+            series17.BorderWidth = 5;
+            series17.ChartArea = "ChartArea1";
+            series17.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series17.Legend = "Legend1";
+            series17.MarkerSize = 1;
+            series17.Name = "Qx";
+            series17.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            series18.BorderWidth = 5;
+            series18.ChartArea = "ChartArea1";
+            series18.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series18.Legend = "Legend1";
+            series18.MarkerSize = 1;
+            series18.Name = "Qy";
+            series19.BorderWidth = 5;
+            series19.ChartArea = "ChartArea1";
+            series19.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series19.Legend = "Legend1";
+            series19.MarkerSize = 1;
+            series19.Name = "Qz";
+            series20.BorderWidth = 5;
+            series20.ChartArea = "ChartArea1";
+            series20.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series20.Legend = "Legend1";
+            series20.MarkerSize = 1;
+            series20.Name = "Qw";
+            this.chrt_dataChart.Series.Add(series17);
+            this.chrt_dataChart.Series.Add(series18);
+            this.chrt_dataChart.Series.Add(series19);
+            this.chrt_dataChart.Series.Add(series20);
             this.chrt_dataChart.Size = new System.Drawing.Size(589, 377);
             this.chrt_dataChart.TabIndex = 28;
             this.chrt_dataChart.Text = "chart1";
@@ -650,7 +656,6 @@ namespace PacketTester
             this.nud_SelectedImu.Name = "nud_SelectedImu";
             this.nud_SelectedImu.Size = new System.Drawing.Size(120, 20);
             this.nud_SelectedImu.TabIndex = 36;
-            this.nud_SelectedImu.Value = 0;
             // 
             // cb_logErrors
             // 
@@ -1048,6 +1053,12 @@ namespace PacketTester
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.lbl_dbTotalFrames);
+            this.groupBox4.Controls.Add(this.lbl_dbFrameCount);
+            this.groupBox4.Controls.Add(this.lbl_dbAvgRate);
+            this.groupBox4.Controls.Add(this.lbl_dbAvgDataRate);
+            this.groupBox4.Controls.Add(this.lbl_dbDataInterval);
+            this.groupBox4.Controls.Add(this.lbl_dbSensorDataRate);
             this.groupBox4.Controls.Add(this.gb_dbDataMonitor);
             this.groupBox4.Controls.Add(this.btn_dbStream);
             this.groupBox4.Controls.Add(this.btn_dbGetDateTime);
@@ -1075,6 +1086,63 @@ namespace PacketTester
             this.groupBox4.TabIndex = 1;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Data Board Emulator";
+            // 
+            // lbl_dbTotalFrames
+            // 
+            this.lbl_dbTotalFrames.AutoSize = true;
+            this.lbl_dbTotalFrames.Location = new System.Drawing.Point(12, 284);
+            this.lbl_dbTotalFrames.Name = "lbl_dbTotalFrames";
+            this.lbl_dbTotalFrames.Size = new System.Drawing.Size(71, 13);
+            this.lbl_dbTotalFrames.TabIndex = 28;
+            this.lbl_dbTotalFrames.Text = "Total Frames:";
+            // 
+            // lbl_dbFrameCount
+            // 
+            this.lbl_dbFrameCount.AutoSize = true;
+            this.lbl_dbFrameCount.Location = new System.Drawing.Point(89, 284);
+            this.lbl_dbFrameCount.Name = "lbl_dbFrameCount";
+            this.lbl_dbFrameCount.Size = new System.Drawing.Size(13, 13);
+            this.lbl_dbFrameCount.TabIndex = 27;
+            this.lbl_dbFrameCount.Text = "0";
+            // 
+            // lbl_dbAvgRate
+            // 
+            this.lbl_dbAvgRate.AutoSize = true;
+            this.lbl_dbAvgRate.Location = new System.Drawing.Point(99, 268);
+            this.lbl_dbAvgRate.Name = "lbl_dbAvgRate";
+            this.lbl_dbAvgRate.Size = new System.Drawing.Size(13, 13);
+            this.lbl_dbAvgRate.TabIndex = 26;
+            this.lbl_dbAvgRate.Text = "0";
+            this.lbl_dbAvgRate.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lbl_dbAvgDataRate
+            // 
+            this.lbl_dbAvgDataRate.AutoSize = true;
+            this.lbl_dbAvgDataRate.Location = new System.Drawing.Point(12, 268);
+            this.lbl_dbAvgDataRate.Name = "lbl_dbAvgDataRate";
+            this.lbl_dbAvgDataRate.Size = new System.Drawing.Size(84, 13);
+            this.lbl_dbAvgDataRate.TabIndex = 25;
+            this.lbl_dbAvgDataRate.Text = "Avg, Data Rate:";
+            this.lbl_dbAvgDataRate.Click += new System.EventHandler(this.label7_Click_1);
+            // 
+            // lbl_dbDataInterval
+            // 
+            this.lbl_dbDataInterval.AutoSize = true;
+            this.lbl_dbDataInterval.Location = new System.Drawing.Point(72, 253);
+            this.lbl_dbDataInterval.Name = "lbl_dbDataInterval";
+            this.lbl_dbDataInterval.Size = new System.Drawing.Size(13, 13);
+            this.lbl_dbDataInterval.TabIndex = 24;
+            this.lbl_dbDataInterval.Text = "0";
+            this.lbl_dbDataInterval.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lbl_dbSensorDataRate
+            // 
+            this.lbl_dbSensorDataRate.AutoSize = true;
+            this.lbl_dbSensorDataRate.Location = new System.Drawing.Point(12, 253);
+            this.lbl_dbSensorDataRate.Name = "lbl_dbSensorDataRate";
+            this.lbl_dbSensorDataRate.Size = new System.Drawing.Size(59, 13);
+            this.lbl_dbSensorDataRate.TabIndex = 23;
+            this.lbl_dbSensorDataRate.Text = "Data Rate:";
             // 
             // gb_dbDataMonitor
             // 
@@ -1116,7 +1184,6 @@ namespace PacketTester
             this.cb_dbDataType.Size = new System.Drawing.Size(96, 21);
             this.cb_dbDataType.TabIndex = 24;
             this.cb_dbDataType.SelectedIndexChanged += new System.EventHandler(this.cb_dbDataType_SelectedIndexChanged);
-            this.cb_dbDataType.SelectedIndex = 0;
             // 
             // lbl_dbDataType
             // 
@@ -1701,6 +1768,12 @@ namespace PacketTester
         private System.Windows.Forms.ComboBox cb_dbDataType;
         private System.Windows.Forms.Label lbl_dbDataType;
         private System.Windows.Forms.CheckBox chb_dbDataMonitorEnable;
+        private System.Windows.Forms.Label lbl_dbAvgDataRate;
+        private System.Windows.Forms.Label lbl_dbDataInterval;
+        private System.Windows.Forms.Label lbl_dbSensorDataRate;
+        private System.Windows.Forms.Label lbl_dbAvgRate;
+        private System.Windows.Forms.Label lbl_dbFrameCount;
+        private System.Windows.Forms.Label lbl_dbTotalFrames;
     }
 }
 
