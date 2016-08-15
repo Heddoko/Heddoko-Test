@@ -725,7 +725,7 @@ namespace PacketTester
             cb_robotPort.Items.AddRange(SerialPort.GetPortNames());
             cb_dbComPorts.Items.AddRange(SerialPort.GetPortNames());
             string[] baudrates = { "110", "150", "300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"
-                    , "460800","500000", "921600","1000000"};
+                    , "460800","500000", "921600","1000000","2000000"};
             cb_BaudRate.Items.AddRange(baudrates);
             cb_fpBaudRate.Items.AddRange(baudrates);
             cb_fpBaudRate.SelectedIndex = 14;
@@ -764,6 +764,8 @@ namespace PacketTester
 
             dbDataReceiveQueue = new ConcurrentQueue<byte>();
             dbDataReceiveQueueEnabled = true;
+            cb_dbBaudRate.Items.AddRange(baudrates);
+            cb_dbBaudRate.SelectedIndex = 12;
         }
 
         private void bnt_Connect_Click(object sender, EventArgs e)
@@ -1928,7 +1930,7 @@ namespace PacketTester
             if (!toggleDbPort)  // try to open the port
             {
                 dataBoardPort.PortName = cb_dbComPorts.Items[cb_dbComPorts.SelectedIndex].ToString();
-                dataBoardPort.BaudRate = 115200;
+                dataBoardPort.BaudRate = int.Parse(cb_dbBaudRate.Items[cb_dbBaudRate.SelectedIndex].ToString()); ;
                 try
                 {
                     dbPortOpen = true;
@@ -2302,7 +2304,7 @@ namespace PacketTester
                     int frameOffset = ((expectedSensorId) * 35) + 7;    // location of the data in the frame
                     ImuFrame dataFrame = new ImuFrame();
                     dataFrame.ParseDataFromFullFrame(packet, frameOffset, expectedSensorId);
-                    //updateChart(dataFrame);
+                    updateChart(dataFrame);
                     updateTable(dataFrame);
                     // calculate data rate
                     curSensorFrameTick = BitConverter.ToUInt32(packet.Payload, 3);
@@ -2411,30 +2413,25 @@ namespace PacketTester
                     byte newByte = (byte)receivedByte;
 
                     dbDataReceiveQueue.Enqueue(newByte);
-
-                    //int bytesReceived = dataBoardPacket.BytesReceived + 1;
-                    //PacketStatus status = dataBoardPacket.processByte((byte)receivedByte);
-                    //switch (status)
-                    //{
-                    //    case PacketStatus.PacketComplete:
-                    //        RawPacket packetCopy = new RawPacket(dataBoardPacket);
-                    //        processSubpPacket(dataBoardPacket);
-                    //        dataBoardPacket.resetPacket();
-                    //        break;
-                    //    case PacketStatus.PacketError:
-                    //        if (cb_logErrors.Checked)
-                    //        {
-                    //            debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));
-                    //        }
-                    //        dataBoardPacket.resetPacket();
-                    //        break;
-                    //    case PacketStatus.Processing:
-                    //    case PacketStatus.newPacketDetected:
-                    //        break;
-                    //}
+                    
                 }
                 bytesToRead = dataBoardPort.BytesToRead;
             }
+        }
+
+        private void cb_BaudRate_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cb_dbBaudRate_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cb_logErrors_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void groupBox5_Enter(object sender, EventArgs e)

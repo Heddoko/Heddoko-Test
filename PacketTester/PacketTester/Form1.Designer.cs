@@ -32,12 +32,12 @@ namespace PacketTester
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series17 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series18 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series19 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series20 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
             this.btn_disconnect = new System.Windows.Forms.Button();
             this.tb_Console = new System.Windows.Forms.TextBox();
@@ -143,7 +143,6 @@ namespace PacketTester
             this.lbl_dbDataRate = new System.Windows.Forms.Label();
             this.nud_dbDataRate = new System.Windows.Forms.NumericUpDown();
             this.btn_dbTogglePort = new System.Windows.Forms.Button();
-            this.lbl_dbBaudRate = new System.Windows.Forms.Label();
             this.cb_dbComPorts = new System.Windows.Forms.ComboBox();
             this.btn_dbGetStatus = new System.Windows.Forms.Button();
             this.grp_dbConfigurePB = new System.Windows.Forms.GroupBox();
@@ -166,6 +165,7 @@ namespace PacketTester
             this.lbl_valueData4 = new System.Windows.Forms.Label();
             this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.dataBoardPort = new System.IO.Ports.SerialPort(this.components);
+            this.cb_dbBaudRate = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -242,47 +242,48 @@ namespace PacketTester
             this.cb_BaudRate.Name = "cb_BaudRate";
             this.cb_BaudRate.Size = new System.Drawing.Size(156, 21);
             this.cb_BaudRate.TabIndex = 22;
+            this.cb_BaudRate.SelectedIndexChanged += new System.EventHandler(this.cb_BaudRate_SelectedIndexChanged);
             // 
             // chrt_dataChart
             // 
-            chartArea5.AxisY.Maximum = 1.1D;
-            chartArea5.AxisY.Minimum = -1.1D;
-            chartArea5.Name = "ChartArea1";
-            this.chrt_dataChart.ChartAreas.Add(chartArea5);
-            legend5.Name = "Legend1";
-            this.chrt_dataChart.Legends.Add(legend5);
+            chartArea1.AxisY.Maximum = 1.1D;
+            chartArea1.AxisY.Minimum = -1.1D;
+            chartArea1.Name = "ChartArea1";
+            this.chrt_dataChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chrt_dataChart.Legends.Add(legend1);
             this.chrt_dataChart.Location = new System.Drawing.Point(541, 30);
             this.chrt_dataChart.Name = "chrt_dataChart";
             this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
-            series17.BorderWidth = 5;
-            series17.ChartArea = "ChartArea1";
-            series17.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series17.Legend = "Legend1";
-            series17.MarkerSize = 1;
-            series17.Name = "Qx";
-            series17.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            series18.BorderWidth = 5;
-            series18.ChartArea = "ChartArea1";
-            series18.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series18.Legend = "Legend1";
-            series18.MarkerSize = 1;
-            series18.Name = "Qy";
-            series19.BorderWidth = 5;
-            series19.ChartArea = "ChartArea1";
-            series19.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series19.Legend = "Legend1";
-            series19.MarkerSize = 1;
-            series19.Name = "Qz";
-            series20.BorderWidth = 5;
-            series20.ChartArea = "ChartArea1";
-            series20.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series20.Legend = "Legend1";
-            series20.MarkerSize = 1;
-            series20.Name = "Qw";
-            this.chrt_dataChart.Series.Add(series17);
-            this.chrt_dataChart.Series.Add(series18);
-            this.chrt_dataChart.Series.Add(series19);
-            this.chrt_dataChart.Series.Add(series20);
+            series1.BorderWidth = 5;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Legend = "Legend1";
+            series1.MarkerSize = 1;
+            series1.Name = "Qx";
+            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            series2.BorderWidth = 5;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Legend = "Legend1";
+            series2.MarkerSize = 1;
+            series2.Name = "Qy";
+            series3.BorderWidth = 5;
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.Legend = "Legend1";
+            series3.MarkerSize = 1;
+            series3.Name = "Qz";
+            series4.BorderWidth = 5;
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series4.Legend = "Legend1";
+            series4.MarkerSize = 1;
+            series4.Name = "Qw";
+            this.chrt_dataChart.Series.Add(series1);
+            this.chrt_dataChart.Series.Add(series2);
+            this.chrt_dataChart.Series.Add(series3);
+            this.chrt_dataChart.Series.Add(series4);
             this.chrt_dataChart.Size = new System.Drawing.Size(589, 377);
             this.chrt_dataChart.TabIndex = 28;
             this.chrt_dataChart.Text = "chart1";
@@ -666,6 +667,7 @@ namespace PacketTester
             this.cb_logErrors.TabIndex = 38;
             this.cb_logErrors.Text = "Log Errors";
             this.cb_logErrors.UseVisualStyleBackColor = true;
+            this.cb_logErrors.CheckedChanged += new System.EventHandler(this.cb_logErrors_CheckedChanged);
             // 
             // tabPage1
             // 
@@ -1053,12 +1055,9 @@ namespace PacketTester
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.cb_dbBaudRate);
             this.groupBox4.Controls.Add(this.lbl_dbTotalFrames);
             this.groupBox4.Controls.Add(this.lbl_dbFrameCount);
-            this.groupBox4.Controls.Add(this.lbl_dbAvgRate);
-            this.groupBox4.Controls.Add(this.lbl_dbAvgDataRate);
-            this.groupBox4.Controls.Add(this.lbl_dbDataInterval);
-            this.groupBox4.Controls.Add(this.lbl_dbSensorDataRate);
             this.groupBox4.Controls.Add(this.gb_dbDataMonitor);
             this.groupBox4.Controls.Add(this.btn_dbStream);
             this.groupBox4.Controls.Add(this.btn_dbGetDateTime);
@@ -1076,7 +1075,6 @@ namespace PacketTester
             this.groupBox4.Controls.Add(this.lbl_dbDataRate);
             this.groupBox4.Controls.Add(this.nud_dbDataRate);
             this.groupBox4.Controls.Add(this.btn_dbTogglePort);
-            this.groupBox4.Controls.Add(this.lbl_dbBaudRate);
             this.groupBox4.Controls.Add(this.cb_dbComPorts);
             this.groupBox4.Controls.Add(this.btn_dbGetStatus);
             this.groupBox4.Controls.Add(this.grp_dbConfigurePB);
@@ -1090,7 +1088,7 @@ namespace PacketTester
             // lbl_dbTotalFrames
             // 
             this.lbl_dbTotalFrames.AutoSize = true;
-            this.lbl_dbTotalFrames.Location = new System.Drawing.Point(12, 284);
+            this.lbl_dbTotalFrames.Location = new System.Drawing.Point(15, 265);
             this.lbl_dbTotalFrames.Name = "lbl_dbTotalFrames";
             this.lbl_dbTotalFrames.Size = new System.Drawing.Size(71, 13);
             this.lbl_dbTotalFrames.TabIndex = 28;
@@ -1099,7 +1097,7 @@ namespace PacketTester
             // lbl_dbFrameCount
             // 
             this.lbl_dbFrameCount.AutoSize = true;
-            this.lbl_dbFrameCount.Location = new System.Drawing.Point(89, 284);
+            this.lbl_dbFrameCount.Location = new System.Drawing.Point(92, 265);
             this.lbl_dbFrameCount.Name = "lbl_dbFrameCount";
             this.lbl_dbFrameCount.Size = new System.Drawing.Size(13, 13);
             this.lbl_dbFrameCount.TabIndex = 27;
@@ -1108,7 +1106,7 @@ namespace PacketTester
             // lbl_dbAvgRate
             // 
             this.lbl_dbAvgRate.AutoSize = true;
-            this.lbl_dbAvgRate.Location = new System.Drawing.Point(99, 268);
+            this.lbl_dbAvgRate.Location = new System.Drawing.Point(218, 55);
             this.lbl_dbAvgRate.Name = "lbl_dbAvgRate";
             this.lbl_dbAvgRate.Size = new System.Drawing.Size(13, 13);
             this.lbl_dbAvgRate.TabIndex = 26;
@@ -1118,7 +1116,7 @@ namespace PacketTester
             // lbl_dbAvgDataRate
             // 
             this.lbl_dbAvgDataRate.AutoSize = true;
-            this.lbl_dbAvgDataRate.Location = new System.Drawing.Point(12, 268);
+            this.lbl_dbAvgDataRate.Location = new System.Drawing.Point(128, 55);
             this.lbl_dbAvgDataRate.Name = "lbl_dbAvgDataRate";
             this.lbl_dbAvgDataRate.Size = new System.Drawing.Size(84, 13);
             this.lbl_dbAvgDataRate.TabIndex = 25;
@@ -1128,7 +1126,7 @@ namespace PacketTester
             // lbl_dbDataInterval
             // 
             this.lbl_dbDataInterval.AutoSize = true;
-            this.lbl_dbDataInterval.Location = new System.Drawing.Point(72, 253);
+            this.lbl_dbDataInterval.Location = new System.Drawing.Point(73, 55);
             this.lbl_dbDataInterval.Name = "lbl_dbDataInterval";
             this.lbl_dbDataInterval.Size = new System.Drawing.Size(13, 13);
             this.lbl_dbDataInterval.TabIndex = 24;
@@ -1138,7 +1136,7 @@ namespace PacketTester
             // lbl_dbSensorDataRate
             // 
             this.lbl_dbSensorDataRate.AutoSize = true;
-            this.lbl_dbSensorDataRate.Location = new System.Drawing.Point(12, 253);
+            this.lbl_dbSensorDataRate.Location = new System.Drawing.Point(8, 55);
             this.lbl_dbSensorDataRate.Name = "lbl_dbSensorDataRate";
             this.lbl_dbSensorDataRate.Size = new System.Drawing.Size(59, 13);
             this.lbl_dbSensorDataRate.TabIndex = 23;
@@ -1149,11 +1147,15 @@ namespace PacketTester
             this.gb_dbDataMonitor.Controls.Add(this.chb_dbDataMonitorEnable);
             this.gb_dbDataMonitor.Controls.Add(this.cb_dbDataType);
             this.gb_dbDataMonitor.Controls.Add(this.lbl_dbDataType);
+            this.gb_dbDataMonitor.Controls.Add(this.lbl_dbAvgRate);
+            this.gb_dbDataMonitor.Controls.Add(this.lbl_dbDataInterval);
             this.gb_dbDataMonitor.Controls.Add(this.lbl_dbSensorId);
+            this.gb_dbDataMonitor.Controls.Add(this.lbl_dbAvgDataRate);
             this.gb_dbDataMonitor.Controls.Add(this.nud_dbSensorId);
+            this.gb_dbDataMonitor.Controls.Add(this.lbl_dbSensorDataRate);
             this.gb_dbDataMonitor.Location = new System.Drawing.Point(7, 189);
             this.gb_dbDataMonitor.Name = "gb_dbDataMonitor";
-            this.gb_dbDataMonitor.Size = new System.Drawing.Size(258, 57);
+            this.gb_dbDataMonitor.Size = new System.Drawing.Size(258, 73);
             this.gb_dbDataMonitor.TabIndex = 22;
             this.gb_dbDataMonitor.TabStop = false;
             this.gb_dbDataMonitor.Text = "Data monitor";
@@ -1228,7 +1230,7 @@ namespace PacketTester
             // 
             // btn_dbGetDateTime
             // 
-            this.btn_dbGetDateTime.Location = new System.Drawing.Point(7, 54);
+            this.btn_dbGetDateTime.Location = new System.Drawing.Point(7, 47);
             this.btn_dbGetDateTime.Name = "btn_dbGetDateTime";
             this.btn_dbGetDateTime.Size = new System.Drawing.Size(119, 23);
             this.btn_dbGetDateTime.TabIndex = 19;
@@ -1238,7 +1240,7 @@ namespace PacketTester
             // 
             // btn_dbSetDateTime
             // 
-            this.btn_dbSetDateTime.Location = new System.Drawing.Point(7, 27);
+            this.btn_dbSetDateTime.Location = new System.Drawing.Point(7, 19);
             this.btn_dbSetDateTime.Name = "btn_dbSetDateTime";
             this.btn_dbSetDateTime.Size = new System.Drawing.Size(119, 23);
             this.btn_dbSetDateTime.TabIndex = 18;
@@ -1377,27 +1379,18 @@ namespace PacketTester
             // 
             // btn_dbTogglePort
             // 
-            this.btn_dbTogglePort.Location = new System.Drawing.Point(209, 54);
+            this.btn_dbTogglePort.Location = new System.Drawing.Point(214, 76);
             this.btn_dbTogglePort.Name = "btn_dbTogglePort";
-            this.btn_dbTogglePort.Size = new System.Drawing.Size(56, 23);
+            this.btn_dbTogglePort.Size = new System.Drawing.Size(51, 23);
             this.btn_dbTogglePort.TabIndex = 4;
             this.btn_dbTogglePort.Text = "Open";
             this.btn_dbTogglePort.UseVisualStyleBackColor = true;
             this.btn_dbTogglePort.Click += new System.EventHandler(this.btn_dbTogglePort_Click);
             // 
-            // lbl_dbBaudRate
-            // 
-            this.lbl_dbBaudRate.AutoSize = true;
-            this.lbl_dbBaudRate.Location = new System.Drawing.Point(141, 11);
-            this.lbl_dbBaudRate.Name = "lbl_dbBaudRate";
-            this.lbl_dbBaudRate.Size = new System.Drawing.Size(92, 13);
-            this.lbl_dbBaudRate.TabIndex = 3;
-            this.lbl_dbBaudRate.Text = "Baudrate: 115200";
-            // 
             // cb_dbComPorts
             // 
             this.cb_dbComPorts.FormattingEnabled = true;
-            this.cb_dbComPorts.Location = new System.Drawing.Point(144, 27);
+            this.cb_dbComPorts.Location = new System.Drawing.Point(144, 19);
             this.cb_dbComPorts.Name = "cb_dbComPorts";
             this.cb_dbComPorts.Size = new System.Drawing.Size(121, 21);
             this.cb_dbComPorts.TabIndex = 2;
@@ -1578,6 +1571,15 @@ namespace PacketTester
             this.dataBoardPort.BaudRate = 115200;
             this.dataBoardPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.dataBoardPort_DataReceived);
             // 
+            // cb_dbBaudRate
+            // 
+            this.cb_dbBaudRate.FormattingEnabled = true;
+            this.cb_dbBaudRate.Location = new System.Drawing.Point(144, 47);
+            this.cb_dbBaudRate.Name = "cb_dbBaudRate";
+            this.cb_dbBaudRate.Size = new System.Drawing.Size(121, 21);
+            this.cb_dbBaudRate.TabIndex = 29;
+            this.cb_dbBaudRate.SelectedIndexChanged += new System.EventHandler(this.cb_dbBaudRate_SelectedIndexChanged);
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1742,7 +1744,6 @@ namespace PacketTester
         private System.Windows.Forms.Button btn_dbGetStatus;
         private System.Windows.Forms.Button btn_dbSetConfig;
         private System.Windows.Forms.Button btn_dbTogglePort;
-        private System.Windows.Forms.Label lbl_dbBaudRate;
         private System.Windows.Forms.ComboBox cb_dbComPorts;
         private System.Windows.Forms.Label lbl_dbDataRate;
         private System.Windows.Forms.NumericUpDown nud_dbDataRate;
@@ -1774,6 +1775,7 @@ namespace PacketTester
         private System.Windows.Forms.Label lbl_dbAvgRate;
         private System.Windows.Forms.Label lbl_dbFrameCount;
         private System.Windows.Forms.Label lbl_dbTotalFrames;
+        private System.Windows.Forms.ComboBox cb_dbBaudRate;
     }
 }
 
