@@ -133,6 +133,29 @@ namespace PacketTester
             }
             return retVal;
         }
+        public bool ParseDataFromFullFrame(RawPacket packet, int offset, int expectedId)
+        {
+            bool retVal = false;
+            if (packet.Payload[offset] == (byte) expectedId)
+            {
+                ImuId = packet.Payload[offset]; //this is the IMU ID
+                Quaternion_x = BitConverter.ToSingle(packet.Payload, offset + 0 + 1);   // 1 byte is for sensor Id
+                Quaternion_y = BitConverter.ToSingle(packet.Payload, offset + 4 + 1);
+                Quaternion_z = BitConverter.ToSingle(packet.Payload, offset + 8 + 1);
+                Quaternion_w = BitConverter.ToSingle(packet.Payload, offset + 12 + 1);
+                Magnetic_x = BitConverter.ToInt16(packet.Payload, offset + 16 + 1);
+                Magnetic_y = BitConverter.ToInt16(packet.Payload, offset + 18 + 1);
+                Magnetic_z = BitConverter.ToInt16(packet.Payload, offset + 20 + 1);
+                Acceleration_x = BitConverter.ToInt16(packet.Payload, offset + 22 + 1);
+                Acceleration_y = BitConverter.ToInt16(packet.Payload, offset + 24 + 1);
+                Acceleration_z = BitConverter.ToInt16(packet.Payload, offset + 26 + 1);
+                Rotation_x = BitConverter.ToInt16(packet.Payload, offset + 28 + 1);
+                Rotation_y = BitConverter.ToInt16(packet.Payload, offset + 30 + 1);
+                Rotation_z = BitConverter.ToInt16(packet.Payload, offset + 32 + 1);
+                retVal = true;
+            }
+            return retVal;
+        }
         override public string ToString()
         {
             //return this.roll.ToString("F6") + ";0.0;0.0";

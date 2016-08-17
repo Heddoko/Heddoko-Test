@@ -1326,6 +1326,11 @@ namespace BrainPackDataAnalyzer
                 sendCommmand("pbVersion\r\n");
             }
         }
+
+        private void dgv_SensorStats_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
     }
 }
 

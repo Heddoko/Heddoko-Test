@@ -15,7 +15,7 @@
 #define MAX_REC_COUNT 50
 #define INTERPOLATE_RES 10    // NOTE: this count should always be less than MAX_REC_COUNT
 
-bool strReady = 0, recEn = 0, playEn = 0, easeEn = 0;
+bool strReady = 0, recEn = 0, playEn = 0, easeEn = 0, recPointsEn = 0;
 int strStatus = PASS;
 String str;
 double int1, int2, int3, int4;
@@ -118,6 +118,11 @@ void loop()
             easeEn = 1;
           else if (str.compareTo("EaseDis\r") == 0)   // Disbale interpolation of path.
             easeEn = 0;
+          else if (str.compareTo("RecPoints\r") == 0)
+          {
+            recEn = 1;
+            recPointsEn = 1;
+          }
           else    // this is input angle data
           {
             if (str.length() > 3) // check if the string has valid length
@@ -207,7 +212,15 @@ void loop()
               {
                 Serial.println("End of Recording");
                 recEn = 0;
+                recPointsEn = 0;
                 break;
+              }
+              if (recPointsEn)
+              {
+                if (str.compareTo("Rec\r") != 0)
+                {
+                  continue;
+                }
               }
               //uarm.angle_to_coordinate(uarm.read_servo_angle(SERVO_ROT_NUM), uarm.read_servo_angle(SERVO_LEFT_NUM), uarm.read_servo_angle(SERVO_RIGHT_NUM),\
                                                 //int1Array[readCount], int2Array[readCount], int3Array[readCount]);    // store coordinates in array
@@ -236,10 +249,12 @@ void loop()
               Serial.print((double)(int3Array[readCount]*1), MAX_DECIMAL_PLACES);
               Serial.println(",");
               readCount++;
+            
               if (readCount >= MAX_REC_COUNT)
               {
                 Serial.println("End of Recording");
                 recEn = 0;
+                recPointsEn = 0;
                 break;
               }
               //delay(100);   // adds up to the delay provided by the Serial timeout
