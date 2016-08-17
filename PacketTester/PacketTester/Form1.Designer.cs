@@ -166,6 +166,8 @@ namespace PacketTester
             this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.dataBoardPort = new System.IO.Ports.SerialPort(this.components);
             this.cb_dbBaudRate = new System.Windows.Forms.ComboBox();
+            this.lbl_dbTotalPacketError = new System.Windows.Forms.Label();
+            this.lbl_dbPacketErrorCount = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -1055,6 +1057,8 @@ namespace PacketTester
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.lbl_dbPacketErrorCount);
+            this.groupBox4.Controls.Add(this.lbl_dbTotalPacketError);
             this.groupBox4.Controls.Add(this.cb_dbBaudRate);
             this.groupBox4.Controls.Add(this.lbl_dbTotalFrames);
             this.groupBox4.Controls.Add(this.lbl_dbFrameCount);
@@ -1580,6 +1584,24 @@ namespace PacketTester
             this.cb_dbBaudRate.TabIndex = 29;
             this.cb_dbBaudRate.SelectedIndexChanged += new System.EventHandler(this.cb_dbBaudRate_SelectedIndexChanged);
             // 
+            // lbl_dbTotalPacketError
+            // 
+            this.lbl_dbTotalPacketError.AutoSize = true;
+            this.lbl_dbTotalPacketError.Location = new System.Drawing.Point(15, 287);
+            this.lbl_dbTotalPacketError.Name = "lbl_dbTotalPacketError";
+            this.lbl_dbTotalPacketError.Size = new System.Drawing.Size(96, 13);
+            this.lbl_dbTotalPacketError.TabIndex = 30;
+            this.lbl_dbTotalPacketError.Text = "Total Packet Error:";
+            // 
+            // lbl_dbPacketErrorCount
+            // 
+            this.lbl_dbPacketErrorCount.AutoSize = true;
+            this.lbl_dbPacketErrorCount.Location = new System.Drawing.Point(117, 287);
+            this.lbl_dbPacketErrorCount.Name = "lbl_dbPacketErrorCount";
+            this.lbl_dbPacketErrorCount.Size = new System.Drawing.Size(13, 13);
+            this.lbl_dbPacketErrorCount.TabIndex = 31;
+            this.lbl_dbPacketErrorCount.Text = "0";
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1776,6 +1798,8 @@ namespace PacketTester
         private System.Windows.Forms.Label lbl_dbFrameCount;
         private System.Windows.Forms.Label lbl_dbTotalFrames;
         private System.Windows.Forms.ComboBox cb_dbBaudRate;
+        private System.Windows.Forms.Label lbl_dbPacketErrorCount;
+        private System.Windows.Forms.Label lbl_dbTotalPacketError;
     }
 }
 

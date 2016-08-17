@@ -69,6 +69,7 @@ namespace PacketTester
         public int dbSensorFrameCount = 0, debugCount = 0;
         public ConcurrentQueue<byte> dbDataReceiveQueue;
         private bool dbDataReceiveQueueEnabled = false;
+        private int dbPacketErrorCount = 0;
 
         public mainForm()
         {
@@ -1910,10 +1911,12 @@ namespace PacketTester
                             dataBoardPacket.resetPacket();
                             break;
                         case PacketStatus.PacketError:
-                            if (cb_logErrors.Checked)
+                            if (chb_dbDataMonitorEnable.Checked)
                             {
                                 debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));
                             }
+                            dbPacketErrorCount++;
+                            this.BeginInvoke((MethodInvoker)(() => lbl_dbPacketErrorCount.Text = dbPacketErrorCount.ToString()));
                             dataBoardPacket.resetPacket();
                             break;
                         case PacketStatus.Processing:
@@ -2062,6 +2065,7 @@ namespace PacketTester
                     sensorDataRate = 0;
                     sensorAvgRate = 0;
                     dbSensorFrameCount = 0;
+                    dbPacketErrorCount = 0;
                 }
                 else
                 {
