@@ -71,6 +71,11 @@ namespace PacketTester
         private bool dbDataReceiveQueueEnabled = false;
         private int dbPacketErrorCount = 0;
 
+        // Power board emulator part
+        public bool togglePbPort = false, pbPortOpen = false;
+        private int pbDetectedSensorMask = 0;
+        public bool pbTransmitEnable = false;
+
         public mainForm()
         {
             InitializeComponent();
@@ -767,6 +772,11 @@ namespace PacketTester
             dbDataReceiveQueueEnabled = true;
             cb_dbBaudRate.Items.AddRange(baudrates);
             cb_dbBaudRate.SelectedIndex = 12;
+
+            cb_pbComPorts.Items.AddRange(SerialPort.GetPortNames());
+            this.cb_pbComPorts.SelectedItem = this.cb_pbComPorts.Items[0];
+            cb_pbBaudRate.Items.AddRange(baudrates);
+            cb_pbBaudRate.SelectedIndex = 12;
         }
 
         private void bnt_Connect_Click(object sender, EventArgs e)
@@ -1356,6 +1366,8 @@ namespace PacketTester
             cb_robotPort.Items.AddRange(SerialPort.GetPortNames());
             cb_dbComPorts.Items.Clear();
             cb_dbComPorts.Items.AddRange(SerialPort.GetPortNames());
+            cb_pbComPorts.Items.Clear();
+            cb_pbComPorts.Items.AddRange(SerialPort.GetPortNames());
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -2436,6 +2448,212 @@ namespace PacketTester
         private void cb_logErrors_CheckedChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void chb_pbEnableBridge_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chb_pbEnableBridge.Checked)
+            {
+                gb_pbManualEmulation.Enabled = false;
+            }
+            else
+            {
+                gb_pbManualEmulation.Enabled = true;
+            }
+        }
+
+        private void btn_pbSensor0_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor0.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor0.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 0);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor0.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 0);
+            }
+        }
+
+        private void btn_pbSensor1_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor1.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor1.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 1);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor1.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 1);
+            }
+        }
+
+        private void btn_pbSensor2_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor2.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor2.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 2);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor2.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 2);
+            }
+        }
+
+        private void btn_pbSensor3_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor3.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor3.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 3);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor3.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 3);
+            }
+        }
+
+        private void btn_pbSensor4_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor4.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor4.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 4);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor4.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 4);
+            }
+        }
+
+        private void btn_pbSensor5_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor5.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor5.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 5);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor5.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 5);
+            }
+        }
+
+        private void btn_pbSensor6_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor6.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor6.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 6);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor6.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 6);
+            }
+        }
+
+        private void btn_pbSensor7_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor7.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor7.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 7);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor7.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 7);
+            }
+        }
+
+        private void btn_pbSensor8_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor8.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor8.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 8);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor8.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 8);
+            }
+        }
+
+        private void pbTransmitData()
+        {
+            // send data to the data board and process received bytes
+            while (pbTransmitEnable)
+            {
+                // dequeue the received data and process it
+
+                // send the requested output data
+
+            }
+        }
+
+        private void btn_pbTogglePort_Click(object sender, EventArgs e)
+        {
+            if (!togglePbPort)  // try to open the port
+            {
+                powerBoardPort.PortName = cb_pbComPorts.Items[cb_pbComPorts.SelectedIndex].ToString();
+                powerBoardPort.BaudRate = int.Parse(cb_pbBaudRate.Items[cb_pbBaudRate.SelectedIndex].ToString());
+                try
+                {
+                    pbPortOpen = true;
+                    powerBoardPort.Open();
+
+                    tb_Console.AppendText("Port: " + powerBoardPort.PortName + " Open\r\n");
+                    btn_pbTogglePort.Text = "Close";
+                    togglePbPort = !togglePbPort;
+                    Thread pbTransmitThread = new Thread(pbTransmitData);
+                    pbTransmitEnable = true;
+                    //pbTransmitThread.Start();
+                }
+                catch (Exception ex)
+                {
+                    tb_Console.AppendText("Failed to open Port: " + powerBoardPort.PortName + " \r\n");
+                    tb_Console.AppendText("Exception " + ex.Message + " \r\n");
+                    togglePbPort = false;
+                    pbPortOpen = false;
+                    pbTransmitEnable = false;  // close the data reveive thread
+                }
+            }
+
+            else    // try to close the port
+            {
+                try
+                {
+                    powerBoardPort.Close();
+                    pbPortOpen = false;
+                    pbTransmitEnable = false;
+                    tb_Console.AppendText("Port: " + powerBoardPort.PortName + " Closed\r\n");
+                    btn_pbTogglePort.Text = "Open";
+                    togglePbPort = !togglePbPort;
+                    //dataBoardPacket.resetPacket();
+                }
+                catch
+                {
+                    tb_Console.AppendText("Failed to close Port: " + powerBoardPort.PortName + "\r\n");
+                }
+            }
         }
 
         private void groupBox5_Enter(object sender, EventArgs e)
