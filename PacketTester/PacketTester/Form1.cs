@@ -74,7 +74,9 @@ namespace PacketTester
         // Power board emulator part
         public bool togglePbPort = false, pbPortOpen = false;
         private int pbDetectedSensorMask = 0;
-        public bool pbTransmitEnable = false;
+        public bool pbProcessDataEnable = false;
+        public ConcurrentQueue<byte> pbDataReceiveQueue;
+        private bool pbDataReceiveQueueEnabled = false;
 
         public mainForm()
         {
@@ -777,6 +779,8 @@ namespace PacketTester
             this.cb_pbComPorts.SelectedItem = this.cb_pbComPorts.Items[0];
             cb_pbBaudRate.Items.AddRange(baudrates);
             cb_pbBaudRate.SelectedIndex = 12;
+            pbDataReceiveQueue = new ConcurrentQueue<byte>();
+            pbDataReceiveQueueEnabled = true;
         }
 
         private void bnt_Connect_Click(object sender, EventArgs e)
@@ -2597,15 +2601,109 @@ namespace PacketTester
             }
         }
 
-        private void pbTransmitData()
+        private void processDbPacket(RawPacket packet)
         {
+            if (packet.Payload[0] == 0x01)  // verify if the packet is coming from Data board
+            {
+                switch (packet.Payload[1])
+                {
+                    case 0x51:  // get status request
+                        // send status response
+                        
+                        break;
+                    case 0x53:  // Sub Processor Config
+                        // Display and store the received configuration 
+                        
+                        break;
+                    case 0x54:  // Streaming enable / disable
+                        // Start / stop the sensor streaming
+                       
+                        break;
+                    case 0x57:  // Power down response
+                        // the data board is ready to power down. Display it
+                        
+                        break;
+                    case 0x58:  // Get date-time request
+                        // send current date and time
+
+                        break;
+                    case 0x5a:  // set date-time request
+                        // display the received date and time
+                        
+                        break;
+                    case 0x5c:  // output data
+                        // display the received message on the console
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void pbProcessData()
+        {
+            byte receivedByte;
             // send data to the data board and process received bytes
-            while (pbTransmitEnable)
+            while (pbProcessDataEnable)
             {
                 // dequeue the received data and process it
+                if (pbDataReceiveQueue.Count == 0)
+                {
+                    Thread.Sleep(1);
+                    //Thread.Yield();
+                }
+
+                if (pbDataReceiveQueue.TryDequeue(out receivedByte))
+                {
+                    int bytesReceived = powerBoardPacket.BytesReceived + 1;
+                    PacketStatus status = powerBoardPacket.processByte((byte)receivedByte);
+                    switch (status)
+                    {
+                        case PacketStatus.PacketComplete:
+                            RawPacket packetCopy = new RawPacket(powerBoardPacket);
+                            processDbPacket(powerBoardPacket);
+                            powerBoardPacket.resetPacket();
+                            break;
+                        case PacketStatus.PacketError:
+                            if (chb_dbDataMonitorEnable.Checked)
+                            {
+                                debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));
+                            }
+                            powerBoardPacket.resetPacket();
+                            break;
+                        case PacketStatus.Processing:
+                            break;
+                        case PacketStatus.newPacketDetected:
+                            break;
+                    }
+                }
 
                 // send the requested output data
 
+            }
+        }
+
+        RawPacket powerBoardPacket = new RawPacket();
+        private void powerBoardPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            int bytesToRead = powerBoardPort.BytesToRead;
+            while (bytesToRead > 0)
+            {
+                if (!powerBoardPort.IsOpen)
+                {
+                    return;
+                }
+                int receivedByte = powerBoardPort.ReadByte();
+                if (receivedByte != -1)
+                {
+                    //process the byte
+                    byte newByte = (byte)receivedByte;
+                    // equeue the packet and process it later in other thread
+                    pbDataReceiveQueue.Enqueue(newByte);
+
+                }
+                bytesToRead = powerBoardPort.BytesToRead;
             }
         }
 
@@ -2623,8 +2721,8 @@ namespace PacketTester
                     tb_Console.AppendText("Port: " + powerBoardPort.PortName + " Open\r\n");
                     btn_pbTogglePort.Text = "Close";
                     togglePbPort = !togglePbPort;
-                    Thread pbTransmitThread = new Thread(pbTransmitData);
-                    pbTransmitEnable = true;
+                    Thread pbTransmitThread = new Thread(pbProcessData);
+                    pbProcessDataEnable = true;
                     //pbTransmitThread.Start();
                 }
                 catch (Exception ex)
@@ -2633,7 +2731,7 @@ namespace PacketTester
                     tb_Console.AppendText("Exception " + ex.Message + " \r\n");
                     togglePbPort = false;
                     pbPortOpen = false;
-                    pbTransmitEnable = false;  // close the data reveive thread
+                    pbProcessDataEnable = false;  // close the data reveive thread
                 }
             }
 
@@ -2643,7 +2741,7 @@ namespace PacketTester
                 {
                     powerBoardPort.Close();
                     pbPortOpen = false;
-                    pbTransmitEnable = false;
+                    pbProcessDataEnable = false;
                     tb_Console.AppendText("Port: " + powerBoardPort.PortName + " Closed\r\n");
                     btn_pbTogglePort.Text = "Open";
                     togglePbPort = !togglePbPort;

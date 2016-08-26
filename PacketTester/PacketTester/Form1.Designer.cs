@@ -1501,7 +1501,7 @@ namespace PacketTester
             this.groupBox3.Size = new System.Drawing.Size(218, 323);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Power Board Packets";
+            this.groupBox3.Text = "Power Board Emulator";
             this.toolTip1.SetToolTip(this.groupBox3, "Communicates with data board.\r\n");
             // 
             // gb_pbManualEmulation
@@ -1816,6 +1816,10 @@ namespace PacketTester
             // 
             this.dataBoardPort.BaudRate = 115200;
             this.dataBoardPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.dataBoardPort_DataReceived);
+            // 
+            // powerBoardPort
+            // 
+            this.powerBoardPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.powerBoardPort_DataReceived);
             // 
             // lbl_pbDetectedSensorMask
             // 
