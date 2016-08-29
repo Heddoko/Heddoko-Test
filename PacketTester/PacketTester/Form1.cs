@@ -1861,8 +1861,8 @@ namespace PacketTester
             UInt16 numBytes = 0;
             dataFrame.populateFrameWithTestData();
             dataFrame.setTimestamp(timestampCounter++);
-            byte[] serializedBytes = dataFrame.serializeFrame(out numBytes);     
-            sendPacket(serializedBytes, numBytes);
+            byte[] serializedBytes = dataFrame.serializeFrame(out numBytes);
+            sendPacketTo(powerBoardPort, serializedBytes, numBytes);
         }
 
         bool streamRawFramesEnabled = false; 
@@ -1878,7 +1878,7 @@ namespace PacketTester
                 Thread.Sleep(10);
                 dataFrame.setTimestamp(timestampCounter++);
                 byte[] serializedBytes = dataFrame.serializeFrame(out numBytes);
-                sendPacket(serializedBytes, numBytes);
+                sendPacketTo(powerBoardPort, serializedBytes, numBytes);
             }
 
         }
@@ -2601,6 +2601,7 @@ namespace PacketTester
             }
         }
 
+        // this is for power board emulator to process the packets from the data board
         private void processDbPacket(RawPacket packet)
         {
             if (packet.Payload[0] == 0x01)  // verify if the packet is coming from Data board
@@ -2641,6 +2642,8 @@ namespace PacketTester
             }
         }
 
+        // thread for the power board emulator to process the process incoming and outgoing messages
+        // NOTE: the stream for the full frame data is a different thread
         private void pbProcessData()
         {
             byte receivedByte;
@@ -2662,7 +2665,7 @@ namespace PacketTester
                     {
                         case PacketStatus.PacketComplete:
                             RawPacket packetCopy = new RawPacket(powerBoardPacket);
-                            processDbPacket(powerBoardPacket);
+                            processDbPacket(powerBoardPacket);  // process the incoming data from data board
                             powerBoardPacket.resetPacket();
                             break;
                         case PacketStatus.PacketError:

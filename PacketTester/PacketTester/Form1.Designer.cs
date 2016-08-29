@@ -1625,6 +1625,7 @@ namespace PacketTester
             this.nud_pbChrgLvl.Name = "nud_pbChrgLvl";
             this.nud_pbChrgLvl.Size = new System.Drawing.Size(40, 20);
             this.nud_pbChrgLvl.TabIndex = 2;
+            this.toolTip1.SetToolTip(this.nud_pbChrgLvl, "Battery percentage");
             // 
             // lbl_pbChrgState
             // 
