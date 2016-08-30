@@ -152,7 +152,18 @@ namespace PacketTester
             this.btn_dbSetConfig = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.gb_pbManualEmulation = new System.Windows.Forms.GroupBox();
+            this.btn_sendPwrDwnReq = new System.Windows.Forms.Button();
             this.gb_pbStatusMessage = new System.Windows.Forms.GroupBox();
+            this.btn_pbSensor8 = new System.Windows.Forms.Button();
+            this.btn_pbSensor6 = new System.Windows.Forms.Button();
+            this.btn_pbSensor7 = new System.Windows.Forms.Button();
+            this.btn_pbSensor5 = new System.Windows.Forms.Button();
+            this.btn_pbSensor4 = new System.Windows.Forms.Button();
+            this.btn_pbSensor3 = new System.Windows.Forms.Button();
+            this.btn_pbSensor2 = new System.Windows.Forms.Button();
+            this.btn_pbSensor1 = new System.Windows.Forms.Button();
+            this.btn_pbSensor0 = new System.Windows.Forms.Button();
+            this.lbl_pbDetectedSensorMask = new System.Windows.Forms.Label();
             this.nud_pbStreamState = new System.Windows.Forms.NumericUpDown();
             this.label7 = new System.Windows.Forms.Label();
             this.chb_pbJcDc2 = new System.Windows.Forms.CheckBox();
@@ -185,16 +196,6 @@ namespace PacketTester
             this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.dataBoardPort = new System.IO.Ports.SerialPort(this.components);
             this.powerBoardPort = new System.IO.Ports.SerialPort(this.components);
-            this.lbl_pbDetectedSensorMask = new System.Windows.Forms.Label();
-            this.btn_pbSensor0 = new System.Windows.Forms.Button();
-            this.btn_pbSensor1 = new System.Windows.Forms.Button();
-            this.btn_pbSensor2 = new System.Windows.Forms.Button();
-            this.btn_pbSensor3 = new System.Windows.Forms.Button();
-            this.btn_pbSensor4 = new System.Windows.Forms.Button();
-            this.btn_pbSensor5 = new System.Windows.Forms.Button();
-            this.btn_pbSensor6 = new System.Windows.Forms.Button();
-            this.btn_pbSensor7 = new System.Windows.Forms.Button();
-            this.btn_pbSensor8 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -1506,6 +1507,7 @@ namespace PacketTester
             // 
             // gb_pbManualEmulation
             // 
+            this.gb_pbManualEmulation.Controls.Add(this.btn_sendPwrDwnReq);
             this.gb_pbManualEmulation.Controls.Add(this.gb_pbStatusMessage);
             this.gb_pbManualEmulation.Controls.Add(this.btn_pbFullRawFrame);
             this.gb_pbManualEmulation.Controls.Add(this.cb_streamRawFrames);
@@ -1514,6 +1516,16 @@ namespace PacketTester
             this.gb_pbManualEmulation.Size = new System.Drawing.Size(218, 240);
             this.gb_pbManualEmulation.TabIndex = 3;
             this.gb_pbManualEmulation.TabStop = false;
+            // 
+            // btn_sendPwrDwnReq
+            // 
+            this.btn_sendPwrDwnReq.Location = new System.Drawing.Point(6, 180);
+            this.btn_sendPwrDwnReq.Name = "btn_sendPwrDwnReq";
+            this.btn_sendPwrDwnReq.Size = new System.Drawing.Size(75, 40);
+            this.btn_sendPwrDwnReq.TabIndex = 3;
+            this.btn_sendPwrDwnReq.Text = "Send Power Down Req";
+            this.btn_sendPwrDwnReq.UseVisualStyleBackColor = true;
+            this.btn_sendPwrDwnReq.Click += new System.EventHandler(this.btn_sendPwrDwnReq_Click);
             // 
             // gb_pbStatusMessage
             // 
@@ -1543,6 +1555,114 @@ namespace PacketTester
             this.gb_pbStatusMessage.TabIndex = 2;
             this.gb_pbStatusMessage.TabStop = false;
             this.gb_pbStatusMessage.Text = "Status Message";
+            // 
+            // btn_pbSensor8
+            // 
+            this.btn_pbSensor8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor8.Location = new System.Drawing.Point(174, 102);
+            this.btn_pbSensor8.Name = "btn_pbSensor8";
+            this.btn_pbSensor8.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor8.TabIndex = 40;
+            this.btn_pbSensor8.Text = "8";
+            this.btn_pbSensor8.UseVisualStyleBackColor = true;
+            this.btn_pbSensor8.Click += new System.EventHandler(this.btn_pbSensor8_Click);
+            // 
+            // btn_pbSensor6
+            // 
+            this.btn_pbSensor6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor6.Location = new System.Drawing.Point(132, 102);
+            this.btn_pbSensor6.Name = "btn_pbSensor6";
+            this.btn_pbSensor6.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor6.TabIndex = 38;
+            this.btn_pbSensor6.Text = "6";
+            this.btn_pbSensor6.UseVisualStyleBackColor = true;
+            this.btn_pbSensor6.Click += new System.EventHandler(this.btn_pbSensor6_Click);
+            // 
+            // btn_pbSensor7
+            // 
+            this.btn_pbSensor7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor7.Location = new System.Drawing.Point(153, 102);
+            this.btn_pbSensor7.Name = "btn_pbSensor7";
+            this.btn_pbSensor7.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor7.TabIndex = 39;
+            this.btn_pbSensor7.Text = "7";
+            this.btn_pbSensor7.UseVisualStyleBackColor = true;
+            this.btn_pbSensor7.Click += new System.EventHandler(this.btn_pbSensor7_Click);
+            // 
+            // btn_pbSensor5
+            // 
+            this.btn_pbSensor5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor5.Location = new System.Drawing.Point(111, 102);
+            this.btn_pbSensor5.Name = "btn_pbSensor5";
+            this.btn_pbSensor5.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor5.TabIndex = 37;
+            this.btn_pbSensor5.Text = "5";
+            this.btn_pbSensor5.UseVisualStyleBackColor = true;
+            this.btn_pbSensor5.Click += new System.EventHandler(this.btn_pbSensor5_Click);
+            // 
+            // btn_pbSensor4
+            // 
+            this.btn_pbSensor4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor4.Location = new System.Drawing.Point(90, 102);
+            this.btn_pbSensor4.Name = "btn_pbSensor4";
+            this.btn_pbSensor4.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor4.TabIndex = 36;
+            this.btn_pbSensor4.Text = "4";
+            this.btn_pbSensor4.UseVisualStyleBackColor = true;
+            this.btn_pbSensor4.Click += new System.EventHandler(this.btn_pbSensor4_Click);
+            // 
+            // btn_pbSensor3
+            // 
+            this.btn_pbSensor3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor3.Location = new System.Drawing.Point(69, 102);
+            this.btn_pbSensor3.Name = "btn_pbSensor3";
+            this.btn_pbSensor3.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor3.TabIndex = 35;
+            this.btn_pbSensor3.Text = "3";
+            this.btn_pbSensor3.UseVisualStyleBackColor = true;
+            this.btn_pbSensor3.Click += new System.EventHandler(this.btn_pbSensor3_Click);
+            // 
+            // btn_pbSensor2
+            // 
+            this.btn_pbSensor2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor2.Location = new System.Drawing.Point(48, 102);
+            this.btn_pbSensor2.Name = "btn_pbSensor2";
+            this.btn_pbSensor2.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor2.TabIndex = 34;
+            this.btn_pbSensor2.Text = "2";
+            this.btn_pbSensor2.UseVisualStyleBackColor = true;
+            this.btn_pbSensor2.Click += new System.EventHandler(this.btn_pbSensor2_Click);
+            // 
+            // btn_pbSensor1
+            // 
+            this.btn_pbSensor1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor1.Location = new System.Drawing.Point(27, 102);
+            this.btn_pbSensor1.Name = "btn_pbSensor1";
+            this.btn_pbSensor1.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor1.TabIndex = 33;
+            this.btn_pbSensor1.Text = "1";
+            this.btn_pbSensor1.UseVisualStyleBackColor = true;
+            this.btn_pbSensor1.Click += new System.EventHandler(this.btn_pbSensor1_Click);
+            // 
+            // btn_pbSensor0
+            // 
+            this.btn_pbSensor0.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor0.Location = new System.Drawing.Point(6, 102);
+            this.btn_pbSensor0.Name = "btn_pbSensor0";
+            this.btn_pbSensor0.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor0.TabIndex = 32;
+            this.btn_pbSensor0.Text = "0";
+            this.btn_pbSensor0.UseVisualStyleBackColor = true;
+            this.btn_pbSensor0.Click += new System.EventHandler(this.btn_pbSensor0_Click);
+            // 
+            // lbl_pbDetectedSensorMask
+            // 
+            this.lbl_pbDetectedSensorMask.AutoSize = true;
+            this.lbl_pbDetectedSensorMask.Location = new System.Drawing.Point(6, 86);
+            this.lbl_pbDetectedSensorMask.Name = "lbl_pbDetectedSensorMask";
+            this.lbl_pbDetectedSensorMask.Size = new System.Drawing.Size(95, 13);
+            this.lbl_pbDetectedSensorMask.TabIndex = 10;
+            this.lbl_pbDetectedSensorMask.Text = "Detected Sensors:";
             // 
             // nud_pbStreamState
             // 
@@ -1668,7 +1788,7 @@ namespace PacketTester
             // 
             // btn_pbTogglePort
             // 
-            this.btn_pbTogglePort.Location = new System.Drawing.Point(133, 17);
+            this.btn_pbTogglePort.Location = new System.Drawing.Point(133, 41);
             this.btn_pbTogglePort.Name = "btn_pbTogglePort";
             this.btn_pbTogglePort.Size = new System.Drawing.Size(75, 23);
             this.btn_pbTogglePort.TabIndex = 5;
@@ -1679,9 +1799,9 @@ namespace PacketTester
             // cb_pbBaudRate
             // 
             this.cb_pbBaudRate.FormattingEnabled = true;
-            this.cb_pbBaudRate.Location = new System.Drawing.Point(6, 41);
+            this.cb_pbBaudRate.Location = new System.Drawing.Point(109, 19);
             this.cb_pbBaudRate.Name = "cb_pbBaudRate";
-            this.cb_pbBaudRate.Size = new System.Drawing.Size(121, 21);
+            this.cb_pbBaudRate.Size = new System.Drawing.Size(104, 21);
             this.cb_pbBaudRate.TabIndex = 4;
             // 
             // cb_pbComPorts
@@ -1689,13 +1809,13 @@ namespace PacketTester
             this.cb_pbComPorts.FormattingEnabled = true;
             this.cb_pbComPorts.Location = new System.Drawing.Point(6, 19);
             this.cb_pbComPorts.Name = "cb_pbComPorts";
-            this.cb_pbComPorts.Size = new System.Drawing.Size(121, 21);
+            this.cb_pbComPorts.Size = new System.Drawing.Size(104, 21);
             this.cb_pbComPorts.TabIndex = 3;
             // 
             // chb_pbEnableBridge
             // 
             this.chb_pbEnableBridge.AutoSize = true;
-            this.chb_pbEnableBridge.Location = new System.Drawing.Point(6, 68);
+            this.chb_pbEnableBridge.Location = new System.Drawing.Point(6, 53);
             this.chb_pbEnableBridge.Name = "chb_pbEnableBridge";
             this.chb_pbEnableBridge.Size = new System.Drawing.Size(117, 17);
             this.chb_pbEnableBridge.TabIndex = 2;
@@ -1821,114 +1941,6 @@ namespace PacketTester
             // powerBoardPort
             // 
             this.powerBoardPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.powerBoardPort_DataReceived);
-            // 
-            // lbl_pbDetectedSensorMask
-            // 
-            this.lbl_pbDetectedSensorMask.AutoSize = true;
-            this.lbl_pbDetectedSensorMask.Location = new System.Drawing.Point(6, 86);
-            this.lbl_pbDetectedSensorMask.Name = "lbl_pbDetectedSensorMask";
-            this.lbl_pbDetectedSensorMask.Size = new System.Drawing.Size(95, 13);
-            this.lbl_pbDetectedSensorMask.TabIndex = 10;
-            this.lbl_pbDetectedSensorMask.Text = "Detected Sensors:";
-            // 
-            // btn_pbSensor0
-            // 
-            this.btn_pbSensor0.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_pbSensor0.Location = new System.Drawing.Point(6, 102);
-            this.btn_pbSensor0.Name = "btn_pbSensor0";
-            this.btn_pbSensor0.Size = new System.Drawing.Size(20, 20);
-            this.btn_pbSensor0.TabIndex = 32;
-            this.btn_pbSensor0.Text = "0";
-            this.btn_pbSensor0.UseVisualStyleBackColor = true;
-            this.btn_pbSensor0.Click += new System.EventHandler(this.btn_pbSensor0_Click);
-            // 
-            // btn_pbSensor1
-            // 
-            this.btn_pbSensor1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_pbSensor1.Location = new System.Drawing.Point(27, 102);
-            this.btn_pbSensor1.Name = "btn_pbSensor1";
-            this.btn_pbSensor1.Size = new System.Drawing.Size(20, 20);
-            this.btn_pbSensor1.TabIndex = 33;
-            this.btn_pbSensor1.Text = "1";
-            this.btn_pbSensor1.UseVisualStyleBackColor = true;
-            this.btn_pbSensor1.Click += new System.EventHandler(this.btn_pbSensor1_Click);
-            // 
-            // btn_pbSensor2
-            // 
-            this.btn_pbSensor2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_pbSensor2.Location = new System.Drawing.Point(48, 102);
-            this.btn_pbSensor2.Name = "btn_pbSensor2";
-            this.btn_pbSensor2.Size = new System.Drawing.Size(20, 20);
-            this.btn_pbSensor2.TabIndex = 34;
-            this.btn_pbSensor2.Text = "2";
-            this.btn_pbSensor2.UseVisualStyleBackColor = true;
-            this.btn_pbSensor2.Click += new System.EventHandler(this.btn_pbSensor2_Click);
-            // 
-            // btn_pbSensor3
-            // 
-            this.btn_pbSensor3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_pbSensor3.Location = new System.Drawing.Point(69, 102);
-            this.btn_pbSensor3.Name = "btn_pbSensor3";
-            this.btn_pbSensor3.Size = new System.Drawing.Size(20, 20);
-            this.btn_pbSensor3.TabIndex = 35;
-            this.btn_pbSensor3.Text = "3";
-            this.btn_pbSensor3.UseVisualStyleBackColor = true;
-            this.btn_pbSensor3.Click += new System.EventHandler(this.btn_pbSensor3_Click);
-            // 
-            // btn_pbSensor4
-            // 
-            this.btn_pbSensor4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_pbSensor4.Location = new System.Drawing.Point(90, 102);
-            this.btn_pbSensor4.Name = "btn_pbSensor4";
-            this.btn_pbSensor4.Size = new System.Drawing.Size(20, 20);
-            this.btn_pbSensor4.TabIndex = 36;
-            this.btn_pbSensor4.Text = "4";
-            this.btn_pbSensor4.UseVisualStyleBackColor = true;
-            this.btn_pbSensor4.Click += new System.EventHandler(this.btn_pbSensor4_Click);
-            // 
-            // btn_pbSensor5
-            // 
-            this.btn_pbSensor5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_pbSensor5.Location = new System.Drawing.Point(111, 102);
-            this.btn_pbSensor5.Name = "btn_pbSensor5";
-            this.btn_pbSensor5.Size = new System.Drawing.Size(20, 20);
-            this.btn_pbSensor5.TabIndex = 37;
-            this.btn_pbSensor5.Text = "5";
-            this.btn_pbSensor5.UseVisualStyleBackColor = true;
-            this.btn_pbSensor5.Click += new System.EventHandler(this.btn_pbSensor5_Click);
-            // 
-            // btn_pbSensor6
-            // 
-            this.btn_pbSensor6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_pbSensor6.Location = new System.Drawing.Point(132, 102);
-            this.btn_pbSensor6.Name = "btn_pbSensor6";
-            this.btn_pbSensor6.Size = new System.Drawing.Size(20, 20);
-            this.btn_pbSensor6.TabIndex = 38;
-            this.btn_pbSensor6.Text = "6";
-            this.btn_pbSensor6.UseVisualStyleBackColor = true;
-            this.btn_pbSensor6.Click += new System.EventHandler(this.btn_pbSensor6_Click);
-            // 
-            // btn_pbSensor7
-            // 
-            this.btn_pbSensor7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_pbSensor7.Location = new System.Drawing.Point(153, 102);
-            this.btn_pbSensor7.Name = "btn_pbSensor7";
-            this.btn_pbSensor7.Size = new System.Drawing.Size(20, 20);
-            this.btn_pbSensor7.TabIndex = 39;
-            this.btn_pbSensor7.Text = "7";
-            this.btn_pbSensor7.UseVisualStyleBackColor = true;
-            this.btn_pbSensor7.Click += new System.EventHandler(this.btn_pbSensor7_Click);
-            // 
-            // btn_pbSensor8
-            // 
-            this.btn_pbSensor8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_pbSensor8.Location = new System.Drawing.Point(174, 102);
-            this.btn_pbSensor8.Name = "btn_pbSensor8";
-            this.btn_pbSensor8.Size = new System.Drawing.Size(20, 20);
-            this.btn_pbSensor8.TabIndex = 40;
-            this.btn_pbSensor8.Text = "8";
-            this.btn_pbSensor8.UseVisualStyleBackColor = true;
-            this.btn_pbSensor8.Click += new System.EventHandler(this.btn_pbSensor8_Click);
             // 
             // mainForm
             // 
@@ -2162,6 +2174,7 @@ namespace PacketTester
         private System.Windows.Forms.Button btn_pbSensor1;
         private System.Windows.Forms.Button btn_pbSensor0;
         private System.Windows.Forms.Label lbl_pbDetectedSensorMask;
+        private System.Windows.Forms.Button btn_sendPwrDwnReq;
     }
 }
 
