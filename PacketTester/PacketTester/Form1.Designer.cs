@@ -115,18 +115,21 @@ namespace PacketTester
             this.cb_robotPort = new System.Windows.Forms.ComboBox();
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.lbl_dbPacketErrorCount = new System.Windows.Forms.Label();
+            this.lbl_dbTotalPacketError = new System.Windows.Forms.Label();
+            this.cb_dbBaudRate = new System.Windows.Forms.ComboBox();
             this.lbl_dbTotalFrames = new System.Windows.Forms.Label();
             this.lbl_dbFrameCount = new System.Windows.Forms.Label();
-            this.lbl_dbAvgRate = new System.Windows.Forms.Label();
-            this.lbl_dbAvgDataRate = new System.Windows.Forms.Label();
-            this.lbl_dbDataInterval = new System.Windows.Forms.Label();
-            this.lbl_dbSensorDataRate = new System.Windows.Forms.Label();
             this.gb_dbDataMonitor = new System.Windows.Forms.GroupBox();
             this.chb_dbDataMonitorEnable = new System.Windows.Forms.CheckBox();
             this.cb_dbDataType = new System.Windows.Forms.ComboBox();
             this.lbl_dbDataType = new System.Windows.Forms.Label();
+            this.lbl_dbAvgRate = new System.Windows.Forms.Label();
+            this.lbl_dbDataInterval = new System.Windows.Forms.Label();
             this.lbl_dbSensorId = new System.Windows.Forms.Label();
+            this.lbl_dbAvgDataRate = new System.Windows.Forms.Label();
             this.nud_dbSensorId = new System.Windows.Forms.NumericUpDown();
+            this.lbl_dbSensorDataRate = new System.Windows.Forms.Label();
             this.btn_dbStream = new System.Windows.Forms.Button();
             this.btn_dbGetDateTime = new System.Windows.Forms.Button();
             this.btn_dbSetDateTime = new System.Windows.Forms.Button();
@@ -148,8 +151,35 @@ namespace PacketTester
             this.grp_dbConfigurePB = new System.Windows.Forms.GroupBox();
             this.btn_dbSetConfig = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.cb_streamRawFrames = new System.Windows.Forms.CheckBox();
+            this.gb_pbManualEmulation = new System.Windows.Forms.GroupBox();
+            this.btn_sendPwrDwnReq = new System.Windows.Forms.Button();
+            this.gb_pbStatusMessage = new System.Windows.Forms.GroupBox();
+            this.btn_pbSensor8 = new System.Windows.Forms.Button();
+            this.btn_pbSensor6 = new System.Windows.Forms.Button();
+            this.btn_pbSensor7 = new System.Windows.Forms.Button();
+            this.btn_pbSensor5 = new System.Windows.Forms.Button();
+            this.btn_pbSensor4 = new System.Windows.Forms.Button();
+            this.btn_pbSensor3 = new System.Windows.Forms.Button();
+            this.btn_pbSensor2 = new System.Windows.Forms.Button();
+            this.btn_pbSensor1 = new System.Windows.Forms.Button();
+            this.btn_pbSensor0 = new System.Windows.Forms.Button();
+            this.lbl_pbDetectedSensorMask = new System.Windows.Forms.Label();
+            this.nud_pbStreamState = new System.Windows.Forms.NumericUpDown();
+            this.label7 = new System.Windows.Forms.Label();
+            this.chb_pbJcDc2 = new System.Windows.Forms.CheckBox();
+            this.chb_pbJcDc1 = new System.Windows.Forms.CheckBox();
+            this.lbl_pbJackDet = new System.Windows.Forms.Label();
+            this.chb_pbUsbComDetected = new System.Windows.Forms.CheckBox();
+            this.nud_pbChrgState = new System.Windows.Forms.NumericUpDown();
+            this.nud_pbChrgLvl = new System.Windows.Forms.NumericUpDown();
+            this.lbl_pbChrgState = new System.Windows.Forms.Label();
+            this.lbl_pbChrgLvl = new System.Windows.Forms.Label();
             this.btn_pbFullRawFrame = new System.Windows.Forms.Button();
+            this.cb_streamRawFrames = new System.Windows.Forms.CheckBox();
+            this.btn_pbTogglePort = new System.Windows.Forms.Button();
+            this.cb_pbBaudRate = new System.Windows.Forms.ComboBox();
+            this.cb_pbComPorts = new System.Windows.Forms.ComboBox();
+            this.chb_pbEnableBridge = new System.Windows.Forms.CheckBox();
             this.btn_refreshComPorts = new System.Windows.Forms.Button();
             this.robotArmPort = new System.IO.Ports.SerialPort(this.components);
             this.bgw_uarmFileWorker = new System.ComponentModel.BackgroundWorker();
@@ -165,9 +195,7 @@ namespace PacketTester
             this.lbl_valueData4 = new System.Windows.Forms.Label();
             this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.dataBoardPort = new System.IO.Ports.SerialPort(this.components);
-            this.cb_dbBaudRate = new System.Windows.Forms.ComboBox();
-            this.lbl_dbTotalPacketError = new System.Windows.Forms.Label();
-            this.lbl_dbPacketErrorCount = new System.Windows.Forms.Label();
+            this.powerBoardPort = new System.IO.Ports.SerialPort(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -189,6 +217,11 @@ namespace PacketTester
             ((System.ComponentModel.ISupportInitialize)(this.nud_dbDataRate)).BeginInit();
             this.grp_dbConfigurePB.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.gb_pbManualEmulation.SuspendLayout();
+            this.gb_pbStatusMessage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_pbStreamState)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgState)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgLvl)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_disconnect
@@ -1088,6 +1121,34 @@ namespace PacketTester
             this.groupBox4.TabIndex = 1;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Data Board Emulator";
+            this.toolTip1.SetToolTip(this.groupBox4, "Communicates with power board.\r\n");
+            // 
+            // lbl_dbPacketErrorCount
+            // 
+            this.lbl_dbPacketErrorCount.AutoSize = true;
+            this.lbl_dbPacketErrorCount.Location = new System.Drawing.Point(117, 287);
+            this.lbl_dbPacketErrorCount.Name = "lbl_dbPacketErrorCount";
+            this.lbl_dbPacketErrorCount.Size = new System.Drawing.Size(13, 13);
+            this.lbl_dbPacketErrorCount.TabIndex = 31;
+            this.lbl_dbPacketErrorCount.Text = "0";
+            // 
+            // lbl_dbTotalPacketError
+            // 
+            this.lbl_dbTotalPacketError.AutoSize = true;
+            this.lbl_dbTotalPacketError.Location = new System.Drawing.Point(15, 287);
+            this.lbl_dbTotalPacketError.Name = "lbl_dbTotalPacketError";
+            this.lbl_dbTotalPacketError.Size = new System.Drawing.Size(96, 13);
+            this.lbl_dbTotalPacketError.TabIndex = 30;
+            this.lbl_dbTotalPacketError.Text = "Total Packet Error:";
+            // 
+            // cb_dbBaudRate
+            // 
+            this.cb_dbBaudRate.FormattingEnabled = true;
+            this.cb_dbBaudRate.Location = new System.Drawing.Point(144, 47);
+            this.cb_dbBaudRate.Name = "cb_dbBaudRate";
+            this.cb_dbBaudRate.Size = new System.Drawing.Size(121, 21);
+            this.cb_dbBaudRate.TabIndex = 29;
+            this.cb_dbBaudRate.SelectedIndexChanged += new System.EventHandler(this.cb_dbBaudRate_SelectedIndexChanged);
             // 
             // lbl_dbTotalFrames
             // 
@@ -1106,45 +1167,6 @@ namespace PacketTester
             this.lbl_dbFrameCount.Size = new System.Drawing.Size(13, 13);
             this.lbl_dbFrameCount.TabIndex = 27;
             this.lbl_dbFrameCount.Text = "0";
-            // 
-            // lbl_dbAvgRate
-            // 
-            this.lbl_dbAvgRate.AutoSize = true;
-            this.lbl_dbAvgRate.Location = new System.Drawing.Point(218, 55);
-            this.lbl_dbAvgRate.Name = "lbl_dbAvgRate";
-            this.lbl_dbAvgRate.Size = new System.Drawing.Size(13, 13);
-            this.lbl_dbAvgRate.TabIndex = 26;
-            this.lbl_dbAvgRate.Text = "0";
-            this.lbl_dbAvgRate.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lbl_dbAvgDataRate
-            // 
-            this.lbl_dbAvgDataRate.AutoSize = true;
-            this.lbl_dbAvgDataRate.Location = new System.Drawing.Point(128, 55);
-            this.lbl_dbAvgDataRate.Name = "lbl_dbAvgDataRate";
-            this.lbl_dbAvgDataRate.Size = new System.Drawing.Size(84, 13);
-            this.lbl_dbAvgDataRate.TabIndex = 25;
-            this.lbl_dbAvgDataRate.Text = "Avg, Data Rate:";
-            this.lbl_dbAvgDataRate.Click += new System.EventHandler(this.label7_Click_1);
-            // 
-            // lbl_dbDataInterval
-            // 
-            this.lbl_dbDataInterval.AutoSize = true;
-            this.lbl_dbDataInterval.Location = new System.Drawing.Point(73, 55);
-            this.lbl_dbDataInterval.Name = "lbl_dbDataInterval";
-            this.lbl_dbDataInterval.Size = new System.Drawing.Size(13, 13);
-            this.lbl_dbDataInterval.TabIndex = 24;
-            this.lbl_dbDataInterval.Text = "0";
-            this.lbl_dbDataInterval.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lbl_dbSensorDataRate
-            // 
-            this.lbl_dbSensorDataRate.AutoSize = true;
-            this.lbl_dbSensorDataRate.Location = new System.Drawing.Point(8, 55);
-            this.lbl_dbSensorDataRate.Name = "lbl_dbSensorDataRate";
-            this.lbl_dbSensorDataRate.Size = new System.Drawing.Size(59, 13);
-            this.lbl_dbSensorDataRate.TabIndex = 23;
-            this.lbl_dbSensorDataRate.Text = "Data Rate:";
             // 
             // gb_dbDataMonitor
             // 
@@ -1200,6 +1222,26 @@ namespace PacketTester
             this.lbl_dbDataType.TabIndex = 23;
             this.lbl_dbDataType.Text = "Data type:";
             // 
+            // lbl_dbAvgRate
+            // 
+            this.lbl_dbAvgRate.AutoSize = true;
+            this.lbl_dbAvgRate.Location = new System.Drawing.Point(218, 55);
+            this.lbl_dbAvgRate.Name = "lbl_dbAvgRate";
+            this.lbl_dbAvgRate.Size = new System.Drawing.Size(13, 13);
+            this.lbl_dbAvgRate.TabIndex = 26;
+            this.lbl_dbAvgRate.Text = "0";
+            this.lbl_dbAvgRate.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lbl_dbDataInterval
+            // 
+            this.lbl_dbDataInterval.AutoSize = true;
+            this.lbl_dbDataInterval.Location = new System.Drawing.Point(73, 55);
+            this.lbl_dbDataInterval.Name = "lbl_dbDataInterval";
+            this.lbl_dbDataInterval.Size = new System.Drawing.Size(13, 13);
+            this.lbl_dbDataInterval.TabIndex = 24;
+            this.lbl_dbDataInterval.Text = "0";
+            this.lbl_dbDataInterval.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // lbl_dbSensorId
             // 
             this.lbl_dbSensorId.AutoSize = true;
@@ -1208,6 +1250,16 @@ namespace PacketTester
             this.lbl_dbSensorId.Size = new System.Drawing.Size(55, 13);
             this.lbl_dbSensorId.TabIndex = 22;
             this.lbl_dbSensorId.Text = "Sensor Id:";
+            // 
+            // lbl_dbAvgDataRate
+            // 
+            this.lbl_dbAvgDataRate.AutoSize = true;
+            this.lbl_dbAvgDataRate.Location = new System.Drawing.Point(128, 55);
+            this.lbl_dbAvgDataRate.Name = "lbl_dbAvgDataRate";
+            this.lbl_dbAvgDataRate.Size = new System.Drawing.Size(84, 13);
+            this.lbl_dbAvgDataRate.TabIndex = 25;
+            this.lbl_dbAvgDataRate.Text = "Avg, Data Rate:";
+            this.lbl_dbAvgDataRate.Click += new System.EventHandler(this.label7_Click_1);
             // 
             // nud_dbSensorId
             // 
@@ -1221,6 +1273,15 @@ namespace PacketTester
             this.nud_dbSensorId.Size = new System.Drawing.Size(57, 20);
             this.nud_dbSensorId.TabIndex = 21;
             this.nud_dbSensorId.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // lbl_dbSensorDataRate
+            // 
+            this.lbl_dbSensorDataRate.AutoSize = true;
+            this.lbl_dbSensorDataRate.Location = new System.Drawing.Point(8, 55);
+            this.lbl_dbSensorDataRate.Name = "lbl_dbSensorDataRate";
+            this.lbl_dbSensorDataRate.Size = new System.Drawing.Size(59, 13);
+            this.lbl_dbSensorDataRate.TabIndex = 23;
+            this.lbl_dbSensorDataRate.Text = "Data Rate:";
             // 
             // btn_dbStream
             // 
@@ -1431,19 +1492,293 @@ namespace PacketTester
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.cb_streamRawFrames);
-            this.groupBox3.Controls.Add(this.btn_pbFullRawFrame);
+            this.groupBox3.Controls.Add(this.gb_pbManualEmulation);
+            this.groupBox3.Controls.Add(this.btn_pbTogglePort);
+            this.groupBox3.Controls.Add(this.cb_pbBaudRate);
+            this.groupBox3.Controls.Add(this.cb_pbComPorts);
+            this.groupBox3.Controls.Add(this.chb_pbEnableBridge);
             this.groupBox3.Location = new System.Drawing.Point(6, 6);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(218, 323);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Power Board Packets";
+            this.groupBox3.Text = "Power Board Emulator";
+            this.toolTip1.SetToolTip(this.groupBox3, "Communicates with data board.\r\n");
+            // 
+            // gb_pbManualEmulation
+            // 
+            this.gb_pbManualEmulation.Controls.Add(this.btn_sendPwrDwnReq);
+            this.gb_pbManualEmulation.Controls.Add(this.gb_pbStatusMessage);
+            this.gb_pbManualEmulation.Controls.Add(this.btn_pbFullRawFrame);
+            this.gb_pbManualEmulation.Controls.Add(this.cb_streamRawFrames);
+            this.gb_pbManualEmulation.Location = new System.Drawing.Point(1, 83);
+            this.gb_pbManualEmulation.Name = "gb_pbManualEmulation";
+            this.gb_pbManualEmulation.Size = new System.Drawing.Size(218, 240);
+            this.gb_pbManualEmulation.TabIndex = 3;
+            this.gb_pbManualEmulation.TabStop = false;
+            // 
+            // btn_sendPwrDwnReq
+            // 
+            this.btn_sendPwrDwnReq.Location = new System.Drawing.Point(6, 180);
+            this.btn_sendPwrDwnReq.Name = "btn_sendPwrDwnReq";
+            this.btn_sendPwrDwnReq.Size = new System.Drawing.Size(75, 40);
+            this.btn_sendPwrDwnReq.TabIndex = 3;
+            this.btn_sendPwrDwnReq.Text = "Send Power Down Req";
+            this.btn_sendPwrDwnReq.UseVisualStyleBackColor = true;
+            this.btn_sendPwrDwnReq.Click += new System.EventHandler(this.btn_sendPwrDwnReq_Click);
+            // 
+            // gb_pbStatusMessage
+            // 
+            this.gb_pbStatusMessage.Controls.Add(this.btn_pbSensor8);
+            this.gb_pbStatusMessage.Controls.Add(this.btn_pbSensor6);
+            this.gb_pbStatusMessage.Controls.Add(this.btn_pbSensor7);
+            this.gb_pbStatusMessage.Controls.Add(this.btn_pbSensor5);
+            this.gb_pbStatusMessage.Controls.Add(this.btn_pbSensor4);
+            this.gb_pbStatusMessage.Controls.Add(this.btn_pbSensor3);
+            this.gb_pbStatusMessage.Controls.Add(this.btn_pbSensor2);
+            this.gb_pbStatusMessage.Controls.Add(this.btn_pbSensor1);
+            this.gb_pbStatusMessage.Controls.Add(this.btn_pbSensor0);
+            this.gb_pbStatusMessage.Controls.Add(this.lbl_pbDetectedSensorMask);
+            this.gb_pbStatusMessage.Controls.Add(this.nud_pbStreamState);
+            this.gb_pbStatusMessage.Controls.Add(this.label7);
+            this.gb_pbStatusMessage.Controls.Add(this.chb_pbJcDc2);
+            this.gb_pbStatusMessage.Controls.Add(this.chb_pbJcDc1);
+            this.gb_pbStatusMessage.Controls.Add(this.lbl_pbJackDet);
+            this.gb_pbStatusMessage.Controls.Add(this.chb_pbUsbComDetected);
+            this.gb_pbStatusMessage.Controls.Add(this.nud_pbChrgState);
+            this.gb_pbStatusMessage.Controls.Add(this.nud_pbChrgLvl);
+            this.gb_pbStatusMessage.Controls.Add(this.lbl_pbChrgState);
+            this.gb_pbStatusMessage.Controls.Add(this.lbl_pbChrgLvl);
+            this.gb_pbStatusMessage.Location = new System.Drawing.Point(6, 46);
+            this.gb_pbStatusMessage.Name = "gb_pbStatusMessage";
+            this.gb_pbStatusMessage.Size = new System.Drawing.Size(206, 128);
+            this.gb_pbStatusMessage.TabIndex = 2;
+            this.gb_pbStatusMessage.TabStop = false;
+            this.gb_pbStatusMessage.Text = "Status Message";
+            // 
+            // btn_pbSensor8
+            // 
+            this.btn_pbSensor8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor8.Location = new System.Drawing.Point(174, 102);
+            this.btn_pbSensor8.Name = "btn_pbSensor8";
+            this.btn_pbSensor8.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor8.TabIndex = 40;
+            this.btn_pbSensor8.Text = "8";
+            this.btn_pbSensor8.UseVisualStyleBackColor = true;
+            this.btn_pbSensor8.Click += new System.EventHandler(this.btn_pbSensor8_Click);
+            // 
+            // btn_pbSensor6
+            // 
+            this.btn_pbSensor6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor6.Location = new System.Drawing.Point(132, 102);
+            this.btn_pbSensor6.Name = "btn_pbSensor6";
+            this.btn_pbSensor6.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor6.TabIndex = 38;
+            this.btn_pbSensor6.Text = "6";
+            this.btn_pbSensor6.UseVisualStyleBackColor = true;
+            this.btn_pbSensor6.Click += new System.EventHandler(this.btn_pbSensor6_Click);
+            // 
+            // btn_pbSensor7
+            // 
+            this.btn_pbSensor7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor7.Location = new System.Drawing.Point(153, 102);
+            this.btn_pbSensor7.Name = "btn_pbSensor7";
+            this.btn_pbSensor7.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor7.TabIndex = 39;
+            this.btn_pbSensor7.Text = "7";
+            this.btn_pbSensor7.UseVisualStyleBackColor = true;
+            this.btn_pbSensor7.Click += new System.EventHandler(this.btn_pbSensor7_Click);
+            // 
+            // btn_pbSensor5
+            // 
+            this.btn_pbSensor5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor5.Location = new System.Drawing.Point(111, 102);
+            this.btn_pbSensor5.Name = "btn_pbSensor5";
+            this.btn_pbSensor5.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor5.TabIndex = 37;
+            this.btn_pbSensor5.Text = "5";
+            this.btn_pbSensor5.UseVisualStyleBackColor = true;
+            this.btn_pbSensor5.Click += new System.EventHandler(this.btn_pbSensor5_Click);
+            // 
+            // btn_pbSensor4
+            // 
+            this.btn_pbSensor4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor4.Location = new System.Drawing.Point(90, 102);
+            this.btn_pbSensor4.Name = "btn_pbSensor4";
+            this.btn_pbSensor4.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor4.TabIndex = 36;
+            this.btn_pbSensor4.Text = "4";
+            this.btn_pbSensor4.UseVisualStyleBackColor = true;
+            this.btn_pbSensor4.Click += new System.EventHandler(this.btn_pbSensor4_Click);
+            // 
+            // btn_pbSensor3
+            // 
+            this.btn_pbSensor3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor3.Location = new System.Drawing.Point(69, 102);
+            this.btn_pbSensor3.Name = "btn_pbSensor3";
+            this.btn_pbSensor3.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor3.TabIndex = 35;
+            this.btn_pbSensor3.Text = "3";
+            this.btn_pbSensor3.UseVisualStyleBackColor = true;
+            this.btn_pbSensor3.Click += new System.EventHandler(this.btn_pbSensor3_Click);
+            // 
+            // btn_pbSensor2
+            // 
+            this.btn_pbSensor2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor2.Location = new System.Drawing.Point(48, 102);
+            this.btn_pbSensor2.Name = "btn_pbSensor2";
+            this.btn_pbSensor2.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor2.TabIndex = 34;
+            this.btn_pbSensor2.Text = "2";
+            this.btn_pbSensor2.UseVisualStyleBackColor = true;
+            this.btn_pbSensor2.Click += new System.EventHandler(this.btn_pbSensor2_Click);
+            // 
+            // btn_pbSensor1
+            // 
+            this.btn_pbSensor1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor1.Location = new System.Drawing.Point(27, 102);
+            this.btn_pbSensor1.Name = "btn_pbSensor1";
+            this.btn_pbSensor1.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor1.TabIndex = 33;
+            this.btn_pbSensor1.Text = "1";
+            this.btn_pbSensor1.UseVisualStyleBackColor = true;
+            this.btn_pbSensor1.Click += new System.EventHandler(this.btn_pbSensor1_Click);
+            // 
+            // btn_pbSensor0
+            // 
+            this.btn_pbSensor0.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_pbSensor0.Location = new System.Drawing.Point(6, 102);
+            this.btn_pbSensor0.Name = "btn_pbSensor0";
+            this.btn_pbSensor0.Size = new System.Drawing.Size(20, 20);
+            this.btn_pbSensor0.TabIndex = 32;
+            this.btn_pbSensor0.Text = "0";
+            this.btn_pbSensor0.UseVisualStyleBackColor = true;
+            this.btn_pbSensor0.Click += new System.EventHandler(this.btn_pbSensor0_Click);
+            // 
+            // lbl_pbDetectedSensorMask
+            // 
+            this.lbl_pbDetectedSensorMask.AutoSize = true;
+            this.lbl_pbDetectedSensorMask.Location = new System.Drawing.Point(6, 86);
+            this.lbl_pbDetectedSensorMask.Name = "lbl_pbDetectedSensorMask";
+            this.lbl_pbDetectedSensorMask.Size = new System.Drawing.Size(95, 13);
+            this.lbl_pbDetectedSensorMask.TabIndex = 10;
+            this.lbl_pbDetectedSensorMask.Text = "Detected Sensors:";
+            // 
+            // nud_pbStreamState
+            // 
+            this.nud_pbStreamState.Location = new System.Drawing.Point(167, 38);
+            this.nud_pbStreamState.Maximum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.nud_pbStreamState.Name = "nud_pbStreamState";
+            this.nud_pbStreamState.Size = new System.Drawing.Size(33, 20);
+            this.nud_pbStreamState.TabIndex = 9;
+            this.toolTip1.SetToolTip(this.nud_pbStreamState, " 0 - Idle\r\n 1 - Streaming\r\n 2 - Error");
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(92, 40);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(68, 13);
+            this.label7.TabIndex = 8;
+            this.label7.Text = "Stream State";
+            // 
+            // chb_pbJcDc2
+            // 
+            this.chb_pbJcDc2.AutoSize = true;
+            this.chb_pbJcDc2.Location = new System.Drawing.Point(39, 60);
+            this.chb_pbJcDc2.Name = "chb_pbJcDc2";
+            this.chb_pbJcDc2.Size = new System.Drawing.Size(32, 17);
+            this.chb_pbJcDc2.TabIndex = 7;
+            this.chb_pbJcDc2.Text = "2";
+            this.chb_pbJcDc2.UseVisualStyleBackColor = true;
+            // 
+            // chb_pbJcDc1
+            // 
+            this.chb_pbJcDc1.AutoSize = true;
+            this.chb_pbJcDc1.Location = new System.Drawing.Point(6, 60);
+            this.chb_pbJcDc1.Name = "chb_pbJcDc1";
+            this.chb_pbJcDc1.Size = new System.Drawing.Size(32, 17);
+            this.chb_pbJcDc1.TabIndex = 6;
+            this.chb_pbJcDc1.Text = "1";
+            this.chb_pbJcDc1.UseVisualStyleBackColor = true;
+            // 
+            // lbl_pbJackDet
+            // 
+            this.lbl_pbJackDet.AutoSize = true;
+            this.lbl_pbJackDet.Location = new System.Drawing.Point(5, 41);
+            this.lbl_pbJackDet.Name = "lbl_pbJackDet";
+            this.lbl_pbJackDet.Size = new System.Drawing.Size(53, 13);
+            this.lbl_pbJackDet.TabIndex = 5;
+            this.lbl_pbJackDet.Text = "Jack Det:";
+            // 
+            // chb_pbUsbComDetected
+            // 
+            this.chb_pbUsbComDetected.AutoSize = true;
+            this.chb_pbUsbComDetected.Location = new System.Drawing.Point(77, 66);
+            this.chb_pbUsbComDetected.Name = "chb_pbUsbComDetected";
+            this.chb_pbUsbComDetected.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.chb_pbUsbComDetected.Size = new System.Drawing.Size(124, 17);
+            this.chb_pbUsbComDetected.TabIndex = 4;
+            this.chb_pbUsbComDetected.Text = "USB comm detected";
+            this.chb_pbUsbComDetected.UseVisualStyleBackColor = true;
+            // 
+            // nud_pbChrgState
+            // 
+            this.nud_pbChrgState.Location = new System.Drawing.Point(167, 14);
+            this.nud_pbChrgState.Maximum = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+            this.nud_pbChrgState.Name = "nud_pbChrgState";
+            this.nud_pbChrgState.Size = new System.Drawing.Size(33, 20);
+            this.nud_pbChrgState.TabIndex = 3;
+            this.toolTip1.SetToolTip(this.nud_pbChrgState, " 0 - Battery Low\r\n 1 - Battery Nominal\r\n 2 - Battery Full\r\n 3 - Charging");
+            // 
+            // nud_pbChrgLvl
+            // 
+            this.nud_pbChrgLvl.Location = new System.Drawing.Point(57, 14);
+            this.nud_pbChrgLvl.Name = "nud_pbChrgLvl";
+            this.nud_pbChrgLvl.Size = new System.Drawing.Size(40, 20);
+            this.nud_pbChrgLvl.TabIndex = 2;
+            this.toolTip1.SetToolTip(this.nud_pbChrgLvl, "Battery percentage");
+            // 
+            // lbl_pbChrgState
+            // 
+            this.lbl_pbChrgState.AutoSize = true;
+            this.lbl_pbChrgState.Location = new System.Drawing.Point(103, 16);
+            this.lbl_pbChrgState.Name = "lbl_pbChrgState";
+            this.lbl_pbChrgState.Size = new System.Drawing.Size(57, 13);
+            this.lbl_pbChrgState.TabIndex = 1;
+            this.lbl_pbChrgState.Text = "Chrg State";
+            // 
+            // lbl_pbChrgLvl
+            // 
+            this.lbl_pbChrgLvl.AutoSize = true;
+            this.lbl_pbChrgLvl.Location = new System.Drawing.Point(5, 16);
+            this.lbl_pbChrgLvl.Name = "lbl_pbChrgLvl";
+            this.lbl_pbChrgLvl.Size = new System.Drawing.Size(46, 13);
+            this.lbl_pbChrgLvl.TabIndex = 0;
+            this.lbl_pbChrgLvl.Text = "Chrg Lvl";
+            // 
+            // btn_pbFullRawFrame
+            // 
+            this.btn_pbFullRawFrame.Location = new System.Drawing.Point(6, 17);
+            this.btn_pbFullRawFrame.Name = "btn_pbFullRawFrame";
+            this.btn_pbFullRawFrame.Size = new System.Drawing.Size(100, 23);
+            this.btn_pbFullRawFrame.TabIndex = 0;
+            this.btn_pbFullRawFrame.Text = "Full Raw Frame";
+            this.btn_pbFullRawFrame.UseVisualStyleBackColor = true;
+            this.btn_pbFullRawFrame.Click += new System.EventHandler(this.btn_pbFullRawFrame_Click);
             // 
             // cb_streamRawFrames
             // 
             this.cb_streamRawFrames.AutoSize = true;
-            this.cb_streamRawFrames.Location = new System.Drawing.Point(117, 32);
+            this.cb_streamRawFrames.Location = new System.Drawing.Point(112, 21);
             this.cb_streamRawFrames.Name = "cb_streamRawFrames";
             this.cb_streamRawFrames.Size = new System.Drawing.Size(95, 17);
             this.cb_streamRawFrames.TabIndex = 1;
@@ -1451,15 +1786,43 @@ namespace PacketTester
             this.cb_streamRawFrames.UseVisualStyleBackColor = true;
             this.cb_streamRawFrames.CheckedChanged += new System.EventHandler(this.cb_streamRawFrames_CheckedChanged);
             // 
-            // btn_pbFullRawFrame
+            // btn_pbTogglePort
             // 
-            this.btn_pbFullRawFrame.Location = new System.Drawing.Point(10, 28);
-            this.btn_pbFullRawFrame.Name = "btn_pbFullRawFrame";
-            this.btn_pbFullRawFrame.Size = new System.Drawing.Size(100, 23);
-            this.btn_pbFullRawFrame.TabIndex = 0;
-            this.btn_pbFullRawFrame.Text = "Full Raw Frame";
-            this.btn_pbFullRawFrame.UseVisualStyleBackColor = true;
-            this.btn_pbFullRawFrame.Click += new System.EventHandler(this.btn_pbFullRawFrame_Click);
+            this.btn_pbTogglePort.Location = new System.Drawing.Point(133, 41);
+            this.btn_pbTogglePort.Name = "btn_pbTogglePort";
+            this.btn_pbTogglePort.Size = new System.Drawing.Size(75, 23);
+            this.btn_pbTogglePort.TabIndex = 5;
+            this.btn_pbTogglePort.Text = "Open";
+            this.btn_pbTogglePort.UseVisualStyleBackColor = true;
+            this.btn_pbTogglePort.Click += new System.EventHandler(this.btn_pbTogglePort_Click);
+            // 
+            // cb_pbBaudRate
+            // 
+            this.cb_pbBaudRate.FormattingEnabled = true;
+            this.cb_pbBaudRate.Location = new System.Drawing.Point(109, 19);
+            this.cb_pbBaudRate.Name = "cb_pbBaudRate";
+            this.cb_pbBaudRate.Size = new System.Drawing.Size(104, 21);
+            this.cb_pbBaudRate.TabIndex = 4;
+            // 
+            // cb_pbComPorts
+            // 
+            this.cb_pbComPorts.FormattingEnabled = true;
+            this.cb_pbComPorts.Location = new System.Drawing.Point(6, 19);
+            this.cb_pbComPorts.Name = "cb_pbComPorts";
+            this.cb_pbComPorts.Size = new System.Drawing.Size(104, 21);
+            this.cb_pbComPorts.TabIndex = 3;
+            // 
+            // chb_pbEnableBridge
+            // 
+            this.chb_pbEnableBridge.AutoSize = true;
+            this.chb_pbEnableBridge.Location = new System.Drawing.Point(6, 53);
+            this.chb_pbEnableBridge.Name = "chb_pbEnableBridge";
+            this.chb_pbEnableBridge.Size = new System.Drawing.Size(117, 17);
+            this.chb_pbEnableBridge.TabIndex = 2;
+            this.chb_pbEnableBridge.Text = "Enable Data bridge";
+            this.toolTip1.SetToolTip(this.chb_pbEnableBridge, "Route the data from power board directly to data board.");
+            this.chb_pbEnableBridge.UseVisualStyleBackColor = true;
+            this.chb_pbEnableBridge.CheckedChanged += new System.EventHandler(this.chb_pbEnableBridge_CheckedChanged);
             // 
             // btn_refreshComPorts
             // 
@@ -1575,32 +1938,9 @@ namespace PacketTester
             this.dataBoardPort.BaudRate = 115200;
             this.dataBoardPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.dataBoardPort_DataReceived);
             // 
-            // cb_dbBaudRate
+            // powerBoardPort
             // 
-            this.cb_dbBaudRate.FormattingEnabled = true;
-            this.cb_dbBaudRate.Location = new System.Drawing.Point(144, 47);
-            this.cb_dbBaudRate.Name = "cb_dbBaudRate";
-            this.cb_dbBaudRate.Size = new System.Drawing.Size(121, 21);
-            this.cb_dbBaudRate.TabIndex = 29;
-            this.cb_dbBaudRate.SelectedIndexChanged += new System.EventHandler(this.cb_dbBaudRate_SelectedIndexChanged);
-            // 
-            // lbl_dbTotalPacketError
-            // 
-            this.lbl_dbTotalPacketError.AutoSize = true;
-            this.lbl_dbTotalPacketError.Location = new System.Drawing.Point(15, 287);
-            this.lbl_dbTotalPacketError.Name = "lbl_dbTotalPacketError";
-            this.lbl_dbTotalPacketError.Size = new System.Drawing.Size(96, 13);
-            this.lbl_dbTotalPacketError.TabIndex = 30;
-            this.lbl_dbTotalPacketError.Text = "Total Packet Error:";
-            // 
-            // lbl_dbPacketErrorCount
-            // 
-            this.lbl_dbPacketErrorCount.AutoSize = true;
-            this.lbl_dbPacketErrorCount.Location = new System.Drawing.Point(117, 287);
-            this.lbl_dbPacketErrorCount.Name = "lbl_dbPacketErrorCount";
-            this.lbl_dbPacketErrorCount.Size = new System.Drawing.Size(13, 13);
-            this.lbl_dbPacketErrorCount.TabIndex = 31;
-            this.lbl_dbPacketErrorCount.Text = "0";
+            this.powerBoardPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.powerBoardPort_DataReceived);
             // 
             // mainForm
             // 
@@ -1664,6 +2004,13 @@ namespace PacketTester
             this.grp_dbConfigurePB.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.gb_pbManualEmulation.ResumeLayout(false);
+            this.gb_pbManualEmulation.PerformLayout();
+            this.gb_pbStatusMessage.ResumeLayout(false);
+            this.gb_pbStatusMessage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_pbStreamState)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgState)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgLvl)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1800,6 +2147,34 @@ namespace PacketTester
         private System.Windows.Forms.ComboBox cb_dbBaudRate;
         private System.Windows.Forms.Label lbl_dbPacketErrorCount;
         private System.Windows.Forms.Label lbl_dbTotalPacketError;
+        private System.Windows.Forms.CheckBox chb_pbEnableBridge;
+        private System.Windows.Forms.GroupBox gb_pbManualEmulation;
+        private System.Windows.Forms.Button btn_pbTogglePort;
+        private System.Windows.Forms.ComboBox cb_pbBaudRate;
+        private System.Windows.Forms.ComboBox cb_pbComPorts;
+        private System.IO.Ports.SerialPort powerBoardPort;
+        private System.Windows.Forms.GroupBox gb_pbStatusMessage;
+        private System.Windows.Forms.NumericUpDown nud_pbChrgState;
+        private System.Windows.Forms.NumericUpDown nud_pbChrgLvl;
+        private System.Windows.Forms.Label lbl_pbChrgState;
+        private System.Windows.Forms.Label lbl_pbChrgLvl;
+        private System.Windows.Forms.CheckBox chb_pbUsbComDetected;
+        private System.Windows.Forms.CheckBox chb_pbJcDc2;
+        private System.Windows.Forms.CheckBox chb_pbJcDc1;
+        private System.Windows.Forms.Label lbl_pbJackDet;
+        private System.Windows.Forms.NumericUpDown nud_pbStreamState;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button btn_pbSensor8;
+        private System.Windows.Forms.Button btn_pbSensor6;
+        private System.Windows.Forms.Button btn_pbSensor7;
+        private System.Windows.Forms.Button btn_pbSensor5;
+        private System.Windows.Forms.Button btn_pbSensor4;
+        private System.Windows.Forms.Button btn_pbSensor3;
+        private System.Windows.Forms.Button btn_pbSensor2;
+        private System.Windows.Forms.Button btn_pbSensor1;
+        private System.Windows.Forms.Button btn_pbSensor0;
+        private System.Windows.Forms.Label lbl_pbDetectedSensorMask;
+        private System.Windows.Forms.Button btn_sendPwrDwnReq;
     }
 }
 
