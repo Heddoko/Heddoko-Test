@@ -649,22 +649,21 @@ namespace PacketTester
         {
             switch(packet.type)
             {
-                case PacketType.BrainPackVersionResponse:
-                    if (packet.brainPackVersionSpecified)
+                case PacketType.AdvertisingPacket:
+                    if (packet.firmwareVersionSpecified)
                     {
-                        debugMessageQueue.Enqueue("Received Version Response:" +
-                            packet.brainPackVersion + "\r\n");
+                        debugMessageQueue.Enqueue("Received Advertising Packet: " +
+                            packet.firmwareVersion + " SN: " + packet.serialNumber + " Port: "
+                            + packet.configurationPort.ToString() + "\r\n");
                     }
                     else
                     {
                         debugMessageQueue.Enqueue("Error Version not found\r\n");
                     }
                     break;
-                case PacketType.BatteryChargeResponse:
-                    debugMessageQueue.Enqueue("Received Battery Charge Response:" +
-                        packet.batteryCharge.ToString() + "\r\n");
-                    break;
-                case PacketType.StateResponse:
+                case PacketType.StatusResponse:
+                    debugMessageQueue.Enqueue("Received Status Response:" +
+                        packet.batteryLevel.ToString() + "\r\n");
                     break;
                 case PacketType.DataFrame:
                     if(packet.fullDataFrame != null)
@@ -1113,7 +1112,7 @@ namespace PacketTester
         private bool EnableSocketQueue = false;
         private void udpSocketClientProcess()
         {
-            UdpClient udpClient = new UdpClient(6667);
+            UdpClient udpClient = new UdpClient(6668);
             try
             {
                 IPAddress ipAddress = IPAddress.Parse("192.168.2.1");//ipHostInfo.AddressList[0];
