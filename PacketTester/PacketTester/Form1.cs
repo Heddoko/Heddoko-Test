@@ -77,6 +77,7 @@ namespace PacketTester
         public bool pbProcessDataEnable = false;
         public ConcurrentQueue<byte> pbDataReceiveQueue;
         private bool pbDataReceiveQueueEnabled = false;
+        public int pbStreamRate = 12;
         public struct StatusMessage
         {
             public byte chargeLevel;   //battery percentage     
@@ -1895,7 +1896,14 @@ namespace PacketTester
             
             while(streamRawFramesEnabled)
             {
-                Thread.Sleep(10);
+                if (pbStreamRate > 12)
+                {
+                    Thread.Sleep(pbStreamRate);
+                }
+                else
+                {
+                    Thread.Sleep(12);   // 12 ms is the maximum rate possible off the hardware
+                }
                 dataFrame.setTimestamp(timestampCounter++);
                 byte[] serializedBytes = dataFrame.serializeFrame(out numBytes);
                 sendPacketTo(powerBoardPort, serializedBytes, numBytes);
@@ -2940,6 +2948,11 @@ namespace PacketTester
         {
             byte[] header = { 0x05, 0x56 };
             sendPacketTo(powerBoardPort, header, 2);
+        }
+
+        private void nud_pbStreamRate_ValueChanged(object sender, EventArgs e)
+        {
+            pbStreamRate = (int)nud_pbStreamRate.Value;
         }
 
         private void btn_pbTogglePort_Click(object sender, EventArgs e)

@@ -196,6 +196,8 @@ namespace PacketTester
             this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.dataBoardPort = new System.IO.Ports.SerialPort(this.components);
             this.powerBoardPort = new System.IO.Ports.SerialPort(this.components);
+            this.nud_pbStreamRate = new System.Windows.Forms.NumericUpDown();
+            this.lbl_pbStreamRate = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -222,6 +224,7 @@ namespace PacketTester
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbStreamState)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgState)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgLvl)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_pbStreamRate)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_disconnect
@@ -1507,6 +1510,8 @@ namespace PacketTester
             // 
             // gb_pbManualEmulation
             // 
+            this.gb_pbManualEmulation.Controls.Add(this.lbl_pbStreamRate);
+            this.gb_pbManualEmulation.Controls.Add(this.nud_pbStreamRate);
             this.gb_pbManualEmulation.Controls.Add(this.btn_sendPwrDwnReq);
             this.gb_pbManualEmulation.Controls.Add(this.gb_pbStatusMessage);
             this.gb_pbManualEmulation.Controls.Add(this.btn_pbFullRawFrame);
@@ -1519,7 +1524,7 @@ namespace PacketTester
             // 
             // btn_sendPwrDwnReq
             // 
-            this.btn_sendPwrDwnReq.Location = new System.Drawing.Point(6, 180);
+            this.btn_sendPwrDwnReq.Location = new System.Drawing.Point(132, 11);
             this.btn_sendPwrDwnReq.Name = "btn_sendPwrDwnReq";
             this.btn_sendPwrDwnReq.Size = new System.Drawing.Size(75, 40);
             this.btn_sendPwrDwnReq.TabIndex = 3;
@@ -1549,7 +1554,7 @@ namespace PacketTester
             this.gb_pbStatusMessage.Controls.Add(this.nud_pbChrgLvl);
             this.gb_pbStatusMessage.Controls.Add(this.lbl_pbChrgState);
             this.gb_pbStatusMessage.Controls.Add(this.lbl_pbChrgLvl);
-            this.gb_pbStatusMessage.Location = new System.Drawing.Point(6, 46);
+            this.gb_pbStatusMessage.Location = new System.Drawing.Point(5, 106);
             this.gb_pbStatusMessage.Name = "gb_pbStatusMessage";
             this.gb_pbStatusMessage.Size = new System.Drawing.Size(206, 128);
             this.gb_pbStatusMessage.TabIndex = 2;
@@ -1767,7 +1772,7 @@ namespace PacketTester
             // 
             // btn_pbFullRawFrame
             // 
-            this.btn_pbFullRawFrame.Location = new System.Drawing.Point(6, 17);
+            this.btn_pbFullRawFrame.Location = new System.Drawing.Point(5, 11);
             this.btn_pbFullRawFrame.Name = "btn_pbFullRawFrame";
             this.btn_pbFullRawFrame.Size = new System.Drawing.Size(100, 23);
             this.btn_pbFullRawFrame.TabIndex = 0;
@@ -1778,7 +1783,7 @@ namespace PacketTester
             // cb_streamRawFrames
             // 
             this.cb_streamRawFrames.AutoSize = true;
-            this.cb_streamRawFrames.Location = new System.Drawing.Point(112, 21);
+            this.cb_streamRawFrames.Location = new System.Drawing.Point(6, 35);
             this.cb_streamRawFrames.Name = "cb_streamRawFrames";
             this.cb_streamRawFrames.Size = new System.Drawing.Size(95, 17);
             this.cb_streamRawFrames.TabIndex = 1;
@@ -1815,6 +1820,7 @@ namespace PacketTester
             // chb_pbEnableBridge
             // 
             this.chb_pbEnableBridge.AutoSize = true;
+            this.chb_pbEnableBridge.Enabled = false;
             this.chb_pbEnableBridge.Location = new System.Drawing.Point(6, 53);
             this.chb_pbEnableBridge.Name = "chb_pbEnableBridge";
             this.chb_pbEnableBridge.Size = new System.Drawing.Size(117, 17);
@@ -1942,6 +1948,33 @@ namespace PacketTester
             // 
             this.powerBoardPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.powerBoardPort_DataReceived);
             // 
+            // nud_pbStreamRate
+            // 
+            this.nud_pbStreamRate.Location = new System.Drawing.Point(5, 71);
+            this.nud_pbStreamRate.Minimum = new decimal(new int[] {
+            12,
+            0,
+            0,
+            0});
+            this.nud_pbStreamRate.Name = "nud_pbStreamRate";
+            this.nud_pbStreamRate.Size = new System.Drawing.Size(46, 20);
+            this.nud_pbStreamRate.TabIndex = 4;
+            this.nud_pbStreamRate.Value = new decimal(new int[] {
+            12,
+            0,
+            0,
+            0});
+            this.nud_pbStreamRate.ValueChanged += new System.EventHandler(this.nud_pbStreamRate_ValueChanged);
+            // 
+            // lbl_pbStreamRate
+            // 
+            this.lbl_pbStreamRate.AutoSize = true;
+            this.lbl_pbStreamRate.Location = new System.Drawing.Point(2, 55);
+            this.lbl_pbStreamRate.Name = "lbl_pbStreamRate";
+            this.lbl_pbStreamRate.Size = new System.Drawing.Size(69, 13);
+            this.lbl_pbStreamRate.TabIndex = 5;
+            this.lbl_pbStreamRate.Text = "Stream Rate:";
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2011,6 +2044,7 @@ namespace PacketTester
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbStreamState)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgState)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgLvl)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_pbStreamRate)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2175,6 +2209,8 @@ namespace PacketTester
         private System.Windows.Forms.Button btn_pbSensor0;
         private System.Windows.Forms.Label lbl_pbDetectedSensorMask;
         private System.Windows.Forms.Button btn_sendPwrDwnReq;
+        private System.Windows.Forms.Label lbl_pbStreamRate;
+        private System.Windows.Forms.NumericUpDown nud_pbStreamRate;
     }
 }
 
