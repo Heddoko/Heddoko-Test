@@ -899,6 +899,7 @@ namespace PacketTester
             streamDataEnabled = false;            
             EnableSocketQueue = false;
             processRobotArmQueueEnabled = false;
+            dbDataReceiveEnable = false;
             //close the serial port
             if (serialPort.IsOpen)
             {
