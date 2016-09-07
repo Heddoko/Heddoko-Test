@@ -20,10 +20,10 @@ namespace BrainPackDataAnalyzer
     {
         public Thread readThread;
 
-        public FileStream dataFile;        
+        public FileStream dataFile;
         public DataTable analysisData;
         public DataTable sensorStats;
-        public ConcurrentQueue<string> incomingDataQueue; 
+        public ConcurrentQueue<string> incomingDataQueue;
         public imu[] imuArray = new imu[9];
         private bool openSerialPort = false;
         private bool processDataTheadEnabled = true;
@@ -31,6 +31,7 @@ namespace BrainPackDataAnalyzer
         public ConcurrentQueue<string> debugMessageQueue;
         private bool processPacketQueueEnabled = false;
         public ConcurrentQueue<RawPacket> packetQueue;
+        private bool mIsBatchModeSelected = false;
         public mainForm()
         {
             InitializeComponent();
@@ -82,9 +83,9 @@ namespace BrainPackDataAnalyzer
                                         dataFile.Write(System.Text.Encoding.ASCII.GetBytes(line), 0, line.Length);
                                     }
                                 }
-                            }                            
+                            }
                         }
-                        else if(line.Length == 14 && line.Contains("&"))
+                        else if (line.Length == 14 && line.Contains("&"))
                         {
                             //process the quintic frame
                             processImuEntry(line);
@@ -92,8 +93,8 @@ namespace BrainPackDataAnalyzer
                         }
                         else
                         {
-                            this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText(line + "\r\n")));    
-                                                        
+                            this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText(line + "\r\n")));
+
                         }
 
                     }
@@ -101,7 +102,7 @@ namespace BrainPackDataAnalyzer
                     {
                         //do nothing, this is alright
                     }
-                    if(!openSerialPort)
+                    if (!openSerialPort)
                     {
                         this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Serial Port Closed\r\n")));
                         serialPort.Close();
@@ -113,7 +114,7 @@ namespace BrainPackDataAnalyzer
         }
         public void processDataThread()
         {
-            while(processDataTheadEnabled)
+            while (processDataTheadEnabled)
             {
                 string line;
                 if (incomingDataQueue.Count > 0)
@@ -150,8 +151,8 @@ namespace BrainPackDataAnalyzer
                     {
                         Thread.Sleep(1);
                     }
-                }                 
-                
+                }
+
             }
         }
         private void processProtoPacket(Packet packet)
@@ -206,7 +207,7 @@ namespace BrainPackDataAnalyzer
                     {
                         imuArray[i].EntryUpdated = false;
                         continue;
-                    }                    
+                    }
 
                     //DataRow row = sensorStats.NewRow();
                     sensorStats.Rows[sensorId]["Sensor ID"] = sensorId.ToString();
@@ -286,17 +287,17 @@ namespace BrainPackDataAnalyzer
         public string convertToArrow(double value)
         {
             string retVal = "";
-            if(value >= (-Math.PI/8) && value < (Math.PI / 8))
+            if (value >= (-Math.PI / 8) && value < (Math.PI / 8))
             {
                 //right arrow
                 retVal += " \u2192";
             }
-            else if (value >= (-(3*Math.PI) / 8) && value < (-Math.PI / 8))
+            else if (value >= (-(3 * Math.PI) / 8) && value < (-Math.PI / 8))
             {
                 //right down
                 retVal += " \u2198";
             }
-            else if (value >= (-(5*Math.PI) / 8) && value < (-(3*Math.PI) / 8))
+            else if (value >= (-(5 * Math.PI) / 8) && value < (-(3 * Math.PI) / 8))
             {
                 //down
                 retVal += " \u2193";
@@ -306,7 +307,7 @@ namespace BrainPackDataAnalyzer
                 //left down
                 retVal += " \u2199";
             }
-            else if ((value >= (7 * Math.PI)/8) && value <= Math.PI)
+            else if ((value >= (7 * Math.PI) / 8) && value <= Math.PI)
             {
                 //left
                 retVal += " \u2190";
@@ -333,10 +334,10 @@ namespace BrainPackDataAnalyzer
             }
             else
             {
-                retVal += "X"; 
+                retVal += "X";
             }
-            return retVal; 
-        } 
+            return retVal;
+        }
         public void processImuEntry(string entry)
         {
             string formattedEntry = entry.Substring(2, 4) + ";" + entry.Substring(6, 4) + ";" + entry.Substring(10, 4);
@@ -362,7 +363,7 @@ namespace BrainPackDataAnalyzer
                     this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Pitch"].Points.RemoveAt(0)));
                     this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Yaw"].Points.RemoveAt(0)));
                 }
-                    
+
             }
             catch
             {
@@ -370,7 +371,7 @@ namespace BrainPackDataAnalyzer
             }
         }
         public void processEntry(string entry)
-        {            
+        {
             string[] entrySplit = entry.Split(',');
             //there should be 12 columns of data
             int selectedImu = System.Convert.ToInt32(nud_SelectedImu.Value);
@@ -380,17 +381,17 @@ namespace BrainPackDataAnalyzer
                 {
                     UInt32 timeStamp = UInt32.Parse(entrySplit[0]);
                     UInt16 sensorMask = UInt16.Parse(entrySplit[1], System.Globalization.NumberStyles.HexNumber);
-                    for(int i = 0; i < 9; i++)
+                    for (int i = 0; i < 9; i++)
                     {
                         //if the frame is valid for this sensor then process it. 
-                        if ((sensorMask & (1<<i)) > 0)
+                        if ((sensorMask & (1 << i)) > 0)
                         {
                             imuArray[i].ProcessEntry(timeStamp, entrySplit[i + 2]);
                             imuArray[i].EntryUpdated = true;
                         }
                         else
                         {
-                            imuArray[i].EntryUpdated = false;  
+                            imuArray[i].EntryUpdated = false;
                         }
                         //DataRow row = sensorStats.NewRow();
                         sensorStats.Rows[i]["Sensor ID"] = i.ToString();
@@ -401,7 +402,7 @@ namespace BrainPackDataAnalyzer
                         sensorStats.Rows[i]["Interval"] = imuArray[i].GetLastInterval().ToString();
                         sensorStats.Rows[i]["Max Interval"] = imuArray[i].GetMaxInterval().ToString();
                         sensorStats.Rows[i]["Average Interval"] = imuArray[i].GetAverageInterval().ToString();
-                        
+
                         if (selectedImu == i)
                         {
                             this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Roll"].Points.AddY(imuArray[selectedImu].GetCurrentEntry().Roll)));
@@ -415,7 +416,7 @@ namespace BrainPackDataAnalyzer
                                 this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Yaw"].Points.RemoveAt(0)));
                             }
                         }
-                        
+
 
                     }
                     this.BeginInvoke((MethodInvoker)(() => tb_stretchData.Text = entrySplit[11]));
@@ -482,7 +483,7 @@ namespace BrainPackDataAnalyzer
             cb_Baud.SelectedIndex = 10;
 
             serialPort.NewLine = "\r\n";
-            serialPortPassThrough.NewLine = "\r\n"; 
+            serialPortPassThrough.NewLine = "\r\n";
             //start read thread --> automatically put things in list box            
             tb_Console.AppendText("Brain Data Analyzer\r\n");
             sensorStats = new DataTable("Sensor Statistics");
@@ -507,12 +508,12 @@ namespace BrainPackDataAnalyzer
                 row["Average Interval"] = "0";
                 sensorStats.Rows.Add(row);
             }
-            for(int i = 0; i < imuArray.Length; i++)
+            for (int i = 0; i < imuArray.Length; i++)
             {
-                imuArray[i] = new imu(); 
+                imuArray[i] = new imu();
             }
             bindingSource1.DataSource = sensorStats;
-            dgv_SensorStats.DataSource = bindingSource1; 
+            dgv_SensorStats.DataSource = bindingSource1;
             dgv_SensorStats.Update();
             //initialize the message queue
             debugMessageQueue = new ConcurrentQueue<string>();
@@ -529,7 +530,7 @@ namespace BrainPackDataAnalyzer
             //initialize queue
             incomingDataQueue = new ConcurrentQueue<string>();
             //start processor thread
-            processDataTheadEnabled = true; 
+            processDataTheadEnabled = true;
             Thread dataProcessorThread = new Thread(processDataThread);
             dataProcessorThread.Start();
 
@@ -542,7 +543,7 @@ namespace BrainPackDataAnalyzer
             if (serialPort.IsOpen)
             {
                 //do nothing
-                return; 
+                return;
             }
             this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Roll"].Points.Clear()));
             this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Pitch"].Points.Clear()));
@@ -555,7 +556,7 @@ namespace BrainPackDataAnalyzer
                 serialPort.Open();
                 tb_Console.AppendText("Port: " + serialPort.PortName + " Open\r\n");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 tb_Console.AppendText("Failed to open Port: " + serialPort.PortName + " \r\n");
                 tb_Console.AppendText("Exception " + ex.Message + " \r\n");
@@ -564,10 +565,10 @@ namespace BrainPackDataAnalyzer
         }
         private void btn_disconnect_Click(object sender, EventArgs e)
         {
-            if(serialPort.IsOpen)
+            if (serialPort.IsOpen)
             {
                 try
-                { 
+                {
                     serialPort.Close();
                     openSerialPort = false;
                     tb_Console.AppendText("Port: " + serialPort.PortName + " Closed\r\n");
@@ -604,7 +605,7 @@ namespace BrainPackDataAnalyzer
         {
             if (serialPort.IsOpen)
             {
-                sendCommmand("GetState\r\n");                
+                sendCommmand("GetState\r\n");
             }
         }
         private void btn_record_Click(object sender, EventArgs e)
@@ -639,24 +640,24 @@ namespace BrainPackDataAnalyzer
             //tb_Console.AppendText("Start File Decryption: " + System.DateTime.Now.ToLongTimeString() + " \r\n");  
             try
             {
-                if(File.Exists(tempFilename))
+                if (File.Exists(tempFilename))
                 {
                     File.Delete(tempFilename);
                 }
                 FileStream tempFile = new FileStream(tempFilename, FileMode.Create);
                 FileStream rawFile = new FileStream(filename, FileMode.Open);
-                
-               
+
+
                 //read the first portion of data
                 byte[] header = new byte[44];
                 rawFile.Read(header, 0, 44);
-                
+
                 string headerString = System.Text.Encoding.ASCII.GetString(header);
-                long offset = 0; 
+                long offset = 0;
                 if (headerString.Contains("BPVERSION"))
                 {
-                    this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Header: " + headerString )));
-                    offset = headerString.Length; 
+                    this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Header: " + headerString)));
+                    offset = headerString.Length;
                 }
 
                 Int32 temp = 0x00;
@@ -686,22 +687,22 @@ namespace BrainPackDataAnalyzer
                 }
                 this.BeginInvoke((MethodInvoker)(() => tb_Console.AppendText("Found  " + errorCount.ToString() + " bytes improperly formatted\r\n")));
                 //tempFile.Write(fileBytes, 0, (int)(rawFile.Length - offset));
-                tempFile.Close(); 
+                tempFile.Close();
             }
             catch
             {
-                return null; 
+                return null;
             }
-            
-            return CSVDataAdapter.Fill(tempFilename, false); 
+
+            return CSVDataAdapter.Fill(tempFilename, false);
         }
         public void processDataRow(DataRow row)
         {
             //there should be 12 columns of data
             int selectedImu = System.Convert.ToInt32(nud_SelectedImu.Value);
-            if(row.Table.Columns.Count < 12)
+            if (row.Table.Columns.Count < 12)
             {
-                return; 
+                return;
             }
             try
             {
@@ -751,110 +752,229 @@ namespace BrainPackDataAnalyzer
                 //error
             }
         }
+
         private void btn_Convert_Click(object sender, EventArgs e)
         {
-            ofd_AnalyzeFile.Filter = "comma seperated values(*.csv)|*.csv|Brain pack data(*.dat)|*.dat|All files (*.*)|*.*";
-            ofd_AnalyzeFile.FilterIndex = 3;
-            ofd_AnalyzeFile.RestoreDirectory = true;
-
-
-            if (ofd_AnalyzeFile.ShowDialog() == DialogResult.OK)
+            if (mIsBatchModeSelected)
             {
-                if (ofd_AnalyzeFile.FileName.Contains(".dat"))
+                OpenFileDialog mFileDialog = new OpenFileDialog();
+                FolderBrowserDialog mFolderBrowser = new FolderBrowserDialog();
+                mFileDialog.Multiselect = true;
+                mFileDialog.Filter = "dat files|*.dat";
+                mFileDialog.Title = "Select files for conversion";
+                if (mFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    analysisData = convertDatFile(ofd_AnalyzeFile.FileName);
-                }
-                else
-                {
-                    analysisData = CSVDataAdapter.Fill(ofd_AnalyzeFile.FileName, false);
-                }
-                if (analysisData == null)
-                {
-                    tb_Console.AppendText("Failed to load the file\r\n");
-                }
-                tb_Console.AppendText("Loaded " + analysisData.Rows.Count.ToString() + " Rows \r\n");
-                tb_Console.AppendText("From File: " + ofd_AnalyzeFile.FileName + " \r\n");
-                Int32 maxTime = 0;
-                DataTable convertedData = new DataTable("Converted_Data");
-                convertedData.Columns.Add("TimeStamp", typeof(float));
-                ImuEntry defaultValue = new ImuEntry(0.0, 0.0, 0.0);
-                //create the columns for the IMUs
-                for (int i = 0; i < 10; i++)
-                {
-                    //Add column with the IMU index. 
-                    convertedData.Columns.Add(i.ToString(), typeof(string));
-                    convertedData.Columns[i.ToString()].DefaultValue = (i + 1).ToString();
-                    string columnName = "IMU" + i.ToString();
-                    convertedData.Columns.Add(columnName, typeof(ImuEntry));
-                    convertedData.Columns[columnName].DefaultValue = defaultValue; //set default to all zeros 
-                }
-                //create the column for the stretch sense, should be 5 columns
-                convertedData.Columns.Add("SS1", typeof(string));
-                convertedData.Columns.Add("SS2", typeof(string));
-                convertedData.Columns.Add("SS3", typeof(string));
-                convertedData.Columns.Add("SS4", typeof(string));
-                convertedData.Columns.Add("SS5", typeof(string));
-                Int32 startTime = Int32.Parse(analysisData.Rows[0][0].ToString());
-                pb_processingProgress.Visible = true;
-                pb_processingProgress.Value = 0;
-                for (int i = 1; i < analysisData.Rows.Count; i++)
-                {
-                    pb_processingProgress.Value = (i * 100) / analysisData.Rows.Count;
-                    try
+                    string vFileLoc = mFileDialog.FileNames[0];
+                    FileInfo vInfo = new FileInfo(vFileLoc);
+                    DirectoryInfo vDirInfo = new DirectoryInfo(vInfo.DirectoryName);
+                    //if (mFolderBrowser.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                     {
-                        Int32 val1 = Int32.Parse(analysisData.Rows[i][0].ToString());
-                        Int32 val2 = Int32.Parse(analysisData.Rows[i - 1][0].ToString());
-                        Int32 interval = val1 - val2;
-                        if (interval > maxTime)
+                        // mFolderBrowser.Description = "Select Files output folder";
+                        //  string vPath = mFolderBrowser.SelectedPath;
+                        var vFiles = vDirInfo.GetFiles("*.dat");
+                        foreach (var vFileInfo in vFiles)
                         {
-                            maxTime = interval;
-                        }
-                        DataRow row = convertedData.NewRow();
-                        row[0] = (float)(val1 - startTime) / 1000; //convert to float
+                            analysisData = convertDatFile(vFileInfo.FullName);
+                            if (analysisData == null)
+                            {
+                                tb_Console.AppendText("Failed to load the file\r\n");
+                            }
+                            else
+                            {
+                                tb_Console.AppendText("Loaded " + analysisData.Rows.Count.ToString() + " Rows \r\n");
+                                tb_Console.AppendText("From File: " + ofd_AnalyzeFile.FileName + " \r\n");
+                                Int32 maxTime = 0;
+                                DataTable convertedData = new DataTable("Converted_Data");
+                                convertedData.Columns.Add("TimeStamp", typeof(float));
+                                ImuEntry defaultValue = new ImuEntry(0.0, 0.0, 0.0);
+                                //create the columns for the IMUs
+                                for (int i = 0; i < 10; i++)
+                                {
+                                    //Add column with the IMU index. 
+                                    convertedData.Columns.Add(i.ToString(), typeof(string));
+                                    convertedData.Columns[i.ToString()].DefaultValue = (i + 1).ToString();
+                                    string columnName = "IMU" + i.ToString();
+                                    convertedData.Columns.Add(columnName, typeof(ImuEntry));
+                                    convertedData.Columns[columnName].DefaultValue = defaultValue; //set default to all zeros 
+                                }
+                                //create the column for the stretch sense, should be 5 columns
+                                convertedData.Columns.Add("SS1", typeof(string));
+                                convertedData.Columns.Add("SS2", typeof(string));
+                                convertedData.Columns.Add("SS3", typeof(string));
+                                convertedData.Columns.Add("SS4", typeof(string));
+                                convertedData.Columns.Add("SS5", typeof(string));
+                                Int32 startTime = Int32.Parse(analysisData.Rows[0][0].ToString());
+                                pb_processingProgress.Visible = true;
+                                pb_processingProgress.Value = 0;
+                                for (int i = 1; i < analysisData.Rows.Count; i++)
+                                {
+                                    pb_processingProgress.Value = (i * 100) / analysisData.Rows.Count;
+                                    try
+                                    {
+                                        Int32 val1 = Int32.Parse(analysisData.Rows[i][0].ToString());
+                                        Int32 val2 = Int32.Parse(analysisData.Rows[i - 1][0].ToString());
+                                        Int32 interval = val1 - val2;
+                                        if (interval > maxTime)
+                                        {
+                                            maxTime = interval;
+                                        }
+                                        DataRow row = convertedData.NewRow();
+                                        row[0] = (float)(val1 - startTime) / 1000; //convert to float
 
-                        for (int j = 1, k = 2; j < 18; j += 2, k++)
-                        {
-                            row[j + 1] = new ImuEntry(analysisData.Rows[i][k].ToString());
-                        }
-                        string[] fabSense = analysisData.Rows[i][11].ToString().Split(';');
-                        if (fabSense.Length == 5)
-                        {
-                            row["SS1"] = fabSense[0];
-                            row["SS2"] = fabSense[1];
-                            row["SS3"] = fabSense[2];
-                            row["SS4"] = fabSense[3];
-                            row["SS5"] = fabSense[4];
-                        }
-                        convertedData.Rows.Add(row);
-                    }
-                    catch
-                    {
-                        tb_Console.AppendText("Failed on Row " + i.ToString() + "\r\n");
-                    }
+                                        for (int j = 1, k = 2; j < 18; j += 2, k++)
+                                        {
+                                            row[j + 1] = new ImuEntry(analysisData.Rows[i][k].ToString());
+                                        }
+                                        string[] fabSense = analysisData.Rows[i][11].ToString().Split(';');
+                                        if (fabSense.Length == 5)
+                                        {
+                                            row["SS1"] = fabSense[0];
+                                            row["SS2"] = fabSense[1];
+                                            row["SS3"] = fabSense[2];
+                                            row["SS4"] = fabSense[3];
+                                            row["SS5"] = fabSense[4];
+                                        }
+                                        convertedData.Rows.Add(row);
+                                    }
+                                    catch
+                                    {
+                                        tb_Console.AppendText("Failed on Row " + i.ToString() + "\r\n");
+                                    }
 
+                                }
+                                //analysisDataStream.Close();
+                                tb_Console.AppendText("Max Interval" + maxTime.ToString() + "ms \r\n");
+                                //    sfd_ConvertedFile.DefaultExt = ".csv";
+                                //   sfd_ConvertedFile.AddExtension = true;
+                                //   if (sfd_ConvertedFile.ShowDialog() == DialogResult.OK)
+                                {
+                                    //have to create header for the file before writting it in. 
+                                    string line1 = Guid.NewGuid().ToString() + "\r\n";
+                                    string line2 = Guid.NewGuid().ToString() + "\r\n";
+                                    string line3 = Guid.NewGuid().ToString() + "\r\n";
+                                    StreamWriter writer = File.CreateText(vFileInfo.Directory + "\\" + vFileInfo.Name + ".csv");
+                                    writer.Write(line1);
+                                    writer.Write(line2);
+                                    writer.Write(line3);
+                                    writer.Close();
+                                    CSVDataAdapter.Write(convertedData, false, vFileInfo.Directory + "\\" + vFileInfo.Name + ".csv", true);
+                                }
+                                pb_processingProgress.Value = 0;
+                                pb_processingProgress.Visible = false;
+                            }
+                            tb_Console.AppendText("End File Conversion: " + System.DateTime.Now.ToLongTimeString() + " \r\n");
+                        }
+                    }
                 }
-                //analysisDataStream.Close();
-                tb_Console.AppendText("Max Interval" + maxTime.ToString() + "ms \r\n");
-                sfd_ConvertedFile.DefaultExt = ".csv";
-                sfd_ConvertedFile.AddExtension = true;
-                if (sfd_ConvertedFile.ShowDialog() == DialogResult.OK)
-                {
-                    //have to create header for the file before writting it in. 
-                    string line1 = Guid.NewGuid().ToString() + "\r\n";
-                    string line2 = Guid.NewGuid().ToString() + "\r\n";
-                    string line3 = Guid.NewGuid().ToString() + "\r\n";
-                    StreamWriter writer = File.CreateText(sfd_ConvertedFile.FileName);
-                    writer.Write(line1);
-                    writer.Write(line2);
-                    writer.Write(line3);
-                    writer.Close();
-                    CSVDataAdapter.Write(convertedData, false, sfd_ConvertedFile.FileName, true);
-                }
-                pb_processingProgress.Value = 0;
-                pb_processingProgress.Visible = false;
             }
-            tb_Console.AppendText("End File Conversion: " + System.DateTime.Now.ToLongTimeString() + " \r\n");
-            //FileStream dataFile = new FileStream(ofd_AnalyzeFile.FileName, FileMode.Open);
+
+
+            else
+            {
+                ofd_AnalyzeFile.Filter = "comma seperated values(*.csv)|*.csv|Brain pack data(*.dat)|*.dat|All files (*.*)|*.*";
+                ofd_AnalyzeFile.FilterIndex = 3;
+                ofd_AnalyzeFile.RestoreDirectory = true;
+
+
+                if (ofd_AnalyzeFile.ShowDialog() == DialogResult.OK)
+                {
+                    if (ofd_AnalyzeFile.FileName.Contains(".dat"))
+                    {
+                        analysisData = convertDatFile(ofd_AnalyzeFile.FileName);
+                    }
+                    else
+                    {
+                        analysisData = CSVDataAdapter.Fill(ofd_AnalyzeFile.FileName, false);
+                    }
+                    if (analysisData == null)
+                    {
+                        tb_Console.AppendText("Failed to load the file\r\n");
+                    }
+                    tb_Console.AppendText("Loaded " + analysisData.Rows.Count.ToString() + " Rows \r\n");
+                    tb_Console.AppendText("From File: " + ofd_AnalyzeFile.FileName + " \r\n");
+                    Int32 maxTime = 0;
+                    DataTable convertedData = new DataTable("Converted_Data");
+                    convertedData.Columns.Add("TimeStamp", typeof(float));
+                    ImuEntry defaultValue = new ImuEntry(0.0, 0.0, 0.0);
+                    //create the columns for the IMUs
+                    for (int i = 0; i < 10; i++)
+                    {
+                        //Add column with the IMU index. 
+                        convertedData.Columns.Add(i.ToString(), typeof(string));
+                        convertedData.Columns[i.ToString()].DefaultValue = (i + 1).ToString();
+                        string columnName = "IMU" + i.ToString();
+                        convertedData.Columns.Add(columnName, typeof(ImuEntry));
+                        convertedData.Columns[columnName].DefaultValue = defaultValue; //set default to all zeros 
+                    }
+                    //create the column for the stretch sense, should be 5 columns
+                    convertedData.Columns.Add("SS1", typeof(string));
+                    convertedData.Columns.Add("SS2", typeof(string));
+                    convertedData.Columns.Add("SS3", typeof(string));
+                    convertedData.Columns.Add("SS4", typeof(string));
+                    convertedData.Columns.Add("SS5", typeof(string));
+                    Int32 startTime = Int32.Parse(analysisData.Rows[0][0].ToString());
+                    pb_processingProgress.Visible = true;
+                    pb_processingProgress.Value = 0;
+                    for (int i = 1; i < analysisData.Rows.Count; i++)
+                    {
+                        pb_processingProgress.Value = (i * 100) / analysisData.Rows.Count;
+                        try
+                        {
+                            Int32 val1 = Int32.Parse(analysisData.Rows[i][0].ToString());
+                            Int32 val2 = Int32.Parse(analysisData.Rows[i - 1][0].ToString());
+                            Int32 interval = val1 - val2;
+                            if (interval > maxTime)
+                            {
+                                maxTime = interval;
+                            }
+                            DataRow row = convertedData.NewRow();
+                            row[0] = (float)(val1 - startTime) / 1000; //convert to float
+
+                            for (int j = 1, k = 2; j < 18; j += 2, k++)
+                            {
+                                row[j + 1] = new ImuEntry(analysisData.Rows[i][k].ToString());
+                            }
+                            string[] fabSense = analysisData.Rows[i][11].ToString().Split(';');
+                            if (fabSense.Length == 5)
+                            {
+                                row["SS1"] = fabSense[0];
+                                row["SS2"] = fabSense[1];
+                                row["SS3"] = fabSense[2];
+                                row["SS4"] = fabSense[3];
+                                row["SS5"] = fabSense[4];
+                            }
+                            convertedData.Rows.Add(row);
+                        }
+                        catch
+                        {
+                            tb_Console.AppendText("Failed on Row " + i.ToString() + "\r\n");
+                        }
+
+                    }
+                    //analysisDataStream.Close();
+                    tb_Console.AppendText("Max Interval" + maxTime.ToString() + "ms \r\n");
+                    sfd_ConvertedFile.DefaultExt = ".csv";
+                    sfd_ConvertedFile.AddExtension = true;
+                    if (sfd_ConvertedFile.ShowDialog() == DialogResult.OK)
+                    {
+                        //have to create header for the file before writting it in. 
+                        string line1 = Guid.NewGuid().ToString() + "\r\n";
+                        string line2 = Guid.NewGuid().ToString() + "\r\n";
+                        string line3 = Guid.NewGuid().ToString() + "\r\n";
+                        StreamWriter writer = File.CreateText(sfd_ConvertedFile.FileName);
+                        writer.Write(line1);
+                        writer.Write(line2);
+                        writer.Write(line3);
+                        writer.Close();
+                        CSVDataAdapter.Write(convertedData, false, sfd_ConvertedFile.FileName, true);
+                    }
+                    pb_processingProgress.Value = 0;
+                    pb_processingProgress.Visible = false;
+                }
+                tb_Console.AppendText("End File Conversion: " + System.DateTime.Now.ToLongTimeString() + " \r\n");
+                //FileStream dataFile = new FileStream(ofd_AnalyzeFile.FileName, FileMode.Open);
+            }
+
         }
 
         private void btn_Analyze_Click(object sender, EventArgs e)
@@ -863,7 +983,7 @@ namespace BrainPackDataAnalyzer
             ofd_AnalyzeFile.FilterIndex = 3;
             ofd_AnalyzeFile.RestoreDirectory = true;
 
-            if(bgw_AnalysisBackgroundWorker.IsBusy)
+            if (bgw_AnalysisBackgroundWorker.IsBusy)
             {
                 tb_Console.AppendText("Cannot start analysis, file is being processed\r\n");
                 return;
@@ -879,7 +999,7 @@ namespace BrainPackDataAnalyzer
                 }
                 bgw_AnalysisBackgroundWorker.RunWorkerAsync(ofd_AnalyzeFile.FileName);
                 return;
-                
+
             }
         }
         //experimental encryption functions
@@ -902,7 +1022,7 @@ namespace BrainPackDataAnalyzer
         private void encrypt(ref byte[] data, int size)
         {
             int shift = 0;
-            for (int i=0; i < size; i++)
+            for (int i = 0; i < size; i++)
             {
                 shift = i % 7;
                 if (shift == 0)
@@ -936,12 +1056,12 @@ namespace BrainPackDataAnalyzer
                     FileStream settingsFs = File.Open(ofd_AnalyzeFile.FileName, FileMode.Open);
                     byte[] data = new byte[500];
                     int totalBytesRead = settingsFs.Read(data, 0, 500);
-                    settingsFs.Close(); 
+                    settingsFs.Close();
                     encrypt(ref data, totalBytesRead);
 
                     //decrypt(ref data, totalBytesRead);  
 
-                    if(sfd_ConvertedFile.ShowDialog() == DialogResult.OK)
+                    if (sfd_ConvertedFile.ShowDialog() == DialogResult.OK)
                     {
                         FileStream encryptedSettings = File.Open(sfd_ConvertedFile.FileName, FileMode.Create);
                         byte[] header = new byte[2];
@@ -949,7 +1069,7 @@ namespace BrainPackDataAnalyzer
                         header[1] = (byte)'e';
                         encryptedSettings.Write(header, 0, 2);
                         encryptedSettings.Write(data, 0, totalBytesRead);
-                        encryptedSettings.Close(); 
+                        encryptedSettings.Close();
                     }
                 }
                 catch
@@ -973,11 +1093,11 @@ namespace BrainPackDataAnalyzer
         {
             byte[] reversedBytes = new byte[data.Length];
 
-            for (int i = 0, j=0;j < reversedBytes.Length; i++,j++)
+            for (int i = 0, j = 0; j < reversedBytes.Length; i++, j++)
             {
-                reversedBytes[j] = reverse(data[i]); 
+                reversedBytes[j] = reverse(data[i]);
             }
-            return reversedBytes; 
+            return reversedBytes;
 
         }
         private void btn_CreateFwBin_Click(object sender, EventArgs e)
@@ -994,14 +1114,14 @@ namespace BrainPackDataAnalyzer
                     CRC_Calculator crcCal = new CRC_Calculator(InitialCrcValue.NonZero1);
                     CRCTool crcTool = new CRCTool();
                     crcTool.Init(CRCTool.CRCCode.CRC32);
-                    ulong crcValue1 = crcTool.crcbitbybitfast(data); 
+                    ulong crcValue1 = crcTool.crcbitbybitfast(data);
                     ushort crcValue2 = crcCal.ComputeChecksum(data);
-                    ulong crcValue3 = crcTool.crcbitbybitfast(bitReverseAllBytes(data)); 
+                    ulong crcValue3 = crcTool.crcbitbybitfast(bitReverseAllBytes(data));
                     tb_Console.AppendText("CRC method 1 Calculated: " + crcValue1.ToString() + " \r\n");
                     tb_Console.AppendText("CRC method 2 Calculated: " + crcValue2.ToString() + " \r\n");
                     tb_Console.AppendText("CRC method 3 Calculated: " + crcValue3.ToString() + " \r\n");
                     //header 0x55AA55AA CRC(16bit) CRC(16bit), Length(32bit)
-                    byte[] header = { 0x55, 0xAA, 0x55, 0xAA, 0, 0, 0, 0, 0, 0, 0, 0};
+                    byte[] header = { 0x55, 0xAA, 0x55, 0xAA, 0, 0, 0, 0, 0, 0, 0, 0 };
 
                     header[4] = (byte)(crcValue1 & 0x00FF);
                     header[5] = (byte)((crcValue1 >> 8) & 0x00FF);
@@ -1028,14 +1148,14 @@ namespace BrainPackDataAnalyzer
 
         private void dgv_SensorStats_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
-            Console.WriteLine("data Error"); 
+            Console.WriteLine("data Error");
         }
 
         private void btn_clearStats_Click(object sender, EventArgs e)
         {
-            for(int i = 0; i < imuArray.Length; i++)
+            for (int i = 0; i < imuArray.Length; i++)
             {
-                imuArray[i].clearStats(); 
+                imuArray[i].clearStats();
             }
             this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Roll"].Points.Clear()));
             this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Pitch"].Points.Clear()));
@@ -1044,7 +1164,7 @@ namespace BrainPackDataAnalyzer
 
         private void btn_setSaveLocation_Click(object sender, EventArgs e)
         {
-            if(sfd_ConvertedFile.ShowDialog() == DialogResult.OK)
+            if (sfd_ConvertedFile.ShowDialog() == DialogResult.OK)
             {
                 tb_saveLocation.Text = sfd_ConvertedFile.FileName;
             }
@@ -1052,13 +1172,13 @@ namespace BrainPackDataAnalyzer
 
         private void cb_saveRecordEntries_CheckedChanged(object sender, EventArgs e)
         {
-            if(cb_saveRecordEntries.Checked)
+            if (cb_saveRecordEntries.Checked)
             {
-                if(tb_saveLocation.Text.Length > 0)
+                if (tb_saveLocation.Text.Length > 0)
                 {
                     try
                     {
-                        dataFile = File.Open(tb_saveLocation.Text, FileMode.Append); 
+                        dataFile = File.Open(tb_saveLocation.Text, FileMode.Append);
                     }
                     catch
                     {
@@ -1091,7 +1211,7 @@ namespace BrainPackDataAnalyzer
         {
             if (cb_serialPassEn.Checked)
             {
-                lock(serialPortPassThrough)
+                lock (serialPortPassThrough)
                 {
                     serialPortPassThrough.PortName = cb_serialPassT.Items[cb_serialPassT.SelectedIndex].ToString();
                     try
@@ -1124,11 +1244,11 @@ namespace BrainPackDataAnalyzer
         {
             try
             {
-                
+
                 string line = serialPortPassThrough.ReadLine();
-                if(serialPort.IsOpen)
+                if (serialPort.IsOpen)
                 {
-                    serialPort.WriteLine(line); 
+                    serialPort.WriteLine(line);
                 }
             }
             catch
@@ -1237,7 +1357,7 @@ namespace BrainPackDataAnalyzer
 
         private void bgw_AnalysisBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            string filename = (string)e.Argument; 
+            string filename = (string)e.Argument;
             if (filename.Contains(".dat"))
             {
                 analysisData = convertDatFile(filename);
@@ -1288,7 +1408,7 @@ namespace BrainPackDataAnalyzer
         private void bgw_AnalysisBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             pb_processingProgress.Value = 0;
-            pb_processingProgress.Visible = false; 
+            pb_processingProgress.Visible = false;
         }
 
         private void btn_EnterBootloader_Click(object sender, EventArgs e)
@@ -1326,6 +1446,13 @@ namespace BrainPackDataAnalyzer
                 sendCommmand("pbVersion\r\n");
             }
         }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            mIsBatchModeSelected = checkBox1.Checked;
+        }
+
+        
     }
 }
 

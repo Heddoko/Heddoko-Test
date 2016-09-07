@@ -29,11 +29,11 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.serialPort = new System.IO.Ports.SerialPort(this.components);
             this.cb_serialPorts = new System.Windows.Forms.ComboBox();
             this.l_COM_Port = new System.Windows.Forms.Label();
@@ -69,18 +69,19 @@
             this.cb_Baud = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.chrt_dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.nud_SelectedImu = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
+            this.nud_SelectedImu = new System.Windows.Forms.NumericUpDown();
+            this.chrt_dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.dgv_SensorStats = new System.Windows.Forms.DataGridView();
             this.pb_processingProgress = new System.Windows.Forms.ProgressBar();
+            this.dgv_SensorStats = new System.Windows.Forms.DataGridView();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.cb_protobuf = new System.Windows.Forms.CheckBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.tabPage2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_SelectedImu)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_SensorStats)).BeginInit();
             this.tabControl1.SuspendLayout();
@@ -397,39 +398,14 @@
             this.tabPage2.Text = "Graph";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // chrt_dataChart
+            // label1
             // 
-            chartArea2.AxisY.Maximum = 3.15D;
-            chartArea2.AxisY.Minimum = -3.15D;
-            chartArea2.Name = "ChartArea1";
-            this.chrt_dataChart.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.chrt_dataChart.Legends.Add(legend2);
-            this.chrt_dataChart.Location = new System.Drawing.Point(152, 15);
-            this.chrt_dataChart.Name = "chrt_dataChart";
-            this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
-            series4.BorderWidth = 5;
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series4.Legend = "Legend1";
-            series4.Name = "Roll";
-            series4.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            series5.BorderWidth = 5;
-            series5.ChartArea = "ChartArea1";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series5.Legend = "Legend1";
-            series5.Name = "Pitch";
-            series6.BorderWidth = 5;
-            series6.ChartArea = "ChartArea1";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series6.Legend = "Legend1";
-            series6.Name = "Yaw";
-            this.chrt_dataChart.Series.Add(series4);
-            this.chrt_dataChart.Series.Add(series5);
-            this.chrt_dataChart.Series.Add(series6);
-            this.chrt_dataChart.Size = new System.Drawing.Size(713, 377);
-            this.chrt_dataChart.TabIndex = 29;
-            this.chrt_dataChart.Text = "chart1";
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(20, 48);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(72, 13);
+            this.label1.TabIndex = 31;
+            this.label1.Text = "Selected IMU";
             // 
             // nud_SelectedImu
             // 
@@ -443,14 +419,39 @@
             this.nud_SelectedImu.Size = new System.Drawing.Size(120, 20);
             this.nud_SelectedImu.TabIndex = 30;
             // 
-            // label1
+            // chrt_dataChart
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(20, 48);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(72, 13);
-            this.label1.TabIndex = 31;
-            this.label1.Text = "Selected IMU";
+            chartArea1.AxisY.Maximum = 3.15D;
+            chartArea1.AxisY.Minimum = -3.15D;
+            chartArea1.Name = "ChartArea1";
+            this.chrt_dataChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chrt_dataChart.Legends.Add(legend1);
+            this.chrt_dataChart.Location = new System.Drawing.Point(152, 15);
+            this.chrt_dataChart.Name = "chrt_dataChart";
+            this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
+            series1.BorderWidth = 5;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Legend = "Legend1";
+            series1.Name = "Roll";
+            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            series2.BorderWidth = 5;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Legend = "Legend1";
+            series2.Name = "Pitch";
+            series3.BorderWidth = 5;
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.Legend = "Legend1";
+            series3.Name = "Yaw";
+            this.chrt_dataChart.Series.Add(series1);
+            this.chrt_dataChart.Series.Add(series2);
+            this.chrt_dataChart.Series.Add(series3);
+            this.chrt_dataChart.Size = new System.Drawing.Size(713, 377);
+            this.chrt_dataChart.TabIndex = 29;
+            this.chrt_dataChart.Text = "chart1";
             // 
             // tabPage1
             // 
@@ -464,6 +465,15 @@
             this.tabPage1.Text = "Table";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // pb_processingProgress
+            // 
+            this.pb_processingProgress.Location = new System.Drawing.Point(20, 348);
+            this.pb_processingProgress.Name = "pb_processingProgress";
+            this.pb_processingProgress.Size = new System.Drawing.Size(845, 23);
+            this.pb_processingProgress.Step = 1;
+            this.pb_processingProgress.TabIndex = 15;
+            this.pb_processingProgress.Visible = false;
+            // 
             // dgv_SensorStats
             // 
             this.dgv_SensorStats.AllowUserToAddRows = false;
@@ -475,15 +485,6 @@
             this.dgv_SensorStats.Size = new System.Drawing.Size(845, 302);
             this.dgv_SensorStats.TabIndex = 14;
             this.dgv_SensorStats.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.dgv_SensorStats_DataError);
-            // 
-            // pb_processingProgress
-            // 
-            this.pb_processingProgress.Location = new System.Drawing.Point(20, 348);
-            this.pb_processingProgress.Name = "pb_processingProgress";
-            this.pb_processingProgress.Size = new System.Drawing.Size(845, 23);
-            this.pb_processingProgress.Step = 1;
-            this.pb_processingProgress.TabIndex = 15;
-            this.pb_processingProgress.Visible = false;
             // 
             // tabControl1
             // 
@@ -505,11 +506,23 @@
             this.cb_protobuf.Text = "Parse Protobuf Stream";
             this.cb_protobuf.UseVisualStyleBackColor = true;
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.25F);
+            this.checkBox1.Location = new System.Drawing.Point(689, 35);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(47, 16);
+            this.checkBox1.TabIndex = 39;
+            this.checkBox1.Text = "batch";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(970, 783);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.cb_protobuf);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.cb_Baud);
@@ -548,8 +561,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_SelectedImu)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).EndInit();
             this.tabPage1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgv_SensorStats)).EndInit();
             this.tabControl1.ResumeLayout(false);
@@ -603,6 +616,7 @@
         private System.Windows.Forms.DataGridView dgv_SensorStats;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.CheckBox cb_protobuf;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }
 
