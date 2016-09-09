@@ -61,6 +61,36 @@ namespace PacketTester
         public Int32 setSensorMask = 0, rxSensorMask = 0;
         public bool dbEnableSen0 = false, dbEnableSen1 = false, dbEnableSen2 = false, dbEnableSen3 = false, dbEnableSen4 = false;
         public bool dbEnableSen5 = false, dbEnableSen6 = false, dbEnableSen7 = false, dbEnableSen8 = false;
+        bool dbDataMonitorEnable = false, dbDataReceiveEnable = false;
+        private bool dataMonitorQueueEnabled = false;
+        public ConcurrentQueue<RawPacket> dataMonitorQueue;
+        public UInt32 sensorDataRate = 0, sensorAvgRate = 0;
+        public UInt32 curSensorFrameTick = 0, preSensorFrameTick = 0;
+        public int dbSensorFrameCount = 0, debugCount = 0;
+        public ConcurrentQueue<byte> dbDataReceiveQueue;
+        private bool dbDataReceiveQueueEnabled = false;
+        private int dbPacketErrorCount = 0;
+
+        // Power board emulator part
+        public bool togglePbPort = false, pbPortOpen = false;
+        private int pbDetectedSensorMask = 0;
+        public bool pbProcessDataEnable = false;
+        public ConcurrentQueue<byte> pbDataReceiveQueue;
+        private bool pbDataReceiveQueueEnabled = false;
+        public struct StatusMessage
+        {
+            public byte chargeLevel;   //battery percentage     
+            public byte chargerState; //BatteryLow = 0;   BatteryNominal = 1;  BatteryFull = 2; Charging = 3;
+            public byte usbCommState; //0 = no comm detected, 1 = comm detected
+            public byte jackDetectState; //mask indicating which jacks are connected.
+            public byte streamState; //0 = Idle, 1 = Streaming, 2 = Error
+            public UInt32 sensorMask; //mask of which sensors have been detected.
+        };
+        public struct subProcessorConfig
+        {
+            public byte dataRate;
+            public UInt32 sensorMask;
+        };
 
         public mainForm()
         {
@@ -619,22 +649,21 @@ namespace PacketTester
         {
             switch(packet.type)
             {
-                case PacketType.BrainPackVersionResponse:
-                    if (packet.brainPackVersionSpecified)
+                case PacketType.AdvertisingPacket:
+                    if (packet.firmwareVersionSpecified)
                     {
-                        debugMessageQueue.Enqueue("Received Version Response:" +
-                            packet.brainPackVersion + "\r\n");
+                        debugMessageQueue.Enqueue("Received Advertising Packet: " +
+                            packet.firmwareVersion + " SN: " + packet.serialNumber + " Port: "
+                            + packet.configurationPort.ToString() + "\r\n");
                     }
                     else
                     {
                         debugMessageQueue.Enqueue("Error Version not found\r\n");
                     }
                     break;
-                case PacketType.BatteryChargeResponse:
-                    debugMessageQueue.Enqueue("Received Battery Charge Response:" +
-                        packet.batteryCharge.ToString() + "\r\n");
-                    break;
-                case PacketType.StateResponse:
+                case PacketType.StatusResponse:
+                    debugMessageQueue.Enqueue("Received Status Response:" +
+                        packet.batteryLevel.ToString() + "\r\n");
                     break;
                 case PacketType.DataFrame:
                     if(packet.fullDataFrame != null)
@@ -730,7 +759,7 @@ namespace PacketTester
             cb_robotPort.Items.AddRange(SerialPort.GetPortNames());
             cb_dbComPorts.Items.AddRange(SerialPort.GetPortNames());
             string[] baudrates = { "110", "150", "300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"
-                    , "460800","500000", "921600","1000000"};
+                    , "460800","500000", "921600","1000000","2000000"};
             cb_BaudRate.Items.AddRange(baudrates);
             cb_fpBaudRate.Items.AddRange(baudrates);
             cb_fpBaudRate.SelectedIndex = 14;
@@ -763,6 +792,22 @@ namespace PacketTester
 
             this.cb_dbComPorts.SelectedItem = this.cb_dbComPorts.Items[0];
             nud_dbDataRate.Value = dbDataRate;
+
+            dataMonitorQueue = new ConcurrentQueue<RawPacket>();
+            dataMonitorQueueEnabled = true;
+
+            dbDataReceiveQueue = new ConcurrentQueue<byte>();
+            dbDataReceiveQueueEnabled = true;
+            cb_dbBaudRate.Items.AddRange(baudrates);
+            cb_dbBaudRate.SelectedIndex = 12;
+
+            cb_pbComPorts.Items.AddRange(SerialPort.GetPortNames());
+            this.cb_pbComPorts.SelectedItem = this.cb_pbComPorts.Items[0];
+            cb_pbBaudRate.Items.AddRange(baudrates);
+            cb_pbBaudRate.SelectedIndex = 12;
+            pbDataReceiveQueue = new ConcurrentQueue<byte>();
+            pbDataReceiveQueueEnabled = true;
+            gb_pbManualEmulation.Enabled = false;
         }
 
         private void bnt_Connect_Click(object sender, EventArgs e)
@@ -882,6 +927,11 @@ namespace PacketTester
             streamDataEnabled = false;            
             EnableSocketQueue = false;
             processRobotArmQueueEnabled = false;
+            pbProcessDataEnable = false;
+            dbDataReceiveEnable = false;
+            dbDataMonitorEnable = false;
+            streamRawFramesEnabled = false;
+            pbProcessDataEnable = false;
             //close the serial port
             if (serialPort.IsOpen)
             {
@@ -1062,7 +1112,12 @@ namespace PacketTester
         private bool EnableSocketQueue = false;
         private void udpSocketClientProcess()
         {
-            UdpClient udpClient = new UdpClient(6667);
+            int port = 0;
+            if(!int.TryParse(mtb_netPort.Text, out port))
+            {
+                port = 6668; 
+            }
+            UdpClient udpClient = new UdpClient(port);
             try
             {
                 IPAddress ipAddress = IPAddress.Parse("192.168.2.1");//ipHostInfo.AddressList[0];
@@ -1352,6 +1407,8 @@ namespace PacketTester
             cb_robotPort.Items.AddRange(SerialPort.GetPortNames());
             cb_dbComPorts.Items.Clear();
             cb_dbComPorts.Items.AddRange(SerialPort.GetPortNames());
+            cb_pbComPorts.Items.Clear();
+            cb_pbComPorts.Items.AddRange(SerialPort.GetPortNames());
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -1747,47 +1804,57 @@ namespace PacketTester
 
         private void btn_arm_recMovement_Click(object sender, EventArgs e)
         {
-            if (!toggleRecButton)       // Start recording (false)
-            {
-                if (robotArmWarningEnable)
-                {
-                    DialogResult result;
-                    result = MessageBox.Show("It will save data to the file specified in the address. Press Yes to continue, No to enter new Address, Cancel to stop displaying this message",
-                                                "Caution", MessageBoxButtons.YesNoCancel);
-                    if (result == System.Windows.Forms.DialogResult.No)
-                    {
-                        return;
-                    }
-                    else if (result == System.Windows.Forms.DialogResult.Cancel)
-                    {
-                        robotArmWarningEnable = false;
-                    }
-                }
-                if (File.Exists(textBox1.Text))
-                {
-                    if (robotArmPort.IsOpen)
-                    {
-                        robotArmPort.Write("Rec\r");
-                        btn_arm_recMovement.BackColor = System.Drawing.Color.Tomato;
-                        enableArmRecording = true;
-                        toggleRecButton = !toggleRecButton;
-                    }
-                }
-                else
-                {
-                    tb_Console.AppendText("Invalid file address");
-                    return;
-                }
-            }
-            else        // stop recording (true)
+            if (chb_arm_recPoints.Checked)
             {
                 if (robotArmPort.IsOpen)
                 {
-                    robotArmPort.Write("End\r");
+                    robotArmPort.Write("Rec\r");
                 }
-                btn_arm_recMovement.BackColor = System.Drawing.Color.Transparent;
-                //enableArmRecording = false;
-                toggleRecButton = !toggleRecButton;
+            }
+            else
+            {
+                if (!toggleRecButton)       // Start recording (false)
+                {
+                    if (robotArmWarningEnable)
+                    {
+                        DialogResult result;
+                        result = MessageBox.Show("It will save data to the file specified in the address. Press Yes to continue, No to enter new Address, Cancel to stop displaying this message",
+                                                    "Caution", MessageBoxButtons.YesNoCancel);
+                        if (result == System.Windows.Forms.DialogResult.No)
+                        {
+                            return;
+                        }
+                        else if (result == System.Windows.Forms.DialogResult.Cancel)
+                        {
+                            robotArmWarningEnable = false;
+                        }
+                    }
+                    if (File.Exists(textBox1.Text))
+                    {
+                        if (robotArmPort.IsOpen)
+                        {
+                            robotArmPort.Write("Rec\r");
+                            btn_arm_recMovement.BackColor = System.Drawing.Color.Tomato;
+                            enableArmRecording = true;
+                            toggleRecButton = !toggleRecButton;
+                        }
+                    }
+                    else
+                    {
+                        tb_Console.AppendText("Invalid file address");
+                        return;
+                    }
+                }
+                else        // stop recording (true)
+                {
+                    if (robotArmPort.IsOpen)
+                    {
+                        robotArmPort.Write("End\r");
+                    }
+                    btn_arm_recMovement.BackColor = System.Drawing.Color.Transparent;
+                    //enableArmRecording = false;
+                    toggleRecButton = !toggleRecButton;
+                }
             }
         }
 
@@ -1831,8 +1898,8 @@ namespace PacketTester
             UInt16 numBytes = 0;
             dataFrame.populateFrameWithTestData();
             dataFrame.setTimestamp(timestampCounter++);
-            byte[] serializedBytes = dataFrame.serializeFrame(out numBytes);     
-            sendPacket(serializedBytes, numBytes);
+            byte[] serializedBytes = dataFrame.serializeFrame(out numBytes);
+            sendPacketTo(powerBoardPort, serializedBytes, numBytes);
         }
 
         bool streamRawFramesEnabled = false; 
@@ -1848,7 +1915,7 @@ namespace PacketTester
                 Thread.Sleep(10);
                 dataFrame.setTimestamp(timestampCounter++);
                 byte[] serializedBytes = dataFrame.serializeFrame(out numBytes);
-                sendPacket(serializedBytes, numBytes);
+                sendPacketTo(powerBoardPort, serializedBytes, numBytes);
             }
 
         }
@@ -1874,12 +1941,52 @@ namespace PacketTester
 
         }
 
+        public void dbDataReceive()
+        {
+            byte receivedByte;
+            while (dbDataReceiveEnable)
+            {
+                if (dbDataReceiveQueue.Count == 0)
+                {
+                    Thread.Sleep(1);
+                    //Thread.Yield();
+                }
+
+                if (dbDataReceiveQueue.TryDequeue(out receivedByte))
+                {
+                    int bytesReceived = dataBoardPacket.BytesReceived + 1;
+                    PacketStatus status = dataBoardPacket.processByte((byte)receivedByte);
+                    switch (status)
+                    {
+                        case PacketStatus.PacketComplete:
+                            RawPacket packetCopy = new RawPacket(dataBoardPacket);
+                            processSubpPacket(dataBoardPacket);
+                            dataBoardPacket.resetPacket();
+                            break;
+                        case PacketStatus.PacketError:
+                            if (chb_dbDataMonitorEnable.Checked)
+                            {
+                                debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));
+                            }
+                            dbPacketErrorCount++;
+                            this.BeginInvoke((MethodInvoker)(() => lbl_dbPacketErrorCount.Text = dbPacketErrorCount.ToString()));
+                            dataBoardPacket.resetPacket();
+                            break;
+                        case PacketStatus.Processing:
+                            break;
+                        case PacketStatus.newPacketDetected:
+                            break;
+                    }
+                }
+            }
+        }
+
         private void btn_dbTogglePort_Click(object sender, EventArgs e)
         {
-            if (!toggleDbPort)
+            if (!toggleDbPort)  // try to open the port
             {
                 dataBoardPort.PortName = cb_dbComPorts.Items[cb_dbComPorts.SelectedIndex].ToString();
-                dataBoardPort.BaudRate = 115200;
+                dataBoardPort.BaudRate = int.Parse(cb_dbBaudRate.Items[cb_dbBaudRate.SelectedIndex].ToString()); ;
                 try
                 {
                     dbPortOpen = true;
@@ -1888,6 +1995,9 @@ namespace PacketTester
                     tb_Console.AppendText("Port: " + dataBoardPort.PortName + " Open\r\n");
                     btn_dbTogglePort.Text = "Close";
                     toggleDbPort = !toggleDbPort;
+                    Thread dbDataReceiveThread = new Thread(dbDataReceive);
+                    dbDataReceiveEnable = true;
+                    dbDataReceiveThread.Start();
                 }
                 catch (Exception ex)
                 {
@@ -1895,18 +2005,24 @@ namespace PacketTester
                     tb_Console.AppendText("Exception " + ex.Message + " \r\n");
                     toggleDbPort = false;
                     dbPortOpen = false;
+                    dbDataReceiveEnable = false;  // close the data reveive thread
                 }
             }
 
-            else
+            else    // try to close the port
             {
                 try
                 {
+                    if (btn_dbStream.BackColor == System.Drawing.Color.LightGreen)
+                    {
+                        btn_dbStream.PerformClick();    // stop the stream if enabled
+                    }
                     dataBoardPort.Close();
                     dbPortOpen = false;
                     tb_Console.AppendText("Port: " + dataBoardPort.PortName + " Closed\r\n");
                     btn_dbTogglePort.Text = "Open";
                     toggleDbPort = !toggleDbPort;
+                    dataBoardPacket.resetPacket();
                 }
                 catch
                 {
@@ -1932,6 +2048,11 @@ namespace PacketTester
             }
         }
 
+        private int convertFromBcd(int bcdNumber)
+        {
+            return (((bcdNumber & 0xF0) >> 4) * 10 + (bcdNumber & 0x0F));
+        }
+
         private int convertToBcd(int twoDigitInteger)
         {
             int tens, units;
@@ -1940,13 +2061,14 @@ namespace PacketTester
             return ((tens << 4) | units);
         }
 
-        private void btn_dbSetDateTime_Click(object sender, EventArgs e)
+        private void getSystemDateTime(ref Int32 time, ref Int32 date)
         {
             int dateCentury, dateYear, dateMonth, dateDay, dateDate;
             int timeSeconds, timeMinutes, timeHour, timeAmPm;
-            Int32 time, date;
-            
+
             DateTime localDateTime = DateTime.Now;
+            debugMessageQueue.Enqueue(String.Format("{0}\r\n", localDateTime));
+
             // convert dateTime format to BCD as NUMBER = TENS(MSB) | UNITS(LSB)
             timeSeconds = convertToBcd(localDateTime.Second);
             timeMinutes = convertToBcd(localDateTime.Minute);
@@ -1962,8 +2084,12 @@ namespace PacketTester
             // convert the data specific to the data accepted by ATSAM4S2A
             time = timeSeconds | (timeMinutes << 8) | (timeHour << 16) | (timeAmPm << 22);
             date = dateCentury | (dateYear << 8) | (dateMonth << 16) | (dateDay << 21) | (dateDate << 24);
-            
-            tb_Console.AppendText(localDateTime.ToString() + "\r\n");
+        }
+
+        private void btn_dbSetDateTime_Click(object sender, EventArgs e)
+        {
+            Int32 time = 0, date = 0;
+            getSystemDateTime(ref time, ref date);
 
             if (dataBoardPort.IsOpen)
             {
@@ -1989,15 +2115,19 @@ namespace PacketTester
         {
             if (dataBoardPort.IsOpen)
             {
-                if (btn_dbStream.BackColor == System.Drawing.Color.Transparent)
+                if (btn_dbStream.BackColor == System.Drawing.Color.Transparent) // use back color to check the state of the button
                 {
-                    byte[] header = { 0x01, 0x54, 0x01 };
+                    byte[] header = { 0x01, 0x54, 0x01 };   // Stream enable
                     sendPacketTo(dataBoardPort, header, 3);
                     btn_dbStream.BackColor = System.Drawing.Color.LightGreen;
+                    sensorDataRate = 0;
+                    sensorAvgRate = 0;
+                    dbSensorFrameCount = 0;
+                    dbPacketErrorCount = 0;
                 }
                 else
                 {
-                    byte[] header = { 0x01, 0x54, 0x00 };
+                    byte[] header = { 0x01, 0x54, 0x00 };   // stream disable
                     sendPacketTo(dataBoardPort, header, 3);
                     btn_dbStream.BackColor = System.Drawing.Color.Transparent;
                 }
@@ -2032,6 +2162,885 @@ namespace PacketTester
                 btn_dbEnableSen0.BackColor = System.Drawing.Color.Transparent;
                 setSensorMask &= ~(0x01 << 0);
             }
+        }
+
+        private void chb_arm_recPoints_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chb_arm_recPoints.Checked)
+            {
+                if (File.Exists(textBox1.Text))
+                {
+                    if (robotArmPort.IsOpen)
+                    {
+                        robotArmPort.Write("RecPoints\r");
+                        tb_Console.AppendText("Manual Recording started\r\n");
+                        enableArmRecording = true;
+                    }
+                }
+                else
+                {
+                    tb_Console.AppendText("Invalid file address\r\n");
+                    chb_arm_recPoints.Checked = false;
+                    return;
+                }
+            }
+            else
+            {
+                if (robotArmPort.IsOpen)
+                {
+                    robotArmPort.Write("End\r");
+                    tb_Console.AppendText("End of Recording\r\n");
+                    //enableArmRecording = false;
+                }
+            }
+        }
+
+        private void displaySubpStatus(ref RawPacket packet)
+        {
+            // charge level
+            debugMessageQueue.Enqueue(String.Format("Charge Level: {0}\r\n", packet.Payload[2]));
+
+            // charge state
+            if (packet.Payload[3] == 0)
+                debugMessageQueue.Enqueue("Charge state: Battery Low\r\n");
+            else if (packet.Payload[3] == 1)
+                debugMessageQueue.Enqueue("Charge state: Battery Nominal\r\n");
+            else if (packet.Payload[3] == 2)
+                debugMessageQueue.Enqueue("Charge state: Battery Full\r\n");
+            else
+                debugMessageQueue.Enqueue("Charge state: Charging\r\n");
+
+            // USB comm state
+            if (packet.Payload[4] == 0)
+                debugMessageQueue.Enqueue("USB state: USB comm not connected\r\n");
+            else
+                debugMessageQueue.Enqueue("USB state: USB comm detected\r\n");
+
+            // Jack detect state
+            if (packet.Payload[5] == 0)
+                debugMessageQueue.Enqueue("Jack detect: No jacks detected\r\n");
+            else if (packet.Payload[5] == 3)
+                debugMessageQueue.Enqueue("Jack detect: Both jacks detected\r\n");
+            else
+                debugMessageQueue.Enqueue("Jack detect: One jack detected\r\n");
+
+            // Sensor Stream state
+            if (packet.Payload[6] == 0)
+                debugMessageQueue.Enqueue("Sensor state: Sensor idle\r\n");
+            else if (packet.Payload[6] == 1)
+                debugMessageQueue.Enqueue("Sensor state: Sensor streaming\r\n");
+            else
+                debugMessageQueue.Enqueue("Sensor state: Sensor error\r\n");
+
+            // Sensor Mask
+            int presentSensors = 0, absentSensors = 0;
+            byte[] sensorPresent = new byte[9];
+            byte[] sensorAbsent = new byte[9];
+            debugMessageQueue.Enqueue("Sensor present: ");
+            for (int i = 0; i < 9; i++) // we only have a max of 9 sensors
+            {
+                // get the IDs for the sensors present and absent
+                if (i < 8)
+                {
+                    if (((packet.Payload[7] >> i) & 0x01) > 0)      // the sensor is present
+                    {
+                        sensorPresent[presentSensors] = (byte)i;
+                        presentSensors++;
+                        debugMessageQueue.Enqueue(String.Format("{0}", i));
+                    }
+                    else    // the sensor is absent
+                    {
+                        sensorAbsent[absentSensors] = (byte)i;
+                        absentSensors++;
+                    }
+                }
+                else      // check the next byte for sensorID 8
+                {
+                    if ((packet.Payload[8] & 0x01) > 0)      // the sensor is present
+                    {
+                        sensorPresent[presentSensors] = (byte)i;
+                        presentSensors++;
+                        debugMessageQueue.Enqueue(String.Format("{0}", i));
+                    }
+                    else    // the sensor is absent
+                    {
+                        sensorAbsent[absentSensors] = (byte)i;
+                        absentSensors++;
+                    }
+                }
+            }
+            debugMessageQueue.Enqueue("\r\nSensor absent: ");
+            for (int i = 0; i < absentSensors; i++)
+            {
+                debugMessageQueue.Enqueue(String.Format("{0}", sensorAbsent[i]));
+            }
+            debugMessageQueue.Enqueue("\r\n");
+            rxSensorMask = ((int)packet.Payload[7]) | ((int)packet.Payload[8] << 8);
+            displaySensorState(setSensorMask, rxSensorMask);
+        }
+        
+        private void displaySensorState(int setMask, int rxMask)
+        {
+            if (btn_dbStream.BackColor == System.Drawing.Color.LightGreen)  // display the sensor state only if the stream is enabled
+            {
+                // flash red color on the buttons with sensor error
+                for (int i = 0; i < 9; i++)
+                {
+                    if (((setMask >> i) & 0x01) != 0)   // check if the sensor was requested
+                    {
+                        if (((rxMask >> i) & 0x01) != 0)    // check if the sensor is in error 
+                        {
+                            setSensorBtnColor(i, System.Drawing.Color.LightGreen);
+                        }
+                        else
+                        {
+                            setSensorBtnColor(i, System.Drawing.Color.Tomato);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void setSensorBtnColor(int sensorId, System.Drawing.Color color)
+        {
+            switch (sensorId)
+            {
+                case 0:
+                    btn_dbEnableSen0.BackColor = color;
+                    break;
+                case 1:
+                    btn_dbEnableSen1.BackColor = color;
+                    break;
+                case 2:
+                    btn_dbEnableSen2.BackColor = color;
+                    break;
+                case 3:
+                    btn_dbEnableSen3.BackColor = color;
+                    break;
+                case 4:
+                    btn_dbEnableSen4.BackColor = color;
+                    break;
+                case 5:
+                    btn_dbEnableSen5.BackColor = color;
+                    break;
+                case 6:
+                    btn_dbEnableSen6.BackColor = color;
+                    break;
+                case 7:
+                    btn_dbEnableSen7.BackColor = color;
+                    break;
+                case 8:
+                    btn_dbEnableSen8.BackColor = color;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void displayDateTime(ref RawPacket packet)
+        {
+            // date
+            int date, dayOfWeek, month, year;
+            year = (convertFromBcd(packet.Payload[6]) * 100) + convertFromBcd(packet.Payload[7]);
+            month = convertFromBcd(packet.Payload[8] & 0x1F);  // lower 5 bits are for months
+            dayOfWeek = convertFromBcd(packet.Payload[8] & 0xE0) >> 4; // higher 3 bits are for day
+            date = convertFromBcd(packet.Payload[9]);
+            debugMessageQueue.Enqueue(String.Format("{0}/{1}/{2}, ", date, month, year));
+
+            // time
+            int hour, minute, second;
+            hour = convertFromBcd(packet.Payload[4]);
+            minute = convertFromBcd(packet.Payload[3]);
+            second = convertFromBcd(packet.Payload[2]);
+            debugMessageQueue.Enqueue(String.Format("{0}:{1}:{2}\r\n", hour, minute, second));
+        }
+
+        private void displayFrameData(ref RawPacket packet)
+        {
+            if (chb_dbDataMonitorEnable.Checked)
+            {
+                if (!streamDataToChartEnabled)  // make sure no other thread is writing to the table and the chart
+                {
+                    // get the sensor id from the nud
+                    int expectedSensorId = (int)nud_dbSensorId.Value;
+                    int frameOffset = ((expectedSensorId) * 35) + 7;    // location of the data in the frame
+                    ImuFrame dataFrame = new ImuFrame();
+                    dataFrame.ParseDataFromFullFrame(packet, frameOffset, expectedSensorId);
+                    updateChart(dataFrame);
+                    updateTable(dataFrame);
+                    // calculate data rate
+                    curSensorFrameTick = BitConverter.ToUInt32(packet.Payload, 3);
+                    sensorDataRate = curSensorFrameTick - preSensorFrameTick;
+                    preSensorFrameTick = curSensorFrameTick;
+                    this.BeginInvoke((MethodInvoker)(() => lbl_dbDataInterval.Text = sensorDataRate.ToString()));
+                }
+                else
+                {
+                    tb_Console.AppendText("Other sensor stream writing to the chart and table\r\n");
+                }
+            }
+        }
+
+        public void DataMonitorThread()
+        {
+            /* */
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qx"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qy"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qz"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qw"].Points.Clear()));
+            
+            RawPacket framePacket = new RawPacket();
+
+            while (dbDataMonitorEnable)
+            {
+                if (dataMonitorQueue.Count == 0)
+                {
+                    Thread.Sleep(1);
+                }
+
+                if (dataMonitorQueue.TryDequeue(out framePacket))
+                {
+                    displayFrameData(ref framePacket);
+                    framePacket.resetPacket();
+                } 
+                                   
+                //Thread.Yield();                
+            }
+        }
+
+        private void processSubpPacket(RawPacket packet)
+        {
+            if (packet.Payload[0] == 0x05)  // verify if the packet is coming from Sub processor
+            {
+                switch (packet.Payload[1])
+                {
+                    case 0x52:  // get status response
+                        displaySubpStatus(ref packet);
+                        break;
+
+                    case 0x55:  // Sensor full frame
+                        // handle the complete packet containing data from all sensors.
+                        RawPacket packetCopy = new RawPacket(packet);
+                        dataMonitorQueue.Enqueue(packetCopy);
+                        packet.resetPacket();
+                        dbSensorFrameCount++;
+                        this.BeginInvoke((MethodInvoker)(() => lbl_dbFrameCount.Text = dbSensorFrameCount.ToString()));
+                        break;
+
+                    case 0x56:  // power down request
+                        // send power down response
+                        debugMessageQueue.Enqueue("Received power down request\r\n");
+                        if (dataBoardPort.IsOpen)
+                        {
+                            byte[] header = { 0x01, 0x57 };
+                            this.BeginInvoke((MethodInvoker)(() => sendPacketTo(dataBoardPort, header, 2)));
+                        }
+                        break;
+
+                    case 0x59:  // get date time response
+                        displayDateTime(ref packet);
+                        break;
+
+                    case 0x5B:  // set date time response
+                        if (packet.Payload[2] == 1)
+                        {
+                            debugMessageQueue.Enqueue("Time and date set successfully\r\n");
+                        }
+                        else
+                        {
+                            debugMessageQueue.Enqueue("Setting date and time failed\r\n");
+                        }
+                        break;
+
+                    case 0x5C:  // this is debug string. Store it in debug Logs
+                        byte[] debugStr = new byte[100];
+                        Buffer.BlockCopy(packet.Payload, 2, debugStr, 0, 100);
+                        String asciiString = System.Text.Encoding.ASCII.GetString(debugStr);    // TODO: this will print nulls, solve it
+                        debugMessageQueue.Enqueue(asciiString);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        RawPacket dataBoardPacket = new RawPacket();
+        private void dataBoardPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            int bytesToRead = dataBoardPort.BytesToRead;
+            while (bytesToRead > 0)
+            {
+                if (!dataBoardPort.IsOpen)
+                {
+                    return;
+                }
+                int receivedByte = dataBoardPort.ReadByte();
+                if (receivedByte != -1)
+                {
+                    //process the byte
+                    byte newByte = (byte)receivedByte;
+
+                    dbDataReceiveQueue.Enqueue(newByte);
+                    
+                }
+                bytesToRead = dataBoardPort.BytesToRead;
+            }
+        }
+
+        private void cb_BaudRate_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cb_dbBaudRate_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cb_logErrors_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chb_pbEnableBridge_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chb_pbEnableBridge.Checked)
+            {
+                gb_pbManualEmulation.Enabled = false;   // disable the controls
+                // disable any ongoing threads
+                pbProcessDataEnable = false;
+                streamRawFramesEnabled = false;
+                cb_streamRawFrames.Checked = false;
+            }
+            else
+            {
+                gb_pbManualEmulation.Enabled = true;    // enable the controls
+                // enable any disabled threads if the port it open
+                if (powerBoardPort.IsOpen)
+                {
+                    pbProcessDataEnable = true;
+                }
+            }
+        }
+
+        private void btn_pbSensor0_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor0.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor0.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 0);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor0.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 0);
+            }
+        }
+
+        private void btn_pbSensor1_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor1.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor1.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 1);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor1.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 1);
+            }
+        }
+
+        private void btn_pbSensor2_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor2.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor2.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 2);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor2.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 2);
+            }
+        }
+
+        private void btn_pbSensor3_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor3.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor3.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 3);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor3.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 3);
+            }
+        }
+
+        private void btn_pbSensor4_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor4.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor4.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 4);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor4.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 4);
+            }
+        }
+
+        private void btn_pbSensor5_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor5.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor5.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 5);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor5.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 5);
+            }
+        }
+
+        private void btn_pbSensor6_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor6.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor6.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 6);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor6.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 6);
+            }
+        }
+
+        private void btn_pbSensor7_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor7.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor7.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 7);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor7.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 7);
+            }
+        }
+
+        private void btn_pbSensor8_Click(object sender, EventArgs e)
+        {
+            // We will use system colors to detect the state of the button instead of a bool variable
+            if (btn_pbSensor8.BackColor == System.Drawing.Color.Transparent)  // the sensor is not enabled (before click)
+            {
+                btn_pbSensor8.BackColor = System.Drawing.Color.LightGreen;
+                pbDetectedSensorMask |= (0x01 << 8);
+            }
+            else // sensor is enabled (before click)
+            {
+                btn_pbSensor8.BackColor = System.Drawing.Color.Transparent;
+                pbDetectedSensorMask &= ~(0x01 << 8);
+            }
+        }
+
+        subProcessorConfig subpConfig = new subProcessorConfig();
+        // this is for power board emulator to process the packets from the data board
+        private void processDbPacket(RawPacket packet)
+        {
+            Int32 time = 0, date = 0;
+
+            if (packet.Payload[0] == 0x01)  // verify if the packet is coming from Data board
+            {
+                switch (packet.Payload[1])
+                {
+                    case 0x51:  // get status request
+                        // send status response
+                        computeStatusMessage();
+                        if (powerBoardPort.IsOpen)
+                        {
+                            MemoryStream stream = new MemoryStream();
+                            byte[] header = { 0x05, 0x52 };
+                            stream.Write(header, 0, 2);
+                            stream.Write(BitConverter.GetBytes(pbStatusMessage.chargeLevel), 0, 1);   // NOTE: Bit converter is little endian
+                            stream.Write(BitConverter.GetBytes(pbStatusMessage.chargerState), 0, 1);
+                            stream.Write(BitConverter.GetBytes(pbStatusMessage.usbCommState), 0, 1);
+                            stream.Write(BitConverter.GetBytes(pbStatusMessage.jackDetectState), 0, 1);
+                            stream.Write(BitConverter.GetBytes(pbStatusMessage.streamState), 0, 1);
+                            stream.Write(BitConverter.GetBytes(pbStatusMessage.sensorMask), 0, 4);
+                            sendPacketTo(powerBoardPort, stream.ToArray(), 11);
+                        }
+                        break;
+
+                    case 0x53:  // Sub Processor Config
+                        // Display and store the received configuration 
+                        subpConfig.dataRate = packet.Payload[2];
+                        subpConfig.sensorMask = (UInt32) (packet.Payload[3] | (packet.Payload[4] << 8));
+                        debugMessageQueue.Enqueue("Recived sub-processor configuration.\r\n");
+                        debugMessageQueue.Enqueue(String.Format("Data rate: {0}, Sensor Mask: 0x{1:X}\r\n", subpConfig.dataRate, subpConfig.sensorMask));
+                        break;
+
+                    case 0x54:  // Streaming enable / disable
+                        // Start / stop the sensor streaming
+                        if (packet.Payload[2] == 0)
+                        {
+                            debugMessageQueue.Enqueue("Sreaming stopped\r\n");
+                            if (cb_streamRawFrames.InvokeRequired)
+                            {
+                                this.BeginInvoke((MethodInvoker)(() => cb_streamRawFrames.Checked = false));
+                            }
+                            cb_streamRawFrames_CheckedChanged(cb_streamRawFrames, null);
+                        }
+                        else
+                        {
+                            debugMessageQueue.Enqueue("Sreaming started\r\n");
+                            if (cb_streamRawFrames.InvokeRequired)
+                            {
+                                this.BeginInvoke((MethodInvoker)(() => cb_streamRawFrames.Checked = true));
+                            }
+                            cb_streamRawFrames_CheckedChanged(cb_streamRawFrames, null);
+                        }
+                        break;
+
+                    case 0x57:  // Power down response
+                        // the data board is ready to power down. Display it
+                        debugMessageQueue.Enqueue("Received power down response\r\n");
+                        break;
+
+                    case 0x58:  // Get date-time request
+                        // send current date and time
+                        debugMessageQueue.Enqueue("Received get date time request\r\n");
+                        getSystemDateTime(ref time, ref date);
+                        if (powerBoardPort.IsOpen)
+                        {
+                            MemoryStream stream = new MemoryStream();
+                            byte[] header = { 0x05, 0x59 };
+                            stream.Write(header, 0, 2);
+                            stream.Write(BitConverter.GetBytes(time), 0, 4);
+                            stream.Write(BitConverter.GetBytes(date), 0, 4);
+                            sendPacketTo(powerBoardPort, stream.ToArray(), 10);
+                        }
+                        break;
+
+                    case 0x5a:  // set date-time request
+                        // display the received date and time
+                        debugMessageQueue.Enqueue("Received set date time request\r\n");
+                        displayDateTime(ref packet);
+                        if (powerBoardPort.IsOpen)
+                        {
+                            MemoryStream stream = new MemoryStream();
+                            byte[] header = { 0x05, 0x5b, 0x01 };
+                            stream.Write(header, 0, 3);
+                            sendPacketTo(powerBoardPort, stream.ToArray(), 3);
+                        }
+                        break;
+
+                    case 0x5c:  // output data
+                        // display the received message on the console
+                        byte[] debugStr = new byte[100];
+                        Buffer.BlockCopy(packet.Payload, 2, debugStr, 0, 100);
+                        String asciiString = System.Text.Encoding.ASCII.GetString(debugStr);    // TODO: this will print nulls, solve it
+                        debugMessageQueue.Enqueue(asciiString);
+                        break;
+
+                    case 0x5d:  // auto power down request
+                        // send power down request
+                        debugMessageQueue.Enqueue("Received auto power down request.\r\n");
+                        btn_sendPwrDwnReq_Click(null, null);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        StatusMessage pbStatusMessage = new StatusMessage();
+        private void computeStatusMessage()
+        {
+            // check the number of sensor available
+            if (btn_pbSensor0.BackColor == System.Drawing.Color.LightGreen)
+            {
+                pbStatusMessage.sensorMask |= (0x01 << 0);        // sensor present
+            }
+            else
+            {
+                pbStatusMessage.sensorMask &= Convert.ToUInt32(~(0x01 << 0) & 0xffffffff);    //sensor absent
+            }
+
+            if (btn_pbSensor1.BackColor == System.Drawing.Color.LightGreen)
+            {
+                pbStatusMessage.sensorMask |= (0x01 << 1); // sensor present
+            }
+            else
+            {
+                pbStatusMessage.sensorMask &= Convert.ToUInt32(~(0x01 << 1) & 0xffffffff);    //sensor absent
+            }
+
+            if (btn_pbSensor2.BackColor == System.Drawing.Color.LightGreen)
+            {
+                pbStatusMessage.sensorMask |= (0x01 << 2); // sensor present
+            }
+            else
+            {
+                pbStatusMessage.sensorMask &= Convert.ToUInt32(~(0x01 << 2) & 0xffffffff);    //sensor absent
+            }
+
+            if (btn_pbSensor3.BackColor == System.Drawing.Color.LightGreen)
+            {
+                pbStatusMessage.sensorMask |= (0x01 << 3); // sensor present
+            }
+            else
+            {
+                pbStatusMessage.sensorMask &= Convert.ToUInt32(~(0x01 << 3) & 0xffffffff);    //sensor absent
+            }
+
+            if (btn_pbSensor4.BackColor == System.Drawing.Color.LightGreen)
+            {
+                pbStatusMessage.sensorMask |= (0x01 << 4); // sensor present
+            }
+            else
+            {
+                pbStatusMessage.sensorMask &= Convert.ToUInt32(~(0x01 << 4) & 0xffffffff);    //sensor absent
+            }
+
+            if (btn_pbSensor5.BackColor == System.Drawing.Color.LightGreen)
+            {
+                pbStatusMessage.sensorMask |= (0x01 << 5); // sensor present
+            }
+            else
+            {
+                pbStatusMessage.sensorMask &= Convert.ToUInt32(~(0x01 << 5) & 0xffffffff);    //sensor absent
+            }
+
+            if (btn_pbSensor6.BackColor == System.Drawing.Color.LightGreen)
+            {
+                pbStatusMessage.sensorMask |= (0x01 << 6); // sensor present
+            }
+            else
+            {
+                pbStatusMessage.sensorMask &= Convert.ToUInt32(~(0x01 << 6) & 0xffffffff);    //sensor absent
+            }
+
+            if (btn_pbSensor7.BackColor == System.Drawing.Color.LightGreen)
+            {
+                pbStatusMessage.sensorMask |= (0x01 << 7); // sensor present
+            }
+            else
+            {
+                pbStatusMessage.sensorMask &= Convert.ToUInt32(~(0x01 << 7) & 0xffffffff);    //sensor absent
+            }
+
+            if (btn_pbSensor8.BackColor == System.Drawing.Color.LightGreen)
+            {
+                pbStatusMessage.sensorMask |= (0x01 << 8); // sensor present
+            }
+            else
+            {
+                pbStatusMessage.sensorMask &= Convert.ToUInt32(~(0x01 << 8) & 0xffffffff);    //sensor absent
+            }
+
+            pbStatusMessage.streamState = (byte) nud_pbStreamState.Value;   // stream state
+            pbStatusMessage.jackDetectState = (byte)((chb_pbJcDc1.Checked ? 1:0) | ((chb_pbJcDc2.Checked ? 1 : 0) << 1));   // jack detect state
+            pbStatusMessage.usbCommState = (byte)(chb_pbUsbComDetected.Checked ? 1 : 0);    // usb comm detect state
+            pbStatusMessage.chargerState = (byte)nud_pbChrgState.Value; // charge state
+            pbStatusMessage.chargeLevel = (byte)nud_pbChrgLvl.Value;    // charge percentage
+        }
+
+        int oldTickValue = 0;
+        int newTickValue = Environment.TickCount;
+        // thread for the power board emulator to process the process incoming and outgoing messages
+        // NOTE: the stream for the full frame data is a different thread
+        private void pbProcessData()
+        {
+            byte receivedByte;
+            // send data to the data board and process received bytes
+            while (pbProcessDataEnable)
+            {
+                // dequeue the received data and process it
+                if (pbDataReceiveQueue.Count == 0)
+                {
+                    Thread.Sleep(1);
+                    //Thread.Yield();
+                }
+
+                if (pbDataReceiveQueue.TryDequeue(out receivedByte))
+                {
+                    int bytesReceived = powerBoardPacket.BytesReceived + 1;
+                    PacketStatus status = powerBoardPacket.processByte((byte)receivedByte);
+                    switch (status)
+                    {
+                        case PacketStatus.PacketComplete:
+                            RawPacket packetCopy = new RawPacket(powerBoardPacket);
+                            processDbPacket(powerBoardPacket);  // process the incoming data from data board
+                            powerBoardPacket.resetPacket();
+                            break;
+                        case PacketStatus.PacketError:
+                            if (chb_dbDataMonitorEnable.Checked)
+                            {
+                                debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));
+                            }
+                            powerBoardPacket.resetPacket();
+                            break;
+                        case PacketStatus.Processing:
+                            break;
+                        case PacketStatus.newPacketDetected:
+                            break;
+                    }
+                }
+
+                // if it is more than 5 seconds, send status message
+                newTickValue = Environment.TickCount;
+                if ((newTickValue - oldTickValue) > 5000)
+                {
+                    oldTickValue = newTickValue;
+                    computeStatusMessage();
+                    if (powerBoardPort.IsOpen)
+                    {
+                        MemoryStream stream = new MemoryStream();
+                        byte[] header = { 0x05, 0x52 };
+                        stream.Write(header, 0, 2);
+                        stream.Write(BitConverter.GetBytes(pbStatusMessage.chargeLevel), 0, 1);   // NOTE: Bit converter is little endian
+                        stream.Write(BitConverter.GetBytes(pbStatusMessage.chargerState), 0, 1);
+                        stream.Write(BitConverter.GetBytes(pbStatusMessage.usbCommState), 0, 1);
+                        stream.Write(BitConverter.GetBytes(pbStatusMessage.jackDetectState), 0, 1);
+                        stream.Write(BitConverter.GetBytes(pbStatusMessage.streamState), 0, 1);
+                        stream.Write(BitConverter.GetBytes(pbStatusMessage.sensorMask), 0, 4);
+                        sendPacketTo(powerBoardPort, stream.ToArray(), 11);
+                    }
+                }
+
+                // send the requested output data
+
+            }
+        }
+
+        RawPacket powerBoardPacket = new RawPacket();
+        private void powerBoardPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            int bytesToRead = powerBoardPort.BytesToRead;
+            while (bytesToRead > 0)
+            {
+                if (!powerBoardPort.IsOpen)
+                {
+                    return;
+                }
+                int receivedByte = powerBoardPort.ReadByte();
+                if (receivedByte != -1)
+                {
+                    //process the byte
+                    byte newByte = (byte)receivedByte;
+                    // equeue the packet and process it later in other thread
+                    pbDataReceiveQueue.Enqueue(newByte);
+
+                }
+                bytesToRead = powerBoardPort.BytesToRead;
+            }
+        }
+
+        private void btn_sendPwrDwnReq_Click(object sender, EventArgs e)
+        {
+            byte[] header = { 0x05, 0x56 };
+            sendPacketTo(powerBoardPort, header, 2);
+        }
+
+        private void btn_pbTogglePort_Click(object sender, EventArgs e)
+        {
+            if (!togglePbPort)  // try to open the port
+            {
+                powerBoardPort.PortName = cb_pbComPorts.Items[cb_pbComPorts.SelectedIndex].ToString();
+                powerBoardPort.BaudRate = int.Parse(cb_pbBaudRate.Items[cb_pbBaudRate.SelectedIndex].ToString());
+                try
+                {
+                    pbPortOpen = true;
+                    powerBoardPort.Open();
+
+                    tb_Console.AppendText("Port: " + powerBoardPort.PortName + " Open\r\n");
+                    btn_pbTogglePort.Text = "Close";
+                    togglePbPort = !togglePbPort;
+                    Thread pbTransmitThread = new Thread(pbProcessData);
+                    pbProcessDataEnable = true;
+                    pbTransmitThread.Start();
+                    gb_pbManualEmulation.Enabled = true;
+                }
+                catch (Exception ex)
+                {
+                    tb_Console.AppendText("Failed to open Port: " + powerBoardPort.PortName + " \r\n");
+                    tb_Console.AppendText("Exception " + ex.Message + " \r\n");
+                    togglePbPort = false;
+                    pbPortOpen = false;
+                    pbProcessDataEnable = false;  // close the data reveive thread
+                }
+            }
+
+            else    // try to close the port
+            {
+                try
+                {
+                    powerBoardPort.Close();
+                    pbPortOpen = false;
+                    pbProcessDataEnable = false;
+                    tb_Console.AppendText("Port: " + powerBoardPort.PortName + " Closed\r\n");
+                    btn_pbTogglePort.Text = "Open";
+                    togglePbPort = !togglePbPort;
+                    powerBoardPacket.resetPacket();
+                    gb_pbManualEmulation.Enabled = false;
+                }
+                catch
+                {
+                    tb_Console.AppendText("Failed to close Port: " + powerBoardPort.PortName + "\r\n");
+                }
+            }
+        }
+
+        private void groupBox5_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chb_dbDataMonitorEnable_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chb_dbDataMonitorEnable.Checked)
+            {
+                if (cb_enableStream.Checked)
+                {
+                    tb_Console.AppendText("Failed: Debug 485 thread writing to chart and table\r\n");
+                    chb_dbDataMonitorEnable.Checked = false;
+                    return;
+                }
+                Thread dbDataMonitorThread = new Thread(DataMonitorThread);
+                dbDataMonitorEnable = true;
+                dbDataMonitorThread.Start();
+            }
+            else
+            {
+                dbDataMonitorEnable = false;
+            }
+        }
+
+        private void cb_dbDataType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            selectedDataType = cb_dbDataType.SelectedIndex;
+        }
+
+        private void label7_Click_1(object sender, EventArgs e)
+        {
+
         }
 
         private void btn_dbEnableSen1_Click(object sender, EventArgs e)

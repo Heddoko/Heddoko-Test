@@ -1446,13 +1446,6 @@ namespace BrainPackDataAnalyzer
                 sendCommmand("pbVersion\r\n");
             }
         }
-
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            mIsBatchModeSelected = checkBox1.Checked;
-        }
-
-        
     }
 }
 

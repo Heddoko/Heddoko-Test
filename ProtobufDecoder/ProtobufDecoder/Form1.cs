@@ -53,22 +53,20 @@ namespace ProtobufDecoder
         {
             switch (packet.type)
             {
-                case PacketType.BrainPackVersionResponse:
-                    if (packet.brainPackVersionSpecified)
+                case PacketType.AdvertisingPacket:
+                    if (packet.firmwareVersionSpecified)
                     {
-                        debugMessageQueue.Enqueue("Received Version Response:" +
-                            packet.brainPackVersion + "\r\n");
+                        debugMessageQueue.Enqueue("Received Advertising Packet:" +
+                            packet.firmwareVersion + "\r\n");
                     }
                     else
                     {
                         debugMessageQueue.Enqueue("Error Version not found\r\n");
                     }
                     break;
-                case PacketType.BatteryChargeResponse:
-                    debugMessageQueue.Enqueue("Received Battery Charge Response:" +
-                        packet.batteryCharge.ToString() + "\r\n");
-                    break;
-                case PacketType.StateResponse:
+                case PacketType.StatusResponse:
+                    debugMessageQueue.Enqueue("Received Status Response:" +
+                        packet.batteryLevel.ToString() + "\r\n");
                     break;
                 case PacketType.DataFrame:
                     if (packet.fullDataFrame != null)
