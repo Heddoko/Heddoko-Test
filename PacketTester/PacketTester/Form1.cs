@@ -1112,7 +1112,12 @@ namespace PacketTester
         private bool EnableSocketQueue = false;
         private void udpSocketClientProcess()
         {
-            UdpClient udpClient = new UdpClient(6668);
+            int port = 0;
+            if(!int.TryParse(mtb_netPort.Text, out port))
+            {
+                port = 6668; 
+            }
+            UdpClient udpClient = new UdpClient(port);
             try
             {
                 IPAddress ipAddress = IPAddress.Parse("192.168.2.1");//ipHostInfo.AddressList[0];
