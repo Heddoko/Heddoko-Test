@@ -13,6 +13,8 @@ using System.Threading;
 using System.Collections.Concurrent;
 using ProtoBuf;
 using heddoko;
+using System.Net.Sockets;
+using System.Net;
 
 namespace BrainPackDataAnalyzer
 {
@@ -159,22 +161,21 @@ namespace BrainPackDataAnalyzer
         {
             switch (packet.type)
             {
-                case PacketType.BrainPackVersionResponse:
-                    if (packet.brainPackVersionSpecified)
+                case PacketType.AdvertisingPacket:
+                    if (packet.firmwareVersionSpecified)
                     {
-                        debugMessageQueue.Enqueue("Received Version Response:" +
-                            packet.brainPackVersion + "\r\n");
+                        debugMessageQueue.Enqueue("Received Advertising Packet: " +
+                            packet.firmwareVersion + " SN: " + packet.serialNumber + " Port: "
+                            + packet.configurationPort.ToString() + "\r\n");
                     }
                     else
                     {
                         debugMessageQueue.Enqueue("Error Version not found\r\n");
                     }
                     break;
-                case PacketType.BatteryChargeResponse:
-                    debugMessageQueue.Enqueue("Received Battery Charge Response:" +
-                        packet.batteryCharge.ToString() + "\r\n");
-                    break;
-                case PacketType.StateResponse:
+                case PacketType.StatusResponse:
+                    debugMessageQueue.Enqueue("Received Status Response:" +
+                        packet.batteryLevel.ToString() + "\r\n");
                     break;
                 case PacketType.DataFrame:
                     if (packet.fullDataFrame != null)
@@ -1444,6 +1445,83 @@ namespace BrainPackDataAnalyzer
                 sendCommmand("?\r\n");
                 Thread.Sleep(400);
                 sendCommmand("pbVersion\r\n");
+            }
+        }
+        private bool EnableSocketQueue = false;
+        private void udpSocketClientProcess()
+        {
+            int port = 0;
+            if (!int.TryParse(mtb_udpPort.Text, out port))
+            {
+                port = 6668;
+            }
+            UdpClient udpClient = new UdpClient(port);
+            try
+            {
+                IPAddress ipAddress = IPAddress.Parse("192.168.2.1");//ipHostInfo.AddressList[0];
+                IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
+                //udpClient.Connect(ipAddress, 6667);
+                //IPEndPoint object will allow us to read datagrams sent from the IP address we want. 
+                //IPEndPoint RemoteIpEndPoint = new IPEndPoint(ipAddress, 0);
+                debugMessageQueue.Enqueue(String.Format("Socket connected"));
+
+                while (EnableSocketQueue)
+                {
+                    // Blocks until a message returns on this socket from a remote host.
+                    byte[] receivedBytes = udpClient.Receive(ref remoteEP);
+                    if (receivedBytes.Length > 0)
+                    {
+                        //process the byte
+                        for (int i = 0; i < receivedBytes.Length; i++)
+                        {
+                            byte newByte = receivedBytes[i];
+                            int bytesReceived = packet.BytesReceived + 1;
+                            PacketStatus status = packet.processByte(receivedBytes[i]);
+                            switch (status)
+                            {
+                                case PacketStatus.PacketComplete:
+                                    //debugMessageQueue.Enqueue(String.Format("{0} Packet Received {1} bytes\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), packet.PayloadSize));
+                                    RawPacket packetCopy = new RawPacket(packet);
+                                    packetQueue.Enqueue(packetCopy);
+                                    packet.resetPacket();
+                                    break;
+                                case PacketStatus.PacketError:
+                                    debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));                                    
+                                    packet.resetPacket();
+                                    break;
+                                case PacketStatus.Processing:
+                                case PacketStatus.newPacketDetected:
+                                    break;
+                            }
+                        }
+                    }
+                }
+                debugMessageQueue.Enqueue("Socket Closed\r\n");
+                debugMessageQueue.Enqueue("This message was sent from " +
+                                            remoteEP.Address.ToString() +
+                                            " on their port number " +
+                                            remoteEP.Port.ToString());
+                udpClient.Close();
+
+            }
+            catch (Exception e)
+            {
+                debugMessageQueue.Enqueue(e.ToString());
+
+            }
+            udpClient.Close();
+        }
+        private void cb_udpListenner_CheckedChanged(object sender, EventArgs e)
+        {
+            if(cb_udpListenner.Checked)
+            {
+                EnableSocketQueue = true;
+                Thread socketClientThread = new Thread(udpSocketClientProcess);
+                socketClientThread.Start();
+            }
+            else
+            {
+                EnableSocketQueue = false; 
             }
         }
     }
