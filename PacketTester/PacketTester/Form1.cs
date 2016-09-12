@@ -1120,7 +1120,7 @@ namespace PacketTester
             UdpClient udpClient = new UdpClient(port);
             try
             {
-                IPAddress ipAddress = IPAddress.Parse("192.168.2.1");//ipHostInfo.AddressList[0];
+    
                 IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
                 //udpClient.Connect(ipAddress, 6667);
                 //IPEndPoint object will allow us to read datagrams sent from the IP address we want. 
@@ -1134,7 +1134,7 @@ namespace PacketTester
                     if (receivedBytes.Length > 0)
                     {
                         //process the byte
-                        for(int i = 0; i < receivedBytes.Length; i++)
+                        for (int i = 0; i < receivedBytes.Length; i++)
                         {
                             byte newByte = receivedBytes[i];
                             int bytesReceived = packet.BytesReceived + 1;
