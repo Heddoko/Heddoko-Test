@@ -650,22 +650,21 @@ namespace PacketTester
         {
             switch(packet.type)
             {
-                case PacketType.BrainPackVersionResponse:
-                    if (packet.brainPackVersionSpecified)
+                case PacketType.AdvertisingPacket:
+                    if (packet.firmwareVersionSpecified)
                     {
-                        debugMessageQueue.Enqueue("Received Version Response:" +
-                            packet.brainPackVersion + "\r\n");
+                        debugMessageQueue.Enqueue("Received Advertising Packet: " +
+                            packet.firmwareVersion + " SN: " + packet.serialNumber + " Port: "
+                            + packet.configurationPort.ToString() + "\r\n");
                     }
                     else
                     {
                         debugMessageQueue.Enqueue("Error Version not found\r\n");
                     }
                     break;
-                case PacketType.BatteryChargeResponse:
-                    debugMessageQueue.Enqueue("Received Battery Charge Response:" +
-                        packet.batteryCharge.ToString() + "\r\n");
-                    break;
-                case PacketType.StateResponse:
+                case PacketType.StatusResponse:
+                    debugMessageQueue.Enqueue("Received Status Response:" +
+                        packet.batteryLevel.ToString() + "\r\n");
                     break;
                 case PacketType.DataFrame:
                     if(packet.fullDataFrame != null)
@@ -707,6 +706,19 @@ namespace PacketTester
                         debugMessageQueue.Enqueue(processGetStatusResponse(packet));
                         break;
                     default:
+                        break;
+                }
+            }
+            else if(packet.Payload[0] == 0x01) //this is a databoard packet
+            {
+                switch (packet.Payload[1])
+                {
+                    case 0x51:
+                        debugMessageQueue.Enqueue(String.Format("{0}:Received get Status from data board\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond)));
+                        break;
+
+                    default:
+                        debugMessageQueue.Enqueue(String.Format("{0}:Received get Status from data board\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond)));
                         break;
                 }
             }
@@ -1101,7 +1113,12 @@ namespace PacketTester
         private bool EnableSocketQueue = false;
         private void udpSocketClientProcess()
         {
-            UdpClient udpClient = new UdpClient(6667);
+            int port = 0;
+            if(!int.TryParse(mtb_netPort.Text, out port))
+            {
+                port = 6668; 
+            }
+            UdpClient udpClient = new UdpClient(port);
             try
             {
                 IPAddress ipAddress = IPAddress.Parse("192.168.2.1");//ipHostInfo.AddressList[0];
