@@ -70,6 +70,8 @@ namespace PacketTester
         public ConcurrentQueue<byte> dbDataReceiveQueue;
         private bool dbDataReceiveQueueEnabled = false;
         private int dbPacketErrorCount = 0;
+        private int totalSensorRequested = 0;   // keeps note of the total number of sensor requested
+        private int actualSensorMask = 0;   // mask to track what sensors are actually present
 
         // Power board emulator part
         public bool togglePbPort = false, pbPortOpen = false;
@@ -2163,12 +2165,14 @@ namespace PacketTester
                 dbEnableSen0 = true;
                 btn_dbEnableSen0.BackColor = System.Drawing.Color.LightGreen;
                 setSensorMask |= (0x01 << 0);
+                totalSensorRequested++;
             }
             else // sensor is enabled (before click)
             {
                 dbEnableSen0 = false;
                 btn_dbEnableSen0.BackColor = System.Drawing.Color.Transparent;
                 setSensorMask &= ~(0x01 << 0);
+                totalSensorRequested--;
             }
         }
 
@@ -2299,10 +2303,12 @@ namespace PacketTester
                         if (((rxMask >> i) & 0x01) != 0)    // check if the sensor is in error 
                         {
                             setSensorBtnColor(i, System.Drawing.Color.LightGreen);
+                            actualSensorMask |= (0x01 << i);    // sensor is present, set the sensor mask
                         }
                         else
                         {
                             setSensorBtnColor(i, System.Drawing.Color.Tomato);
+                            actualSensorMask &= ~(0x01 << i);   // sensor is absent
                         }
                     }
                 }
@@ -2363,6 +2369,37 @@ namespace PacketTester
             debugMessageQueue.Enqueue(String.Format("{0}:{1}:{2}\r\n", hour, minute, second));
         }
 
+        private int calculateOffset(int expectedId)
+        {
+            int sensorOffset = 0;
+            int numberOfSensorRequested = 0;
+
+            // check if the sensor is requested
+            if (((setSensorMask >> expectedId) & 0x01) == 0)
+            {
+                // sensor is not requested
+                return sensorOffset;
+            }
+            else
+            {
+                // check how many sensors are requested with sensor Id smaller than this
+                for(int i = 0; i < expectedId; i++)
+                {
+                    if (((setSensorMask >> i) & 0x01) != 0)
+                    {
+                        // check if the sensor is actually present
+                        if (((actualSensorMask >> i) & 0x01) != 0)
+                        {
+                            numberOfSensorRequested++;
+                        }
+                    }
+                }
+                // calculate offset
+                sensorOffset = ((numberOfSensorRequested) * 35) + 7;
+                return sensorOffset;
+            }
+        }
+
         private void displayFrameData(ref RawPacket packet)
         {
             if (chb_dbDataMonitorEnable.Checked)
@@ -2371,16 +2408,19 @@ namespace PacketTester
                 {
                     // get the sensor id from the nud
                     int expectedSensorId = (int)nud_dbSensorId.Value;
-                    int frameOffset = ((expectedSensorId) * 35) + 7;    // location of the data in the frame
-                    ImuFrame dataFrame = new ImuFrame();
-                    dataFrame.ParseDataFromFullFrame(packet, frameOffset, expectedSensorId);
-                    updateChart(dataFrame);
-                    updateTable(dataFrame);
-                    // calculate data rate
-                    curSensorFrameTick = BitConverter.ToUInt32(packet.Payload, 3);
-                    sensorDataRate = curSensorFrameTick - preSensorFrameTick;
-                    preSensorFrameTick = curSensorFrameTick;
-                    this.BeginInvoke((MethodInvoker)(() => lbl_dbDataInterval.Text = sensorDataRate.ToString()));
+                    int frameOffset = calculateOffset(expectedSensorId);    // location of the data in the frame
+                    if (frameOffset != 0)
+                    {
+                        ImuFrame dataFrame = new ImuFrame();
+                        dataFrame.ParseDataFromFullFrame(packet, frameOffset, expectedSensorId);
+                        updateChart(dataFrame);
+                        updateTable(dataFrame);
+                        // calculate data rate
+                        curSensorFrameTick = BitConverter.ToUInt32(packet.Payload, 3);
+                        sensorDataRate = curSensorFrameTick - preSensorFrameTick;
+                        preSensorFrameTick = curSensorFrameTick;
+                        this.BeginInvoke((MethodInvoker)(() => lbl_dbDataInterval.Text = sensorDataRate.ToString()));
+                    }
                 }
                 else
                 {
@@ -3064,12 +3104,14 @@ namespace PacketTester
                 dbEnableSen1 = true;
                 btn_dbEnableSen1.BackColor = System.Drawing.Color.LightGreen;
                 setSensorMask |= (0x01 << 1);
+                totalSensorRequested++;
             }
             else // sensor is enabled (before click)
             {
                 dbEnableSen1 = false;
                 btn_dbEnableSen1.BackColor = System.Drawing.Color.Transparent;
                 setSensorMask &= ~(0x01 << 1);
+                totalSensorRequested--;
             }
         }
 
@@ -3081,12 +3123,14 @@ namespace PacketTester
                 dbEnableSen2 = true;
                 btn_dbEnableSen2.BackColor = System.Drawing.Color.LightGreen;
                 setSensorMask |= (0x01 << 2);
+                totalSensorRequested++;
             }
             else // sensor is enabled (before click)
             {
                 dbEnableSen2 = false;
                 btn_dbEnableSen2.BackColor = System.Drawing.Color.Transparent;
                 setSensorMask &= ~(0x01 << 2);
+                totalSensorRequested--;
             }
         }
 
@@ -3098,12 +3142,14 @@ namespace PacketTester
                 dbEnableSen3 = true;
                 btn_dbEnableSen3.BackColor = System.Drawing.Color.LightGreen;
                 setSensorMask |= (0x01 << 3);
+                totalSensorRequested++;
             }
             else // sensor is enabled (before click)
             {
                 dbEnableSen3 = false;
                 btn_dbEnableSen3.BackColor = System.Drawing.Color.Transparent;
                 setSensorMask &= ~(0x01 << 3);
+                totalSensorRequested--;
             }
         }
 
@@ -3115,12 +3161,14 @@ namespace PacketTester
                 dbEnableSen4 = true;
                 btn_dbEnableSen4.BackColor = System.Drawing.Color.LightGreen;
                 setSensorMask |= (0x01 << 4);
+                totalSensorRequested++;
             }
             else // sensor is enabled (before click)
             {
                 dbEnableSen4 = false;
                 btn_dbEnableSen4.BackColor = System.Drawing.Color.Transparent;
                 setSensorMask &= ~(0x01 << 4);
+                totalSensorRequested--;
             }
         }
 
@@ -3132,12 +3180,14 @@ namespace PacketTester
                 dbEnableSen5 = true;
                 btn_dbEnableSen5.BackColor = System.Drawing.Color.LightGreen;
                 setSensorMask |= (0x01 << 5);
+                totalSensorRequested++;
             }
             else // sensor is enabled (before click)
             {
                 dbEnableSen5 = false;
                 btn_dbEnableSen5.BackColor = System.Drawing.Color.Transparent;
                 setSensorMask &= ~(0x01 << 5);
+                totalSensorRequested--;
             }
         }
 
@@ -3149,12 +3199,14 @@ namespace PacketTester
                 dbEnableSen6 = true;
                 btn_dbEnableSen6.BackColor = System.Drawing.Color.LightGreen;
                 setSensorMask |= (0x01 << 6);
+                totalSensorRequested++;
             }
             else // sensor is enabled (before click)
             {
                 dbEnableSen6 = false;
                 btn_dbEnableSen6.BackColor = System.Drawing.Color.Transparent;
                 setSensorMask &= ~(0x01 << 6);
+                totalSensorRequested--;
             }
         }
 
@@ -3166,12 +3218,14 @@ namespace PacketTester
                 dbEnableSen7 = true;
                 btn_dbEnableSen7.BackColor = System.Drawing.Color.LightGreen;
                 setSensorMask |= (0x01 << 7);
+                totalSensorRequested++;
             }
             else // sensor is enabled (before click)
             {
                 dbEnableSen7 = false;
                 btn_dbEnableSen7.BackColor = System.Drawing.Color.Transparent;
                 setSensorMask &= ~(0x01 << 7);
+                totalSensorRequested--;
             }
         }
 
@@ -3183,12 +3237,14 @@ namespace PacketTester
                 dbEnableSen8 = true;
                 btn_dbEnableSen8.BackColor = System.Drawing.Color.LightGreen;
                 setSensorMask |= (0x01 << 8);
+                totalSensorRequested++;
             }
             else // sensor is enabled (before click)
             {
                 dbEnableSen8 = false;
                 btn_dbEnableSen8.BackColor = System.Drawing.Color.Transparent;
                 setSensorMask &= ~(0x01 << 8);
+                totalSensorRequested--;
             }
         }
     }
