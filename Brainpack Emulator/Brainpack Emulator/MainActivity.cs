@@ -23,7 +23,7 @@ namespace Brainpack_Emulator
             
             button.Click += (vSender, vEventdata) =>
             {
-                var vIntent = new Intent(this, typeof (FilePickerActivity));
+                var vIntent = new Intent(this, typeof (FileSelectionActivity));
 
             };
 
