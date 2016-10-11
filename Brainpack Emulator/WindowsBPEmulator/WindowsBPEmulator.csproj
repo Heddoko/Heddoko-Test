@@ -34,11 +34,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HeddokoLib">
-      <HintPath>G:\code\Heddoko-3D\Heddoko-3D\HeddokoLib\HeddokoLib\bin\Debug\HeddokoLib.dll</HintPath>
+    <Reference Include="HeddokoLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Code\Heddoko3D\HeddokoLib\HeddokoLib\bin\Debug\HeddokoLib.dll</HintPath>
     </Reference>
-    <Reference Include="protobuf-net">
-      <HintPath>G:\code\Heddoko-3D\Heddoko-3D\HeddokoLib\HeddokoLib\bin\Debug\protobuf-net.dll</HintPath>
+    <Reference Include="protobuf-net, Version=2.0.0.602, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Code\Heddoko3D\HeddokoLib\HeddokoLib\bin\Debug\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -98,6 +100,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

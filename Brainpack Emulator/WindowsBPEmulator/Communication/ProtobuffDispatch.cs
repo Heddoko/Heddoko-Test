@@ -8,9 +8,7 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using heddoko;
 using HeddokoLib.heddokoProtobuff.Decoder;
 using ProtoBuf;
@@ -18,7 +16,6 @@ using ProtoBuf;
 
 namespace WindowsBPEmulator.Communication
 {
-   
     /// <summary>
     /// Dispatches protobuff packets 
     /// </summary>
@@ -47,15 +44,14 @@ namespace WindowsBPEmulator.Communication
         private void FirmwareUpdateRequest(object vSender, object vArgs)
         {
             var vPacket = (Packet)vArgs;
-            var vStateObject = (StateObject)vSender;
-            // var vFileName = vPacket.firmwareUpdate.fwFilename;
+            var vStateObject = (StateObject)vSender; 
             var vEndpoint = vPacket.firmwareUpdate.fwEndpoint;
             long vEndPointInLongForm = long.Parse(vEndpoint.address);
-            IPEndPoint vEndpointerino = new IPEndPoint(vEndPointInLongForm, (int)vEndpoint.port);
+            IPEndPoint vServerEndPoint = new IPEndPoint(vEndPointInLongForm, (int)vEndpoint.port);
 
             FirmwareDownload vDownload = new FirmwareDownload();
             vDownload.FirmwareReceived += OnCompletion;
-            vDownload.RequestFirmwareFromEndPoint(vEndpointerino, "C:\\firmware.binerino"); 
+            vDownload.RequestFirmwareFromEndPoint(vServerEndPoint, "C:\\firmware.binerino"); 
 
         }
 
@@ -88,7 +84,6 @@ namespace WindowsBPEmulator.Communication
             vStream.Seek(0, SeekOrigin.Begin);
             mDecoder.Stream = vStream;
             mDecoder.StartPacketizeStream(PacketizationCompleted, ExceptionHandler);
-
         }
 
         /// <summary>
