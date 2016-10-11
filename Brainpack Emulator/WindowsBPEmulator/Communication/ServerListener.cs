@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Windows;
 using System.Windows.Threading;
 using WindowsBPEmulator.Controller;
@@ -131,6 +132,9 @@ namespace WindowsBPEmulator.Communication
         {
             if (vObject.Socket != null)
             {
+                UpdateUi("closing and removing state object");
+                vObject.Socket.LingerState = new LingerOption(true,0);
+                vObject.Socket.Shutdown(SocketShutdown.Both);
                 vObject.Socket.Close();
                 lock (mStateobjects)
                 {
@@ -155,11 +159,23 @@ namespace WindowsBPEmulator.Communication
                 {
                     UpdateUi("received byte count+ " + vBytesRead);
 
-                    //handle code here
-                    DataReceived?.Invoke(vIncomingConnection, vIncomingConnection.Buffer);
-                    vIncomingConnection.Socket.BeginReceive(vIncomingConnection.Buffer, 0,
-                        vIncomingConnection.Buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback),
-                        vIncomingConnection);
+                    string vData = Encoding.ASCII.GetString(vIncomingConnection.Buffer);
+                    if (vData.Contains("<EOL>"))
+                    {
+                        if (vData.Contains("closeConnection"))
+                        {
+                            CloseAndRemoveStateObject(vIncomingConnection);
+                        }
+                    }
+                    else
+                    {
+                        //handle code here
+                        DataReceived?.Invoke(vIncomingConnection, vIncomingConnection.Buffer);
+                        vIncomingConnection.Socket.BeginReceive(vIncomingConnection.Buffer, 0,
+                            vIncomingConnection.Buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback),
+                            vIncomingConnection);
+                    }
+                    
                 }
                 //else
                 //{

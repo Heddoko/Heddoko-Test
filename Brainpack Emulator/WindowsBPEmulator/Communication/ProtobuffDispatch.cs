@@ -8,7 +8,9 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Text;
 using heddoko;
 using HeddokoLib.heddokoProtobuff.Decoder;
 using ProtoBuf;
@@ -16,6 +18,7 @@ using ProtoBuf;
 
 namespace WindowsBPEmulator.Communication
 {
+   
     /// <summary>
     /// Dispatches protobuff packets 
     /// </summary>
