@@ -77,6 +77,7 @@ namespace PacketTester
         public bool pbProcessDataEnable = false;
         public ConcurrentQueue<byte> pbDataReceiveQueue;
         private bool pbDataReceiveQueueEnabled = false;
+        
         public struct StatusMessage
         {
             public byte chargeLevel;   //battery percentage     
@@ -534,7 +535,29 @@ namespace PacketTester
             packetProcessorThread.Start();
         }
         
-        enum CommandIds {update=0x11,getFrame,getFrameResp,setupMode,buttonPress,setImuId,setImuIdResp,getStatus,getStatusResp};
+        enum CommandIds {update=0x11,
+            getFrame,
+            getFrameResp,
+            setupMode,
+            buttonPress,
+            setImuId,
+            setImuIdResp,
+            getStatus,
+            getStatusResp,
+            updateConfigParam,
+            getConfigParam,
+            getConfigParamResp,
+            updateWarmupParam,
+            getWarmupParam,
+            getWarmupParamResp,
+            resetFakeFrame,
+            updateFakeFrame,
+            eableHpr,
+            changeBaud,
+            setRates,
+            setWarmupParams,
+            setRangeParams    
+        };
         string processSensorSerialNumber(RawPacket packet)
         {
             StringBuilder strBuilder = new StringBuilder();
@@ -564,10 +587,35 @@ namespace PacketTester
             strBuilder.Append(string.Format("Mag Rate:{0}\r\n", magError));
             strBuilder.Append(string.Format("Accel Rate:{0}\r\n", accelError));
             strBuilder.Append(string.Format("Gyro Rate:{0}\r\n", gyroError));
+            for (int i = 0; i < 5; i++)
+            {
+                int index = i; 
+                if ((imuStatus & (1 << i)) > 0)
+                {
+                    this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(index, CheckState.Checked); });
+                   
+                }
+                else
+                {
+                    this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(index, CheckState.Unchecked); });                    
+                }
+            }
+
             return strBuilder.ToString();
-
         }
-
+        string processGetConfigParamResponse(RawPacket packet)
+        {
+            StringBuilder strBuilder = new StringBuilder();
+            UInt32 param1 = BitConverter.ToUInt32(packet.Payload, 3);
+            UInt32 param2 = BitConverter.ToUInt32(packet.Payload, 7);
+            UInt32 param3 = BitConverter.ToUInt32(packet.Payload, 11);
+            UInt32 param4 = BitConverter.ToUInt32(packet.Payload, 15);
+            strBuilder.Append(string.Format("Param1:{0:x}\r\n", param1));
+            strBuilder.Append(string.Format("Param2:{0:x}\r\n", param2));
+            strBuilder.Append(string.Format("Param3:{0:x}\r\n", param3));
+            strBuilder.Append(string.Format("Param4:{0:x}\r\n", param4));
+            return strBuilder.ToString();
+        }
         private void updateTable(ImuFrame frame)
         {
             switch (selectedDataType)
@@ -644,6 +692,22 @@ namespace PacketTester
                 }
 
             }
+
+            for (int i = 0; i < 5; i++)
+            {
+                int index = i;
+                if ((frame.frameStatus & (1 << i)) > 0)
+                {
+                    this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(index, CheckState.Checked); });
+
+                }
+                else
+                {
+                    this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(index, CheckState.Unchecked); });
+                }
+            }
+
+
         }
         private void processProtoPacket(Packet packet)
         {
@@ -679,7 +743,18 @@ namespace PacketTester
             }
 
         }
-
+        byte[,] WarmupParameters = new byte[9,140]; //create array to hold warm up data. 
+        void processWarmupResponse(RawPacket packet)
+        {
+            int sensorIndex = (int)packet.Payload[2];
+            if (sensorIndex < 9)
+            {
+                for(int i = 0; i < packet.PayloadSize - 3; i++)
+                {
+                    WarmupParameters[sensorIndex, i] = packet.Payload[i + 3];
+                }                 
+            }
+        }
         private void processPacket(RawPacket packet)
         {
             //check that the packet comes from an IMU sensor
@@ -693,7 +768,6 @@ namespace PacketTester
                         break;
                     case CommandIds.getFrameResp:
                         //debugMessageQueue.Enqueue(String.Format("{0}:Received Frame\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond)));
-
                         ImuFrame frame = new ImuFrame(packet);
                         updateChart(frame);
                         //debugMessageQueue.Enqueue(frame.ToString());
@@ -701,8 +775,15 @@ namespace PacketTester
                     case CommandIds.setImuIdResp:
                         debugMessageQueue.Enqueue(String.Format("{0}:Received set Imu Resp\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond)));
                         break;
+                    case CommandIds.getConfigParamResp:
+                        debugMessageQueue.Enqueue(processGetConfigParamResponse(packet));
+                        break;
                     case CommandIds.getStatusResp:
                         debugMessageQueue.Enqueue(processGetStatusResponse(packet));
+                        break;
+                    case CommandIds.getWarmupParamResp:
+                        debugMessageQueue.Enqueue("Received Warmup Parameters\r\n");
+                        processWarmupResponse(packet); 
                         break;
                     default:
                         break;
@@ -763,7 +844,7 @@ namespace PacketTester
             cb_BaudRate.Items.AddRange(baudrates);
             cb_fpBaudRate.Items.AddRange(baudrates);
             cb_fpBaudRate.SelectedIndex = 14;
-            cb_BaudRate.SelectedIndex = 12;
+            cb_BaudRate.SelectedIndex = 14;
             //initialize the message queue
             debugMessageQueue = new ConcurrentQueue<string>();
             //start the debug message thread
@@ -949,6 +1030,27 @@ namespace PacketTester
                 sendPacket(getFrameBytes, 3);
             }
         }
+        private void sendBroadCastCommand(byte commandId)
+        {
+            if (serialPort.IsOpen)
+            {
+                byte[] getFrameBytes = new byte[2];
+                getFrameBytes[0] = 0x01;
+                getFrameBytes[1] = commandId;
+                sendPacket(getFrameBytes, 2);
+            }
+        }
+        private void sendCommandToSensorId(byte commandId, byte sensorId)
+        {
+            if (serialPort.IsOpen)
+            {
+                byte[] getFrameBytes = new byte[3];
+                getFrameBytes[0] = 0x01;
+                getFrameBytes[1] = commandId;
+                getFrameBytes[2] = sensorId;
+                sendPacket(getFrameBytes, 3);
+            }
+        }
         private void sendGetStatusCommand(byte sensorId)
         {
             if (serialPort.IsOpen)
@@ -960,11 +1062,19 @@ namespace PacketTester
                 sendPacket(getFrameBytes, 3);
             }
         }
+
         private void btn_getFrame_Click(object sender, EventArgs e)
         {
             sendGetFrameCommand((byte)nud_SelectedImu.Value);
         }
-
+        private void btn_updateCfgParam_Click(object sender, EventArgs e)
+        {
+            sendBroadCastCommand(0x1A);
+        }
+        private void btn_getCfgParam_Click(object sender, EventArgs e)
+        {
+            sendCommandToSensorId(0x1B, (byte)nud_SelectedImu.Value);
+        }
         private void btn_SetupMode_Click(object sender, EventArgs e)
         {
             byte[] setupModeBytes = new byte[3];
@@ -1104,7 +1214,24 @@ namespace PacketTester
         {
             sendGetStatusCommand((byte)nud_SelectedImu.Value);
         }
+        private void btn_getWarmUp_Click(object sender, EventArgs e)
+        {
+            if (serialPort.IsOpen)
+            {
+                byte[] packetBytes = new byte[3];
+                packetBytes[0] = 0x01;
+                packetBytes[1] = 0x1E; //get warmup response command byte
+                packetBytes[2] = (byte)nud_SelectedImu.Value;
+                sendPacket(packetBytes, 3);
 
+            }
+
+
+        }
+        private void btn_updateWarmUp_Click(object sender, EventArgs e)
+        {
+            sendBroadCastCommand(0x1D);
+        }
         private void btn_clearScreen_Click(object sender, EventArgs e)
         {
             tb_Console.Clear();
@@ -1357,8 +1484,8 @@ namespace PacketTester
             }
             else if(cb_dataType.SelectedIndex == 1) //magnetic
             {
-                chrt_dataChart.ChartAreas[0].AxisY.Maximum = 1500;
-                chrt_dataChart.ChartAreas[0].AxisY.Minimum = -1500;
+                chrt_dataChart.ChartAreas[0].AxisY.Maximum = 3000;
+                chrt_dataChart.ChartAreas[0].AxisY.Minimum = -3000;
                 chrt_dataChart.ChartAreas[0].AxisY.RoundAxisValues();
             }
             else if (cb_dataType.SelectedIndex == 2)//Acceleration
@@ -1384,6 +1511,18 @@ namespace PacketTester
 
         private void cb_saveSensorData_CheckedChanged(object sender, EventArgs e)
         {
+            //if (cb_saveSensorData.Checked)
+            //{
+            //    if (sfd_saveFileDialog.ShowDialog() == DialogResult.OK)
+            //    {
+            //        saveSensorDataFilename = sfd_saveFileDialog.FileName;
+            //        tb_dataLogLocation.Text = sfd_saveFileDialog.FileName;
+            //    }
+            //    else
+            //    {
+            //        cb_saveSensorData.Checked = false;
+            //    }
+            //}
 
         }
 
@@ -2958,6 +3097,13 @@ namespace PacketTester
             byte[] header = { 0x05, 0x56 };
             sendPacketTo(powerBoardPort, header, 2);
         }
+
+        private void clb_algorithmStatus_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+
 
         private void btn_pbTogglePort_Click(object sender, EventArgs e)
         {

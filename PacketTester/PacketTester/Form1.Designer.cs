@@ -61,6 +61,13 @@ namespace PacketTester
             this.mtb_netPort = new System.Windows.Forms.MaskedTextBox();
             this.btn_connectSocket = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.lbl_AlgorithmStatus = new System.Windows.Forms.Label();
+            this.clb_algorithmStatus = new System.Windows.Forms.CheckedListBox();
+            this.cb_gyroEnabled = new System.Windows.Forms.CheckBox();
+            this.btn_getWarmUp = new System.Windows.Forms.Button();
+            this.btn_updateWarmUp = new System.Windows.Forms.Button();
+            this.btn_getCfgParam = new System.Windows.Forms.Button();
+            this.btn_updateCfgParam = new System.Windows.Forms.Button();
             this.tb_dataLogLocation = new System.Windows.Forms.TextBox();
             this.cb_saveSensorData = new System.Windows.Forms.CheckBox();
             this.lb_updateRate = new System.Windows.Forms.Label();
@@ -454,6 +461,13 @@ namespace PacketTester
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.lbl_AlgorithmStatus);
+            this.tabPage2.Controls.Add(this.clb_algorithmStatus);
+            this.tabPage2.Controls.Add(this.cb_gyroEnabled);
+            this.tabPage2.Controls.Add(this.btn_getWarmUp);
+            this.tabPage2.Controls.Add(this.btn_updateWarmUp);
+            this.tabPage2.Controls.Add(this.btn_getCfgParam);
+            this.tabPage2.Controls.Add(this.btn_updateCfgParam);
             this.tabPage2.Controls.Add(this.tb_dataLogLocation);
             this.tabPage2.Controls.Add(this.cb_saveSensorData);
             this.tabPage2.Controls.Add(this.lb_updateRate);
@@ -481,9 +495,85 @@ namespace PacketTester
             this.tabPage2.Text = "Debug 485 Sensors";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // lbl_AlgorithmStatus
+            // 
+            this.lbl_AlgorithmStatus.AutoSize = true;
+            this.lbl_AlgorithmStatus.Location = new System.Drawing.Point(298, 168);
+            this.lbl_AlgorithmStatus.Name = "lbl_AlgorithmStatus";
+            this.lbl_AlgorithmStatus.Size = new System.Drawing.Size(83, 13);
+            this.lbl_AlgorithmStatus.TabIndex = 56;
+            this.lbl_AlgorithmStatus.Text = "Algorithm Status";
+            // 
+            // clb_algorithmStatus
+            // 
+            this.clb_algorithmStatus.Enabled = false;
+            this.clb_algorithmStatus.FormattingEnabled = true;
+            this.clb_algorithmStatus.Items.AddRange(new object[] {
+            "AlgorithmStandBy",
+            "AlgorithmSlow",
+            "Still",
+            "CalStable",
+            "MagTransient"});
+            this.clb_algorithmStatus.Location = new System.Drawing.Point(298, 187);
+            this.clb_algorithmStatus.Name = "clb_algorithmStatus";
+            this.clb_algorithmStatus.SelectionMode = System.Windows.Forms.SelectionMode.None;
+            this.clb_algorithmStatus.Size = new System.Drawing.Size(120, 94);
+            this.clb_algorithmStatus.TabIndex = 55;
+            this.clb_algorithmStatus.SelectedIndexChanged += new System.EventHandler(this.clb_algorithmStatus_SelectedIndexChanged);
+            // 
+            // cb_gyroEnabled
+            // 
+            this.cb_gyroEnabled.AutoSize = true;
+            this.cb_gyroEnabled.Location = new System.Drawing.Point(297, 63);
+            this.cb_gyroEnabled.Name = "cb_gyroEnabled";
+            this.cb_gyroEnabled.Size = new System.Drawing.Size(109, 17);
+            this.cb_gyroEnabled.TabIndex = 54;
+            this.cb_gyroEnabled.Text = "Gyro on when still";
+            this.cb_gyroEnabled.UseVisualStyleBackColor = true;
+            // 
+            // btn_getWarmUp
+            // 
+            this.btn_getWarmUp.Location = new System.Drawing.Point(152, 205);
+            this.btn_getWarmUp.Name = "btn_getWarmUp";
+            this.btn_getWarmUp.Size = new System.Drawing.Size(103, 23);
+            this.btn_getWarmUp.TabIndex = 53;
+            this.btn_getWarmUp.Text = "Get Warm Up";
+            this.btn_getWarmUp.UseVisualStyleBackColor = true;
+            this.btn_getWarmUp.Click += new System.EventHandler(this.btn_getWarmUp_Click);
+            // 
+            // btn_updateWarmUp
+            // 
+            this.btn_updateWarmUp.Location = new System.Drawing.Point(36, 205);
+            this.btn_updateWarmUp.Name = "btn_updateWarmUp";
+            this.btn_updateWarmUp.Size = new System.Drawing.Size(103, 23);
+            this.btn_updateWarmUp.TabIndex = 52;
+            this.btn_updateWarmUp.Text = "Update Warm Up";
+            this.btn_updateWarmUp.UseVisualStyleBackColor = true;
+            this.btn_updateWarmUp.Click += new System.EventHandler(this.btn_updateWarmUp_Click);
+            // 
+            // btn_getCfgParam
+            // 
+            this.btn_getCfgParam.Location = new System.Drawing.Point(152, 175);
+            this.btn_getCfgParam.Name = "btn_getCfgParam";
+            this.btn_getCfgParam.Size = new System.Drawing.Size(103, 23);
+            this.btn_getCfgParam.TabIndex = 51;
+            this.btn_getCfgParam.Text = "Get Config";
+            this.btn_getCfgParam.UseVisualStyleBackColor = true;
+            this.btn_getCfgParam.Click += new System.EventHandler(this.btn_getCfgParam_Click);
+            // 
+            // btn_updateCfgParam
+            // 
+            this.btn_updateCfgParam.Location = new System.Drawing.Point(36, 175);
+            this.btn_updateCfgParam.Name = "btn_updateCfgParam";
+            this.btn_updateCfgParam.Size = new System.Drawing.Size(103, 23);
+            this.btn_updateCfgParam.TabIndex = 50;
+            this.btn_updateCfgParam.Text = "Update Config";
+            this.btn_updateCfgParam.UseVisualStyleBackColor = true;
+            this.btn_updateCfgParam.Click += new System.EventHandler(this.btn_updateCfgParam_Click);
+            // 
             // tb_dataLogLocation
             // 
-            this.tb_dataLogLocation.Location = new System.Drawing.Point(152, 175);
+            this.tb_dataLogLocation.Location = new System.Drawing.Point(147, 287);
             this.tb_dataLogLocation.Name = "tb_dataLogLocation";
             this.tb_dataLogLocation.Size = new System.Drawing.Size(301, 20);
             this.tb_dataLogLocation.TabIndex = 49;
@@ -491,7 +581,7 @@ namespace PacketTester
             // cb_saveSensorData
             // 
             this.cb_saveSensorData.AutoSize = true;
-            this.cb_saveSensorData.Location = new System.Drawing.Point(36, 178);
+            this.cb_saveSensorData.Location = new System.Drawing.Point(31, 290);
             this.cb_saveSensorData.Name = "cb_saveSensorData";
             this.cb_saveSensorData.Size = new System.Drawing.Size(108, 17);
             this.cb_saveSensorData.TabIndex = 48;
@@ -510,7 +600,7 @@ namespace PacketTester
             // 
             // nud_updateRate
             // 
-            this.nud_updateRate.Location = new System.Drawing.Point(332, 40);
+            this.nud_updateRate.Location = new System.Drawing.Point(332, 34);
             this.nud_updateRate.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -525,7 +615,7 @@ namespace PacketTester
             this.nud_updateRate.Size = new System.Drawing.Size(56, 20);
             this.nud_updateRate.TabIndex = 46;
             this.nud_updateRate.Value = new decimal(new int[] {
-            5,
+            10,
             0,
             0,
             0});
@@ -544,7 +634,7 @@ namespace PacketTester
             // lb_rates
             // 
             this.lb_rates.AutoSize = true;
-            this.lb_rates.Location = new System.Drawing.Point(272, 78);
+            this.lb_rates.Location = new System.Drawing.Point(295, 83);
             this.lb_rates.Name = "lb_rates";
             this.lb_rates.Size = new System.Drawing.Size(176, 13);
             this.lb_rates.TabIndex = 44;
@@ -552,17 +642,17 @@ namespace PacketTester
             // 
             // btn_setRate
             // 
-            this.btn_setRate.Location = new System.Drawing.Point(274, 127);
+            this.btn_setRate.Location = new System.Drawing.Point(297, 132);
             this.btn_setRate.Name = "btn_setRate";
             this.btn_setRate.Size = new System.Drawing.Size(102, 23);
             this.btn_setRate.TabIndex = 43;
-            this.btn_setRate.Text = "Set Rates";
+            this.btn_setRate.Text = "Set Rate Config";
             this.btn_setRate.UseVisualStyleBackColor = true;
             this.btn_setRate.Click += new System.EventHandler(this.btn_setRate_Click);
             // 
             // nud_gyroRate
             // 
-            this.nud_gyroRate.Location = new System.Drawing.Point(399, 96);
+            this.nud_gyroRate.Location = new System.Drawing.Point(422, 101);
             this.nud_gyroRate.Maximum = new decimal(new int[] {
             255,
             0,
@@ -579,7 +669,7 @@ namespace PacketTester
             // 
             // nud_accelRate
             // 
-            this.nud_accelRate.Location = new System.Drawing.Point(337, 96);
+            this.nud_accelRate.Location = new System.Drawing.Point(360, 101);
             this.nud_accelRate.Maximum = new decimal(new int[] {
             255,
             0,
@@ -596,7 +686,7 @@ namespace PacketTester
             // 
             // nud_magRate
             // 
-            this.nud_magRate.Location = new System.Drawing.Point(274, 96);
+            this.nud_magRate.Location = new System.Drawing.Point(297, 101);
             this.nud_magRate.Maximum = new decimal(new int[] {
             50,
             0,
@@ -2175,6 +2265,13 @@ namespace PacketTester
         private System.Windows.Forms.Button btn_pbSensor0;
         private System.Windows.Forms.Label lbl_pbDetectedSensorMask;
         private System.Windows.Forms.Button btn_sendPwrDwnReq;
+        private System.Windows.Forms.Button btn_getCfgParam;
+        private System.Windows.Forms.Button btn_updateCfgParam;
+        private System.Windows.Forms.CheckBox cb_gyroEnabled;
+        private System.Windows.Forms.Button btn_getWarmUp;
+        private System.Windows.Forms.Button btn_updateWarmUp;
+        private System.Windows.Forms.Label lbl_AlgorithmStatus;
+        private System.Windows.Forms.CheckedListBox clb_algorithmStatus;
     }
 }
 

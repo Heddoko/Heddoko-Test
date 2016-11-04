@@ -25,6 +25,7 @@ namespace PacketTester
         public Int16 Rotation_x;
         public Int16 Rotation_y;
         public Int16 Rotation_z;
+        public byte frameStatus; 
 
         public ImuFrame()
         {
@@ -61,6 +62,10 @@ namespace PacketTester
                 Rotation_x = BitConverter.ToInt16(packet.Payload, 28 + 3);
                 Rotation_y = BitConverter.ToInt16(packet.Payload, 30 + 3);
                 Rotation_z = BitConverter.ToInt16(packet.Payload, 32 + 3);
+                if (packet.PayloadSize >= 38)
+                {
+                    frameStatus = packet.Payload[37];
+                }
             }
         }
         private string swapHexBytes(string hexString)
@@ -127,6 +132,10 @@ namespace PacketTester
                         Rotation_x = BitConverter.ToInt16(packet.Payload, 28 + 3);
                         Rotation_y = BitConverter.ToInt16(packet.Payload, 30 + 3);
                         Rotation_z = BitConverter.ToInt16(packet.Payload, 32 + 3);
+                        if (packet.PayloadSize >= 38)
+                        {
+                            frameStatus = packet.Payload[37];
+                        }
                         retVal = true;
                     }
                 }

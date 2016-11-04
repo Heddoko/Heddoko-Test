@@ -24,6 +24,8 @@ namespace ProtobufDecoder
         private bool processPacketQueueEnabled = false;
         public ConcurrentQueue<RawPacket> packetQueue;
         enum CommandIds { update = 0x11, getFrame, getFrameResp, setupMode, buttonPress, setImuId, setImuIdResp, getStatus, getStatusResp };
+        enum OutputType { legacyFrame, appFormat, individualSensorFiles };
+        OutputType decodingOutput = OutputType.individualSensorFiles;
         public form_decoder()
         {
             InitializeComponent();
@@ -222,13 +224,17 @@ namespace ProtobufDecoder
                     Packet protoPacket = Serializer.Deserialize<Packet>(stream);
                     if(protoPacket.type == PacketType.DataFrame)
                     {
-                        if (cb_decodeForApp.Checked)
+                        if (decodingOutput == OutputType.appFormat)
                         {
                             return convertProtoPacketToAppFormat(protoPacket); 
                         }
-                        else
+                        else if(decodingOutput == OutputType.legacyFrame)
                         {
                             return convertProtoBufPacket(protoPacket);
+                        }
+                        else
+                        {
+                            //convert to the csv
                         }
                     }
                 }
@@ -239,6 +245,162 @@ namespace ProtobufDecoder
 
             }
             return ""; 
+        }
+        private string getHprStringFromQuaternions(ImuDataFrame dataFrame)
+        {
+            StringBuilder strBuilder = new StringBuilder();
+            float Heading = (float)((180 / Math.PI) * Math.Atan2((2 * dataFrame.quat_x_yaw * dataFrame.quat_y_pitch + 2 * dataFrame.quat_w * dataFrame.quat_z_roll), (2 * dataFrame.quat_w * dataFrame.quat_w + 2 * dataFrame.quat_x_yaw * dataFrame.quat_x_yaw - 1)));
+            float Pitch = (float)((180 / Math.PI) * Math.Asin(-(2 * dataFrame.quat_x_yaw * dataFrame.quat_z_roll - 2 * dataFrame.quat_w * dataFrame.quat_y_pitch)));
+            float Roll = (float)((180 / Math.PI) * Math.Atan2((2 * dataFrame.quat_y_pitch * dataFrame.quat_z_roll + 2 * dataFrame.quat_w * dataFrame.quat_x_yaw), (2 * dataFrame.quat_w * dataFrame.quat_w + 2 * dataFrame.quat_z_roll * dataFrame.quat_z_roll - 1)));
+            if (Heading < 0)
+                Heading += 360;
+            strBuilder.Append(String.Format(",{0:F4},{1:F4},{2:F4}", Heading, Pitch, Roll));
+            return strBuilder.ToString();
+
+        }
+        private string getHprStringFromQuaternionsApdx2(ImuDataFrame dataFrame)
+        {
+            StringBuilder strBuilder = new StringBuilder();
+            double qx = dataFrame.quat_x_yaw;
+            double qy = dataFrame.quat_y_pitch;
+            double qz = dataFrame.quat_z_roll;
+            double qw = dataFrame.quat_w;
+            double Heading = (180 / Math.PI) * Math.Atan2(Math.Pow(qx, 2) - Math.Pow(qy, 2) - Math.Pow(qz, 2) + Math.Pow(qw, 2), (2 * (qx*qy + qz*qw)) );
+            double Pitch = (180 / Math.PI) * Math.Asin(-2*((qx*qz)-(qy*qw)));
+            double Roll = (180 / Math.PI) * Math.Atan2((-(Math.Pow(qx, 2))- Math.Pow(qy, 2) + Math.Pow(qz, 2) + Math.Pow(qw, 2)) , (2 * (qx*qw + qy*qz)));
+            //if (Heading < 0)
+            //    Heading += 360;
+            strBuilder.Append(String.Format(",{0:F4},{1:F4},{2:F4}", Heading, Pitch, Roll));
+            return strBuilder.ToString();
+
+        }
+        private string getHprStringFromAccelAndMag(ImuDataFrame dataFrame)
+        {
+            StringBuilder strBuilder = new StringBuilder();
+            Double Heading = 0.0, Pitch = 0.0, Roll = 0.0;
+            Double tempM, tempA;
+            Double[] mag = { dataFrame.Mag_x, dataFrame.Mag_y, dataFrame.Mag_z };
+            Double[] acc = { ((double)dataFrame.Accel_x/512f)*9.81, ((double)dataFrame.Accel_y / 512f)*9.81, ((double)dataFrame.Accel_z / 512f)*9.81 };
+            //heading
+            tempM = Math.Pow(mag[0], 2) + Math.Pow(mag[1], 2) + Math.Pow(mag[2], 2);
+            tempM = Math.Sqrt(tempM);
+
+            tempA = Math.Pow(acc[0], 2) + Math.Pow(acc[1], 2) + Math.Pow(acc[2], 2);
+            tempA = Math.Sqrt(tempA);
+
+            for (int i = 0; i < 3; i++)
+            {
+                mag[i] = mag[i] / tempM;
+                acc[i] = acc[i] / tempA;
+            }
+
+            tempM = mag[0] * (Math.Pow(acc[1], 2) + Math.Pow(acc[2], 2))
+                    - mag[1] * acc[0] * acc[1]
+                    - mag[2] * acc[0] * acc[2];
+
+            if (tempM != 0.0)
+            {
+                Heading = (180 / Math.PI) * Math.Atan2((mag[2] * acc[1] - mag[1] * acc[2]), tempM);
+            }
+
+            if (Heading < 0.0)
+            {
+                Heading += 360;
+            }
+
+            //pitch & roll
+            // get pitch and roll angles, convert to an angle in degrees
+            tempA = Math.Sqrt(Math.Pow(acc[1], 2) + Math.Pow(acc[2], 2));
+
+            if (tempA == 0.0)
+            {
+                if (acc[0] > 0.0)
+                {
+                    Pitch = -90;
+                }
+                else
+                {
+                    Pitch = 90;
+                }
+            }
+            else
+            {
+                Pitch = Math.Atan(-acc[0] / tempA) * (180 / Math.PI);
+            }
+
+            if (acc[2] == 0.0)
+            {
+                if (acc[1] > 0.0)
+                {
+                    Roll = 90;
+                }
+                else
+                {
+                    if (acc[1] < 0.0)
+                    {
+                        Roll = -90;
+                    }
+                    else
+                    {
+                        Roll = 0;
+                    }
+                }
+            }
+            else
+            {
+                Roll = Math.Atan2(acc[1], acc[2]) * (180 / Math.PI);
+            }
+            strBuilder.Append(String.Format(",{0:F4},{1:F4},{2:F4}", Heading, Pitch, Roll));
+            return strBuilder.ToString();
+
+        }
+        private void convertImuDataFrameToString(long timeStamp, ImuDataFrame dataFrame, ref FileStream outputFile)
+        {
+            StringBuilder strBuilder = new StringBuilder();
+            strBuilder.Append(timeStamp.ToString("D10") + "," + dataFrame.imuId.ToString() + "," );
+            strBuilder.Append(String.Format("{0:F4},{1:F4},{2:F4},{3:F4},", dataFrame.quat_x_yaw, dataFrame.quat_y_pitch, dataFrame.quat_z_roll, dataFrame.quat_w));            
+            strBuilder.Append(String.Format("{0},{1},{2},", dataFrame.Mag_x, dataFrame.Mag_y, dataFrame.Mag_z));
+            strBuilder.Append(String.Format("{0},{1},{2},", dataFrame.Accel_x, dataFrame.Accel_y, dataFrame.Accel_z));
+            strBuilder.Append(String.Format("{0},{1},{2}", dataFrame.Rot_x.ToString(), dataFrame.Rot_y.ToString(), dataFrame.Rot_z.ToString()));
+            strBuilder.Append(getHprStringFromQuaternions(dataFrame));
+            //strBuilder.Append(getHprStringFromQuaternionsApdx2(dataFrame));            
+            uint calStable = (dataFrame.sensorMask >> 19) & 0x01; 
+            uint magTransient = (dataFrame.sensorMask >> 20) & 0x01;
+            strBuilder.Append(String.Format(",{0},{1}", calStable.ToString(), magTransient.ToString()));             
+            strBuilder.Append("\r\n");
+            if (outputFile.CanWrite)
+            {
+                outputFile.Write(ASCIIEncoding.ASCII.GetBytes(strBuilder.ToString()), 0, strBuilder.Length);
+                //outputFile.Flush();
+            }
+            return; 
+        }
+        private void processRawPacketForCSV(RawPacket packet, ref FileStream[] outputFiles)
+        {
+            if (packet.Payload[0] == 0x04) //this is a protocol buffer file. 
+            {
+                Stream stream = new MemoryStream(packet.Payload, 1, packet.PayloadSize - 1);
+                try
+                {
+                    Packet protoPacket = Serializer.Deserialize<Packet>(stream);
+                    if (protoPacket.type == PacketType.DataFrame)
+                    {
+                        for(int i = 0; i<protoPacket.fullDataFrame.imuDataFrame.Count; i++)
+                        {
+                            if(protoPacket.fullDataFrame.imuDataFrame[i].imuId < 9)
+                            {
+                                convertImuDataFrameToString(protoPacket.fullDataFrame.timeStamp, protoPacket.fullDataFrame.imuDataFrame[i], ref outputFiles[protoPacket.fullDataFrame.imuDataFrame[i].imuId]);
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    debugMessageQueue.Enqueue("Failed to deserialize packet\r\n");
+                }
+
+            }
+            return;
         }
         private void btn_decode_Click(object sender, EventArgs e)
         {
@@ -463,15 +625,17 @@ namespace ProtobufDecoder
         {
             UInt32 packetCount = 0, packetErrors = 0; ;
             RawPacket packet = new RawPacket();
+            const UInt16 numberOfSensors = 9;
             try
             {
                 FileStream dataFile = File.Open(ofd_OpenFile.FileName, FileMode.Open);
-                FileStream outputFile = File.Open(sfd_SaveFile.FileName, FileMode.Create);
+                FileStream outputFile = null;
+                FileStream[] outputFiles = new FileStream[numberOfSensors];
                 debugMessageQueue.Enqueue(String.Format("Processing File: {0}\r\n", ofd_OpenFile.FileName));
                 long percent = 0;
                 //initialize the start time of the file. 
                 startTime = 0;
-                if (cb_decodeForApp.Checked)
+                if (decodingOutput == OutputType.appFormat)
                 {
                     //have to create header for the file before writting it in. 
                     string line1 = Guid.NewGuid().ToString() + "\r\n";
@@ -481,6 +645,33 @@ namespace ProtobufDecoder
                     outputFile.Write(ASCIIEncoding.ASCII.GetBytes(line2), 0, line2.Length);
                     outputFile.Write(ASCIIEncoding.ASCII.GetBytes(line3), 0, line3.Length);
                 }
+                if(decodingOutput == OutputType.individualSensorFiles)
+                {
+                    //open all the output files. 
+                    string header = "Time(ms),Interval,Qx,Qy,Qz,Qw,Mx,My,Mz,Ax,Ay,Az,Rx,Ry,Rz,H1,P1,R1,H2,P2,R2,CalStable,MagTransient\r\n";
+
+                    for (int i = 0; i < numberOfSensors; i++)
+                    {
+                        string filepath = fbd_outputLocation.SelectedPath + "\\Sensor_" + i.ToString() + ".csv";
+                        try
+                        {
+                            debugMessageQueue.Enqueue(String.Format("Openning file: {0}\r\n", filepath));
+                            outputFiles[i] = File.Open(filepath, FileMode.Create);
+                            outputFiles[i].Write(ASCIIEncoding.ASCII.GetBytes(header), 0, header.Length);
+                        }
+                        catch
+                        {
+                            debugMessageQueue.Enqueue(String.Format("Failed to create file: {0}\r\n", filepath));
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    outputFile = File.Open(sfd_SaveFile.FileName, FileMode.Create);
+                }
+                byte[] fileBytes = new byte[dataFile.Length];
+                dataFile.Read(fileBytes, 0, (int)dataFile.Length); 
                 for (long i = 0; i < dataFile.Length; i++)
                 {
                     long newPercent = (i * 100) / (int)dataFile.Length;
@@ -490,7 +681,7 @@ namespace ProtobufDecoder
                         bgw_ProcessingWorker.ReportProgress((int)percentageFloat);
                         percent = newPercent;
                     }
-                    int dataByte = dataFile.ReadByte();
+                    int dataByte = fileBytes[i];
                     if (dataByte == -1)
                     {
                         //we've reached the end of the stream
@@ -504,11 +695,18 @@ namespace ProtobufDecoder
                         case PacketStatus.PacketComplete:
                             //debugMessageQueue.Enqueue(String.Format("{0} Packet Received {1} bytes\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), packet.PayloadSize));
                             RawPacket packetCopy = new RawPacket(packet);
-                            string frameString = processRawPacket(packetCopy);
-                            if (frameString.Length > 0)
+                            if (decodingOutput == OutputType.individualSensorFiles)
                             {
-                                outputFile.Write(ASCIIEncoding.ASCII.GetBytes(frameString), 0, frameString.Length);
-                                packetCount++;
+                                processRawPacketForCSV(packetCopy, ref outputFiles); 
+                            }
+                            else
+                            {
+                                string frameString = processRawPacket(packetCopy);
+                                if (frameString.Length > 0)
+                                {
+                                    outputFile.Write(ASCIIEncoding.ASCII.GetBytes(frameString), 0, frameString.Length);
+                                    packetCount++;
+                                }
                             }
                             packet.resetPacket();
                             break;
@@ -524,7 +722,19 @@ namespace ProtobufDecoder
                 }
                 debugMessageQueue.Enqueue(String.Format("Processed File Size:{0} Bytes, {1} frames extracted ,{2} Errors \r\n", dataFile.Length, packetCount, packetErrors));
                 dataFile.Close();
-                outputFile.Close();
+                if(decodingOutput == OutputType.individualSensorFiles)
+                {
+                    for (int i = 0; i < outputFiles.Length; i++)
+                    {
+                        debugMessageQueue.Enqueue(String.Format("Stream {0} Closed Wrote {1} Bytes\r\n", i, outputFiles[i].Length));
+                        outputFiles[i].Close();
+                    }
+                }
+                else
+                {
+                    outputFile.Close();
+                }
+                
             }
             catch
             {
@@ -545,6 +755,25 @@ namespace ProtobufDecoder
         private void bgw_ProcessingWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             pb_progressBar.Value = 0;
+        }
+
+        private void btn_convertToCsv_Click(object sender, EventArgs e)
+        {
+            if (bgw_ProcessingWorker.IsBusy)
+            {
+                debugMessageQueue.Enqueue(String.Format("Cannot decode file, waiting for completion\r\n"));
+            }
+            if (ofd_OpenFile.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            if (fbd_outputLocation.ShowDialog() == DialogResult.OK)
+            {
+                //dataStreamFilePath = fbd_outputLocation.SelectedPath;
+                decodingOutput = OutputType.individualSensorFiles;
+            }
+            decodingOutput = OutputType.individualSensorFiles;
+            bgw_ProcessingWorker.RunWorkerAsync();
         }
     }
 }

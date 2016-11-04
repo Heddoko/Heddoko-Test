@@ -16,6 +16,7 @@ using heddoko;
 using System.Net.Sockets;
 using System.Net;
 
+
 namespace BrainPackDataAnalyzer
 {
     public partial class mainForm : Form
@@ -34,6 +35,9 @@ namespace BrainPackDataAnalyzer
         private bool processPacketQueueEnabled = false;
         public ConcurrentQueue<RawPacket> packetQueue;
         private bool mIsBatchModeSelected = false;
+
+        
+
         public mainForm()
         {
             InitializeComponent();
@@ -188,6 +192,18 @@ namespace BrainPackDataAnalyzer
             }
 
         }
+        private void getHprStringFromQuaternions(ImuDataFrame dataFrame, ref float heading, ref float pitch, ref float roll)
+        {
+            //StringBuilder strBuilder = new StringBuilder();
+            heading = (float)(Math.Atan2((2 * dataFrame.quat_x_yaw * dataFrame.quat_y_pitch + 2 * dataFrame.quat_w * dataFrame.quat_z_roll), (2 * dataFrame.quat_w * dataFrame.quat_w + 2 * dataFrame.quat_x_yaw * dataFrame.quat_x_yaw - 1)));
+            pitch = (float)(Math.Asin(-(2 * dataFrame.quat_x_yaw * dataFrame.quat_z_roll - 2 * dataFrame.quat_w * dataFrame.quat_y_pitch)));
+            roll = (float)(Math.Atan2((2 * dataFrame.quat_y_pitch * dataFrame.quat_z_roll + 2 * dataFrame.quat_w * dataFrame.quat_x_yaw), (2 * dataFrame.quat_w * dataFrame.quat_w + 2 * dataFrame.quat_z_roll * dataFrame.quat_z_roll - 1)));
+            //if (heading < 0)
+            //    heading += (float)(2.0*Math.PI);
+            //strBuilder.Append(String.Format(",{0:F4},{1:F4},{2:F4}", heading, pitch, roll));
+            //return strBuilder.ToString();
+
+        }
         private void processFullDataFrame(FullDataFrame dataFrame)
         {
             try
@@ -209,22 +225,41 @@ namespace BrainPackDataAnalyzer
                         imuArray[i].EntryUpdated = false;
                         continue;
                     }
-
-                    //DataRow row = sensorStats.NewRow();
+                    float heading = 0.0F, pitch = 0.0F, roll = 0.0F;
+                    getHprStringFromQuaternions(dataFrame.imuDataFrame[i], ref heading, ref pitch, ref roll);                    
                     sensorStats.Rows[sensorId]["Sensor ID"] = sensorId.ToString();
-                    sensorStats.Rows[sensorId]["Roll"] = imuArray[sensorId].GetCurrentEntry().Roll.ToString("F3") + convertToArrow(imuArray[sensorId].GetCurrentEntry().Roll);
-                    sensorStats.Rows[sensorId]["Pitch"] = imuArray[sensorId].GetCurrentEntry().Pitch.ToString("F3") + convertToArrow(imuArray[sensorId].GetCurrentEntry().Pitch);
-                    sensorStats.Rows[sensorId]["Yaw"] = imuArray[sensorId].GetCurrentEntry().Yaw.ToString("F3") + convertToArrow(imuArray[sensorId].GetCurrentEntry().Yaw);
+                    sensorStats.Rows[sensorId]["Roll"] = roll.ToString("F3");
+                    sensorStats.Rows[sensorId]["Pitch"] = pitch.ToString("F3");
+                    sensorStats.Rows[sensorId]["Yaw"] = heading.ToString("F3");
                     sensorStats.Rows[sensorId]["Frame Count"] = imuArray[sensorId].GetTotalEntryCount().ToString();
                     sensorStats.Rows[sensorId]["Interval"] = imuArray[sensorId].GetLastInterval().ToString();
                     sensorStats.Rows[sensorId]["Max Interval"] = imuArray[sensorId].GetMaxInterval().ToString();
                     sensorStats.Rows[sensorId]["Average Interval"] = imuArray[sensorId].GetAverageInterval().ToString();
+                    uint calStable = (dataFrame.imuDataFrame[i].sensorMask >> 19) & 0x01;
+                    uint magTransient = (dataFrame.imuDataFrame[i].sensorMask >> 20) & 0x01;
+                    if(calStable == 1)
+                    {
+                        sensorStats.Rows[sensorId]["Cal Status"] = "Cal Good";
+                    }
+                    else
+                    {
+                        sensorStats.Rows[sensorId]["Cal Status"] = "Cal Bad";
+                    }
+                    if(magTransient == 1)
+                    {
+                        sensorStats.Rows[sensorId]["Mag Transient"] = "Present";
+                    }
+                    else
+                    {
+                        sensorStats.Rows[sensorId]["Mag Transient"] = "Not Present";
+                    }
+
 
                     if (selectedImu == sensorId)
                     {
-                        this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Roll"].Points.AddY(imuArray[selectedImu].GetCurrentEntry().Roll)));
-                        this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Pitch"].Points.AddY(imuArray[selectedImu].GetCurrentEntry().Pitch)));
-                        this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Yaw"].Points.AddY(imuArray[selectedImu].GetCurrentEntry().Yaw)));
+                        this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Roll"].Points.AddY(roll)));
+                        this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Pitch"].Points.AddY(pitch)));
+                        this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Yaw"].Points.AddY(heading)));
 
                         if (chrt_dataChart.Series["Roll"].Points.Count > 150)
                         {
@@ -496,6 +531,8 @@ namespace BrainPackDataAnalyzer
             sensorStats.Columns.Add("Interval", typeof(string));
             sensorStats.Columns.Add("Max Interval", typeof(string));
             sensorStats.Columns.Add("Average Interval", typeof(string));
+            sensorStats.Columns.Add("Cal Status", typeof(string));
+            sensorStats.Columns.Add("Mag Transient", typeof(string));
             for (int i = 0; i < 9; i++)
             {
                 DataRow row = sensorStats.NewRow();
@@ -1206,6 +1243,7 @@ namespace BrainPackDataAnalyzer
             processDataTheadEnabled = false;
             processDebugThreadEnabled = false;
             processPacketQueueEnabled = false;
+            EnableSocketQueue = false; 
         }
 
         private void cb_serialPassEn_CheckedChanged(object sender, EventArgs e)
@@ -1500,8 +1538,8 @@ namespace BrainPackDataAnalyzer
                 debugMessageQueue.Enqueue("This message was sent from " +
                                             remoteEP.Address.ToString() +
                                             " on their port number " +
-                                            remoteEP.Port.ToString());
-                udpClient.Close();
+                                            remoteEP.Port.ToString() + "\r\n");
+                
 
             }
             catch (Exception e)

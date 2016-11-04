@@ -45,6 +45,8 @@
             this.pb_progressBar = new System.Windows.Forms.ProgressBar();
             this.cb_decodeForApp = new System.Windows.Forms.CheckBox();
             this.bgw_ProcessingWorker = new System.ComponentModel.BackgroundWorker();
+            this.btn_convertToCsv = new System.Windows.Forms.Button();
+            this.fbd_outputLocation = new System.Windows.Forms.FolderBrowserDialog();
             this.SuspendLayout();
             // 
             // btn_disconnect
@@ -119,7 +121,7 @@
             // ofd_OpenFile
             // 
             this.ofd_OpenFile.FileName = "Recording.dat";
-            this.ofd_OpenFile.Filter = "Dat Files (*.dat)|*.dat|All Files (*.*)|*.*";
+            this.ofd_OpenFile.Filter = "Protobuf Files (*.hsm)|*.hsm|All Files (*.*)|*.*";
             // 
             // lb_forward
             // 
@@ -179,11 +181,22 @@
             this.bgw_ProcessingWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgw_ProcessingWorker_ProgressChanged);
             this.bgw_ProcessingWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgw_ProcessingWorker_RunWorkerCompleted);
             // 
+            // btn_convertToCsv
+            // 
+            this.btn_convertToCsv.Location = new System.Drawing.Point(117, 470);
+            this.btn_convertToCsv.Name = "btn_convertToCsv";
+            this.btn_convertToCsv.Size = new System.Drawing.Size(150, 23);
+            this.btn_convertToCsv.TabIndex = 44;
+            this.btn_convertToCsv.Text = "Convert ProtoBuf To CSV";
+            this.btn_convertToCsv.UseVisualStyleBackColor = true;
+            this.btn_convertToCsv.Click += new System.EventHandler(this.btn_convertToCsv_Click);
+            // 
             // form_decoder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(516, 542);
+            this.Controls.Add(this.btn_convertToCsv);
             this.Controls.Add(this.cb_decodeForApp);
             this.Controls.Add(this.pb_progressBar);
             this.Controls.Add(this.cp_openForwardPort);
@@ -222,6 +235,8 @@
         private System.Windows.Forms.ProgressBar pb_progressBar;
         private System.Windows.Forms.CheckBox cb_decodeForApp;
         private System.ComponentModel.BackgroundWorker bgw_ProcessingWorker;
+        private System.Windows.Forms.Button btn_convertToCsv;
+        private System.Windows.Forms.FolderBrowserDialog fbd_outputLocation;
     }
 }
 

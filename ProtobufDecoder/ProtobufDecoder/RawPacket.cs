@@ -191,6 +191,25 @@ namespace PacketTester
             return rawPacketBytes; 
 
         }
+        public byte[] createRawPacket(ref UInt16 rawSize, MemoryStream stream)
+        {
+            rawSize = 0;
+            payloadSize = (UInt16)(stream.Length + 1); 
+            rawPacketBytes[rawPacketBytesIndex++] = startByte;
+            addByteToRawPacket((byte)(payloadSize & 0x00ff));
+            addByteToRawPacket((byte)((payloadSize >> 8) & 0x00ff));
+
+            addByteToRawPacket(0x04);
+            stream.Seek(0, SeekOrigin.Begin);
+            for (int i = 0; i < stream.Length; i++)
+            {
+                addByteToRawPacket((byte)stream.ReadByte()); 
+            }
+            //return the size of the raw bytes. 
+            rawSize = rawPacketBytesIndex; 
+            return rawPacketBytes; 
+
+        }
         
     }
 }

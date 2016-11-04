@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,15 +16,18 @@ namespace PacketTester
         public float Quaternion_y;
         public float Quaternion_z;
         public float Quaternion_w;
-        public UInt16 Magnetic_x;
-        public UInt16 Magnetic_y;
-        public UInt16 Magnetic_z;
-        public UInt16 Acceleration_x;
-        public UInt16 Acceleration_y;
-        public UInt16 Acceleration_z;
-        public UInt16 Rotation_x;
-        public UInt16 Rotation_y;
-        public UInt16 Rotation_z;
+        public Int16 Magnetic_x;
+        public Int16 Magnetic_y;
+        public Int16 Magnetic_z;
+        public Int16 Acceleration_x;
+        public Int16 Acceleration_y;
+        public Int16 Acceleration_z;
+        public Int16 Rotation_x;
+        public Int16 Rotation_y;
+        public Int16 Rotation_z;
+        public float Heading;
+        public float Pitch;
+        public float Roll;
 
         public ImuFrame()
         {
@@ -39,6 +45,9 @@ namespace PacketTester
             Rotation_x = 0;
             Rotation_y = 0;
             Rotation_z = 0;
+            Heading = 0;
+            Pitch = 0;
+            Roll = 0;
         }
         public ImuFrame(RawPacket packet)
         {
@@ -49,21 +58,42 @@ namespace PacketTester
                 Quaternion_y = BitConverter.ToSingle(packet.Payload, 4 + 3);
                 Quaternion_z = BitConverter.ToSingle(packet.Payload, 8 + 3);
                 Quaternion_w = BitConverter.ToSingle(packet.Payload, 12 + 3);
-                Magnetic_x = BitConverter.ToUInt16(packet.Payload, 16 + 3);
-                Magnetic_y = BitConverter.ToUInt16(packet.Payload, 18 + 3);
-                Magnetic_z = BitConverter.ToUInt16(packet.Payload, 20 + 3);
-                Acceleration_x = BitConverter.ToUInt16(packet.Payload, 22 + 3);
-                Acceleration_y = BitConverter.ToUInt16(packet.Payload, 24 + 3);
-                Acceleration_z = BitConverter.ToUInt16(packet.Payload, 26 + 3);
-                Rotation_x = BitConverter.ToUInt16(packet.Payload, 28 + 3);
-                Rotation_y = BitConverter.ToUInt16(packet.Payload, 30 + 3);
-                Rotation_z = BitConverter.ToUInt16(packet.Payload, 32 + 3);
+                Magnetic_x = BitConverter.ToInt16(packet.Payload, 16 + 3);
+                Magnetic_y = BitConverter.ToInt16(packet.Payload, 18 + 3);
+                Magnetic_z = BitConverter.ToInt16(packet.Payload, 20 + 3);
+                Acceleration_x = BitConverter.ToInt16(packet.Payload, 22 + 3);
+                Acceleration_y = BitConverter.ToInt16(packet.Payload, 24 + 3);
+                Acceleration_z = BitConverter.ToInt16(packet.Payload, 26 + 3);
+                Rotation_x = BitConverter.ToInt16(packet.Payload, 28 + 3);
+                Rotation_y = BitConverter.ToInt16(packet.Payload, 30 + 3);
+                Rotation_z = BitConverter.ToInt16(packet.Payload, 32 + 3);
             }
         }
         private string swapHexBytes(string hexString)
         {
             return hexString[2].ToString() + hexString[3].ToString() + hexString[0].ToString() + hexString[1].ToString();
         }
+        public string getQuaternionString()
+        {
+            return Quaternion_x.ToString("F4") + ";" + Quaternion_y.ToString("F4") + ";" + Quaternion_z.ToString("F4") + ";" + Quaternion_w.ToString("F4");
+        }
+        private void Q2HPR()
+        {
+            Heading = (float)((180 / Math.PI) * Math.Atan2((2 * Quaternion_x * Quaternion_y + 2 * Quaternion_w * Quaternion_z), (2 * Quaternion_w * Quaternion_w + 2 * Quaternion_x * Quaternion_x - 1)));
+            Pitch = (float)((180 / Math.PI) * Math.Asin(-(2 * Quaternion_x * Quaternion_z - 2 * Quaternion_w * Quaternion_y)));
+            Roll = (float)((180 / Math.PI) * Math.Atan2((2 * Quaternion_y * Quaternion_z + 2 * Quaternion_w * Quaternion_x), (2 * Quaternion_w * Quaternion_w + 2 * Quaternion_z * Quaternion_z - 1)));
+            if (Heading < 0)
+                Heading += 360;
+        }
+        public string getHprFromQuaternionsToString()
+        {
+            StringBuilder strBuilder = new StringBuilder();
+            //call the function to convert the quaternions to heading, pitch and roll
+            Q2HPR(); 
+
+            return strBuilder.ToString();
+        }
+
         public string getAsciiString()
         {            
             //Quaternion_x is heading/yaw
@@ -87,6 +117,15 @@ namespace PacketTester
             return swapHexBytes(pitchStr) + ";" + swapHexBytes(rollStr) + ";" + swapHexBytes(yawStr);
 
         }
+        public string getCsvString()
+        {
+            StringBuilder strBuilder = new StringBuilder();
+            strBuilder.Append(String.Format("{0:F4},{1:F4},{2:F4},{3:F4},", Quaternion_x, Quaternion_y, Quaternion_z, Quaternion_w));
+            strBuilder.Append(String.Format("{0},{1},{2},", Magnetic_x, Magnetic_y, Magnetic_z));
+            strBuilder.Append(String.Format("{0},{1},{2},", Acceleration_x, Acceleration_y, Acceleration_z));
+            strBuilder.Append(String.Format("{0},{1},{2}\r\n", Rotation_x, Rotation_y, Rotation_z));
+            return strBuilder.ToString();
+        }
         public bool ParseImuFrame(RawPacket packet, byte expectedId)
         {
             bool retVal = false; 
@@ -101,18 +140,41 @@ namespace PacketTester
                         Quaternion_y = BitConverter.ToSingle(packet.Payload, 4 + 3);
                         Quaternion_z = BitConverter.ToSingle(packet.Payload, 8 + 3);
                         Quaternion_w = BitConverter.ToSingle(packet.Payload, 12 + 3);
-                        Magnetic_x = BitConverter.ToUInt16(packet.Payload, 16 + 3);
-                        Magnetic_y = BitConverter.ToUInt16(packet.Payload, 18 + 3);
-                        Magnetic_z = BitConverter.ToUInt16(packet.Payload, 20 + 3);
-                        Acceleration_x = BitConverter.ToUInt16(packet.Payload, 22 + 3);
-                        Acceleration_y = BitConverter.ToUInt16(packet.Payload, 24 + 3);
-                        Acceleration_z = BitConverter.ToUInt16(packet.Payload, 26 + 3);
-                        Rotation_x = BitConverter.ToUInt16(packet.Payload, 28 + 3);
-                        Rotation_y = BitConverter.ToUInt16(packet.Payload, 30 + 3);
-                        Rotation_z = BitConverter.ToUInt16(packet.Payload, 32 + 3);
+                        Magnetic_x = BitConverter.ToInt16(packet.Payload, 16 + 3);
+                        Magnetic_y = BitConverter.ToInt16(packet.Payload, 18 + 3);
+                        Magnetic_z = BitConverter.ToInt16(packet.Payload, 20 + 3);
+                        Acceleration_x = BitConverter.ToInt16(packet.Payload, 22 + 3);
+                        Acceleration_y = BitConverter.ToInt16(packet.Payload, 24 + 3);
+                        Acceleration_z = BitConverter.ToInt16(packet.Payload, 26 + 3);
+                        Rotation_x = BitConverter.ToInt16(packet.Payload, 28 + 3);
+                        Rotation_y = BitConverter.ToInt16(packet.Payload, 30 + 3);
+                        Rotation_z = BitConverter.ToInt16(packet.Payload, 32 + 3);
                         retVal = true;
                     }
                 }
+            }
+            return retVal;
+        }
+        public bool ParseDataFromFullFrame(RawPacket packet, int offset, int expectedId)
+        {
+            bool retVal = false;
+            if (packet.Payload[offset] == (byte) expectedId)
+            {
+                ImuId = packet.Payload[offset]; //this is the IMU ID
+                Quaternion_x = BitConverter.ToSingle(packet.Payload, offset + 0 + 1);   // 1 byte is for sensor Id
+                Quaternion_y = BitConverter.ToSingle(packet.Payload, offset + 4 + 1);
+                Quaternion_z = BitConverter.ToSingle(packet.Payload, offset + 8 + 1);
+                Quaternion_w = BitConverter.ToSingle(packet.Payload, offset + 12 + 1);
+                Magnetic_x = BitConverter.ToInt16(packet.Payload, offset + 16 + 1);
+                Magnetic_y = BitConverter.ToInt16(packet.Payload, offset + 18 + 1);
+                Magnetic_z = BitConverter.ToInt16(packet.Payload, offset + 20 + 1);
+                Acceleration_x = BitConverter.ToInt16(packet.Payload, offset + 22 + 1);
+                Acceleration_y = BitConverter.ToInt16(packet.Payload, offset + 24 + 1);
+                Acceleration_z = BitConverter.ToInt16(packet.Payload, offset + 26 + 1);
+                Rotation_x = BitConverter.ToInt16(packet.Payload, offset + 28 + 1);
+                Rotation_y = BitConverter.ToInt16(packet.Payload, offset + 30 + 1);
+                Rotation_z = BitConverter.ToInt16(packet.Payload, offset + 32 + 1);
+                retVal = true;
             }
             return retVal;
         }
@@ -125,6 +187,24 @@ namespace PacketTester
             strBuilder.Append(String.Format("Ax{0}:Ay{1}:Az{2}\r\n", Acceleration_x, Acceleration_y, Acceleration_z));
             strBuilder.Append(String.Format("Rx{0}:Ry{1}:Rz{2}\r\n", Rotation_x, Rotation_y, Rotation_z));
             return strBuilder.ToString();
+        }
+        public void serialize(ref MemoryStream serializerStream)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            serializerStream.Write(BitConverter.GetBytes(this.ImuId), 0, 1);
+            serializerStream.Write(BitConverter.GetBytes(this.Quaternion_x), 0, 4);
+            serializerStream.Write(BitConverter.GetBytes(this.Quaternion_y), 0, 4);
+            serializerStream.Write(BitConverter.GetBytes(this.Quaternion_z), 0, 4);
+            serializerStream.Write(BitConverter.GetBytes(this.Quaternion_w), 0, 4);
+            serializerStream.Write(BitConverter.GetBytes(this.Magnetic_x), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Magnetic_y), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Magnetic_z), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Acceleration_x), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Acceleration_y), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Acceleration_z), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Rotation_x), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Rotation_y), 0, 2);
+            serializerStream.Write(BitConverter.GetBytes(this.Rotation_z), 0, 2);
         }
 
 

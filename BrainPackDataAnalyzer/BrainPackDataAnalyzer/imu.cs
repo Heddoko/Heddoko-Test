@@ -89,8 +89,16 @@ namespace BrainPackDataAnalyzer
             }
             else
             {
-                //calculate the new interval
-                this.interval = timeStamp - this.lastEntryTime;
+                if(this.lastEntryTime > timeStamp)
+                {
+                    //calculate the new interval
+                    this.interval = this.lastEntryTime - timeStamp;
+                }
+                else
+                {
+                    this.interval = timeStamp - this.lastEntryTime;
+                }
+                
                 if (this.intervalAverage.Count == numAverages)
                 {
                     //dequeue the oldest value, and subtract it from
