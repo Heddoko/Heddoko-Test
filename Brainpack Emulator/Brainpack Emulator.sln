@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brainpack Emulator", "Brain
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsBPEmulator", "WindowsBPEmulator\WindowsBPEmulator.csproj", "{70261EB5-F9BF-47D3-9E50-E975AD9D62DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BpEmuMetroForms", "BpEmuMetroForms\BpEmuMetroForms.csproj", "{7C41A1BF-2B87-44D8-9A5B-5FD413243997}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{70261EB5-F9BF-47D3-9E50-E975AD9D62DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70261EB5-F9BF-47D3-9E50-E975AD9D62DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70261EB5-F9BF-47D3-9E50-E975AD9D62DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C41A1BF-2B87-44D8-9A5B-5FD413243997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C41A1BF-2B87-44D8-9A5B-5FD413243997}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C41A1BF-2B87-44D8-9A5B-5FD413243997}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C41A1BF-2B87-44D8-9A5B-5FD413243997}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

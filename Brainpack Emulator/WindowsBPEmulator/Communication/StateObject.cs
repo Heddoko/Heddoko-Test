@@ -12,6 +12,7 @@ namespace WindowsBPEmulator.Communication
 {
     public class StateObject
     {
+        public int BufferSize=1024;
         public byte[] Buffer;
         public  Socket Socket;
 

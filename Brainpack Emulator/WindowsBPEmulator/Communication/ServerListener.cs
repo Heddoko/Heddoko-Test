@@ -20,7 +20,7 @@ namespace WindowsBPEmulator.Communication
     public class ServerListener
     {
         private List<StateObject> mStateobjects = new List<StateObject>();
-        private ConsoleTextBlockController mConsoleTextBlockController;
+        public ConsoleTextBlockController mConsoleTextBlockController;
         private Socket mServerSocket;
         public int PortNumber = 8844;
         private int mBacklog = 10;
@@ -33,19 +33,19 @@ namespace WindowsBPEmulator.Communication
 
         private void UpdateUi(string vMsg)
         {
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, 
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background,
                 new Action(() => mConsoleTextBlockController.AddMsg(vMsg)));
-            
+
         }
         public bool StartServer()
         {
             UpdateUi("Starting Server");
-            IPHostEntry vLocalHost = System.Net.Dns.GetHostEntry("127.0.0.1");
+             IPAddress vIp = IPAddress.Parse("192.168.0.134");
             System.Net.IPEndPoint vServerEndPoint;
             try
             {
-                UpdateUi("  Server endpoint... "+ vLocalHost.AddressList[0]+":"+ PortNumber);
-                vServerEndPoint = new IPEndPoint(vLocalHost.AddressList[0], PortNumber);
+                UpdateUi("  Server endpoint.. " + vIp + ":" + PortNumber);
+                vServerEndPoint = new IPEndPoint(vIp, PortNumber);
             }
             catch (ArgumentOutOfRangeException vArgument)
             {
@@ -63,24 +63,20 @@ namespace WindowsBPEmulator.Communication
             {
                 UpdateUi("Binding sockets...");
                 mServerSocket.Bind(vServerEndPoint);
-                UpdateUi("Setting up backlog..."+mBacklog );
+                UpdateUi("Setting up backlog..." + mBacklog);
                 mServerSocket.Listen(mBacklog);
             }
             catch (Exception vException)
             {
-                UpdateUi("Error occured while binding socket, check inner exception "  + vException);
-
-              //  throw new ApplicationException("Error occured while binding socket, check inner exception", vException);
+                UpdateUi("Error occured while binding socket, check inner exception " + vException);
             }
             try
-            { 
+            {
                 mServerSocket.BeginAccept(new AsyncCallback(AcceptCallback), mServerSocket);
             }
             catch (Exception vE)
             {
                 UpdateUi("Error occured while binding socket, check inner exception " + vE);
-
-              //  throw new ApplicationException("Error occured starting listener, check inner exception", vE);
             }
             return true;
         }
@@ -119,7 +115,7 @@ namespace WindowsBPEmulator.Communication
 
         public bool Send(StateObject vConnection, byte[] vMsg)
         {
-            UpdateUi("Sending byte count+ "+vMsg.Length);
+            UpdateUi("Sending byte count+ " + vMsg.Length);
             if (vConnection != null && vConnection.Socket.Connected)
             {
                 lock (vConnection.Socket)
@@ -159,17 +155,20 @@ namespace WindowsBPEmulator.Communication
                 int vBytesRead = vIncomingConnection.Socket.EndReceive(vAr);
                 if (vBytesRead > 0)
                 {
-                    UpdateUi("received byte count+ " + vBytesRead);
+                    UpdateUi("received byte count: " + vBytesRead);
 
-                    //handle code here
-                    DataReceived?.Invoke(vIncomingConnection, vIncomingConnection.Buffer);
+                    byte[] vByteBuffer = new byte[vIncomingConnection.Buffer.Length];
+                    Array.Copy(vIncomingConnection.Buffer, vByteBuffer, vIncomingConnection.Buffer.Length);
+                    DataReceived?.Invoke(vIncomingConnection, vByteBuffer);
+                    vIncomingConnection.Buffer = new byte[1024];
                     vIncomingConnection.Socket.BeginReceive(vIncomingConnection.Buffer, 0,
                         vIncomingConnection.Buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback),
                         vIncomingConnection);
-                } 
+                }
             }
             catch (SocketException vE)
             {
+                UpdateUi("closing socket because of a SocketException " + vE);
                 CloseAndRemoveStateObject(vIncomingConnection);
 
             }

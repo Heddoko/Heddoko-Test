@@ -19,47 +19,63 @@ namespace WindowsBPEmulator.Communication
     /// <summary>
     /// Dispatches protobuff packets 
     /// </summary>
-    public class ProtobuffDispatch
+    public class ProtobuffDispatch : IDisposable
     {
 
         private ServerListener mListener;
         private ProtobuffDispatchRouter mDispatchRouter;
-        private StreamToRawPacketDecoder mDecoder;
+        private RawPacketDecoder mDecoder;
         private StateObject mCurrStateObject;
 
         public ProtobuffDispatch(ServerListener vListener)
         {
             mListener = vListener;
             mListener.DataReceived += FilterData;
-            mDecoder = new StreamToRawPacketDecoder(new MemoryStream());
+            mDecoder = new RawPacketDecoder();
+            mDecoder.PacketizationCompletedEvent += PacketizationCompleted;
             mDispatchRouter = new ProtobuffDispatchRouter();
             RegisterActions();
+            mDecoder.Start();
         }
 
         private void RegisterActions()
         {
             mDispatchRouter.Add(PacketType.UpdateFirmwareRequest, FirmwareUpdateRequest);
+            mDispatchRouter.Add(PacketType.StatusRequest, BrainpackStatusResponse);
+        }
+
+        private void BrainpackStatusResponse(object vSender, object vVargs)
+        {
+           // StateObject vObject = (StateObject) vSender;
+            Packet vPacket = new Packet();
+            vPacket.type = PacketType.StatusResponse;
+            vPacket.firmwareVersion = "1.1.2.3";
+            vPacket.serialNumber = "S0123";
+            MemoryStream vStream = new MemoryStream();
+            Serializer.Serialize(vStream, vPacket);
+            RawPacket vRawPacket = new RawPacket();
+
+            int vRawSize;
+            var vRawBytes = vRawPacket.GetRawPacketByteArray(out vRawSize, vStream);
+            mListener.Send(mCurrStateObject, vRawBytes);
         }
 
         private void FirmwareUpdateRequest(object vSender, object vArgs)
         {
             var vPacket = (Packet)vArgs;
-            var vStateObject = (StateObject)vSender; 
             var vEndpoint = vPacket.firmwareUpdate.fwEndpoint;
-            long vEndPointInLongForm = long.Parse(vEndpoint.address);
-            IPEndPoint vServerEndPoint = new IPEndPoint(vEndPointInLongForm, (int)vEndpoint.port);
-
+            IPAddress vAddress = IPAddress.Parse(vEndpoint.address);
+            IPEndPoint vServerEndPoint = new IPEndPoint(vAddress, (int)vEndpoint.port);
             FirmwareDownload vDownload = new FirmwareDownload();
-            vDownload.FirmwareReceived += OnCompletion;
-            vDownload.RequestFirmwareFromEndPoint(vServerEndPoint, "C:\\firmware.binerino"); 
+            vDownload.ConsoleTextBlockController = mListener.mConsoleTextBlockController;
+            vDownload.RequestFirmwareFromEndPoint(vServerEndPoint, vPacket.firmwareUpdate.fwFilename);
 
         }
 
         private void OnCompletion(object vSender, EventArgs vE)
         {
-             FirmwareDownload vDownload = (FirmwareDownload)vSender;
-            vDownload.FirmwareReceived -= OnCompletion;
-            Packet vPacket = new Packet();
+            FirmwareDownload vDownload = (FirmwareDownload)vSender;
+             Packet vPacket = new Packet();
 
             vPacket.type = PacketType.UpdatedFirmwareResponse;
             MemoryStream vStream = new MemoryStream();
@@ -68,7 +84,7 @@ namespace WindowsBPEmulator.Communication
 
             int vRawSize;
             var vRawBytes = vRawPacket.GetRawPacketByteArray(out vRawSize, vStream);
-            mListener.Send(mCurrStateObject,vRawBytes);
+            mListener.Send(mCurrStateObject, vRawBytes);
         }
 
         /// <summary>
@@ -79,11 +95,8 @@ namespace WindowsBPEmulator.Communication
         private void FilterData(object vSender, byte[] vReceivedBytes)
         {
             mCurrStateObject = (StateObject)vSender;
-            MemoryStream vStream = new MemoryStream();
-            vStream.Write(vReceivedBytes, 0, vReceivedBytes.Length);
-            vStream.Seek(0, SeekOrigin.Begin);
-            mDecoder.Stream = vStream;
-            mDecoder.StartPacketizeStream(PacketizationCompleted, ExceptionHandler);
+            mDecoder.EnqueueRawBytes(vReceivedBytes);
+
         }
 
         /// <summary>
@@ -100,7 +113,7 @@ namespace WindowsBPEmulator.Communication
         /// </summary>
         private void PacketizationCompleted()
         {
-            RawPacket vRawPacket = mDecoder.OutputBuffer.Dequeue();
+            RawPacket vRawPacket = mDecoder.ConvertedPackets.Dequeue();
 
             if (vRawPacket.Payload[0] == 0x04)
             {
@@ -115,5 +128,10 @@ namespace WindowsBPEmulator.Communication
         }
 
 
+        public void Dispose()
+        {
+            mDecoder.PacketizationCompletedEvent -= PacketizationCompleted;
+
+        }
     }
 }
