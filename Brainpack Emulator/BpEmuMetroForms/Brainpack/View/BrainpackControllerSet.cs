@@ -7,10 +7,9 @@
 // */
 
 using System.Collections.Generic;
-using System.Linq;
 using MetroFramework.Controls;
 
-namespace BpEmuMetroForms.Brainpack
+namespace BpEmuMetroForms.Brainpack.View
 {
     /// <summary>
     /// a set of unique brainpacks and their associated tiles
@@ -75,4 +74,4 @@ namespace BpEmuMetroForms.Brainpack
 
         }
     }
-}
+} 

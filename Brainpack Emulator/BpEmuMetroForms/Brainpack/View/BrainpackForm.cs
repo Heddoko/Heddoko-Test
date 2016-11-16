@@ -26,7 +26,7 @@ namespace BpEmuMetroForms.Brainpack
             InitializeComponent();
             this.FormClosing += BrainpackFormClosing;
             BrainpackModel vModel = new BrainpackModel();
-            BrainpackController   = new BrainpackController(vModel);
+            BrainpackController = new BrainpackController(vModel);
         }
 
         public BrainpackForm(BrainpackController vController, string vTitle)
@@ -40,8 +40,22 @@ namespace BpEmuMetroForms.Brainpack
             ComboBoxMajorVersion.Text = BrainpackController.Model.FirmwareVersion.Major.ToString();
             ComboBoxBuild.Text = BrainpackController.Model.FirmwareVersion.Build.ToString();
             ComboBoxRevision.Text = BrainpackController.Model.FirmwareVersion.Revision.ToString();
-            ConfigurationPortInputField.Text = BrainpackController.Model.ConfigurationPort.ToString(); 
+            ConfigurationPortInputField.Text = BrainpackController.Model.ConfigurationPort.ToString();
+            advertisingTickRateInputField.KeyPress += AdvertisingTickRateInputField_KeyPress;
+            metroTextBox1.KeyPress += MetroTextBox1_KeyPress;
             this.FormClosing += BrainpackFormClosing;
+        }
+
+        private void MetroTextBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+
+        }
+
+        private void AdvertisingTickRateInputField_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+
         }
 
         void BrainpackFormClosing(object vSender, FormClosingEventArgs vE)
@@ -126,7 +140,7 @@ namespace BpEmuMetroForms.Brainpack
             }
             if (BrainpackValidation != null)
             {
-                var vBpExists = BrainpackValidation(BrainpackController );
+                var vBpExists = BrainpackValidation(BrainpackController);
                 if (vBpExists)
                 {
                     SerialNumberErrorLabel.Text = "BRAINPACK ALREADY EXISTS. CHOOSE ANOTHER";
@@ -134,6 +148,25 @@ namespace BpEmuMetroForms.Brainpack
                     return;
                 }
             }
+
+            int advertisingTickRateInputFieldValue = 5000;
+            int concernReportTickRate = 5000;
+            int.TryParse(advertisingTickRateInputField.Text, out advertisingTickRateInputFieldValue);
+            int.TryParse(metroTextBox1.Text, out concernReportTickRate);
+            if (concernReportTickRate < 200)
+            {
+                concernReportTickRate = 200;
+            }
+            if (advertisingTickRateInputFieldValue < 200)
+            {
+                advertisingTickRateInputFieldValue = 200;
+            }
+
+            BrainpackController.Model.AdvertisingTickRate = advertisingTickRateInputFieldValue;
+            BrainpackController.Model.ConcernReportTickRate = concernReportTickRate;
+            advertisingTickRateInputField.Text = advertisingTickRateInputFieldValue.ToString();
+            metroTextBox1.Text = concernReportTickRate.ToString();
+
 
             if (ConfigurationPortValidation != null)
             {
@@ -211,12 +244,21 @@ namespace BpEmuMetroForms.Brainpack
             }
             catch (Exception ve)
             {
-                
-              
+
+
             }
-          
+
         }
 
+        private void advertisingTickRateInputField_Click(object sender, EventArgs e)
+        {
 
+
+        }
+
+        private void metroTextBox1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

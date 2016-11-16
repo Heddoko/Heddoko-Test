@@ -36,16 +36,16 @@
       <HintPath>E:\Code\Heddoko3D\HeddokoLib\HeddokoLib\bin\Debug\HeddokoLib.dll</HintPath>
     </Reference>
     <Reference Include="MetroFramework, Version=1.4.0.0, Culture=neutral, PublicKeyToken=5f91a84759bf584a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MetroModernUI.1.4.0.0\lib\net\MetroFramework.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="MetroFramework.Design, Version=1.4.0.0, Culture=neutral, PublicKeyToken=5f91a84759bf584a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MetroModernUI.1.4.0.0\lib\net\MetroFramework.Design.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="MetroFramework.Fonts, Version=1.4.0.0, Culture=neutral, PublicKeyToken=5f91a84759bf584a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MetroModernUI.1.4.0.0\lib\net\MetroFramework.Fonts.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net">
       <HintPath>E:\Code\Heddoko3D\HeddokoLib\HeddokoLib\bin\Debug\protobuf-net.dll</HintPath>
@@ -68,6 +68,9 @@
   <ItemGroup>
     <Compile Include="BrainpackTileClickedEventArgs.cs" />
     <Compile Include="Brainpack\BrainpackController.cs" />
+    <Compile Include="Brainpack\Communication\FileStreamer.cs" />
+    <Compile Include="Brainpack\Communication\UdpConnectionSend.cs" />
+    <Compile Include="Brainpack\RandomPathGiver.cs" />
     <Compile Include="Brainpack\View\BrainpackControllerSet.cs" />
     <Compile Include="Brainpack\View\BrainpackControls.cs">
       <SubType>UserControl</SubType>

@@ -9,20 +9,23 @@
 using System;
 using System.IO;
 using System.Net;
-using BpEmuMetroForms.Brainpack.Communication;
+using WindowsBPEmulator.Communication;
 using heddoko;
 using HeddokoLib.heddokoProtobuff.Decoder;
 using ProtoBuf;
 
-
-namespace WindowsBPEmulator.Communication
+namespace BpEmuMetroForms.Brainpack.Communication
 {
+    public delegate void DataStreamRequestStart(Packet vPacket);
+
+    public delegate void DataStreamRequestEnd(Packet vPacket);
     /// <summary>
     /// Dispatches protobuff packets 
     /// </summary>
     public class ProtobuffDispatch : IDisposable
     {
-
+        public event DataStreamRequestEnd DataStreamRequestEndEvent;
+        public event DataStreamRequestStart DataStreamRequestStartEvent;
         private ServerListener mListener;
         private ProtobuffDispatchRouter mDispatchRouter;
         private RawPacketDecoder mDecoder;
@@ -44,16 +47,39 @@ namespace WindowsBPEmulator.Communication
             mDispatchRouter.Add(PacketType.UpdateFirmwareRequest, FirmwareUpdateRequest);
             mDispatchRouter.Add(PacketType.StatusRequest, BrainpackStatusResponse);
             mDispatchRouter.Add(PacketType.StartDataStream, StartDataStream);
+            mDispatchRouter.Add(PacketType.StopDataStream, StopDataStream);
         }
 
-        private void StartDataStream(object vVsender, object vVargs)
+        /// <summary>
+        /// request to stop data stream
+        /// </summary>
+        /// <param name="vSender"></param>
+        /// <param name="vArgs"></param>
+        private void StopDataStream(object vSender, object vArgs)
         {
-            
+            Packet vPacket = (Packet) vArgs;
+            if (DataStreamRequestEndEvent!= null)
+            {
+                DataStreamRequestEndEvent(vPacket);
+            }
         }
 
-        private void BrainpackStatusResponse(object vSender, object vVargs)
+        /// <summary>
+        /// Request to start the data stream
+        /// </summary>
+        /// <param name="vSender"></param>
+        /// <param name="vArgs"></param>
+        private void StartDataStream(object vSender, object vArgs)
         {
-           // StateObject vObject = (StateObject) vSender;
+            Packet vPacket = (Packet)vArgs;
+            if (DataStreamRequestStartEvent != null)
+            {
+                DataStreamRequestStartEvent(vPacket);
+            }
+        }
+
+        private void BrainpackStatusResponse(object vSender, object vArgs)
+        {
             Packet vPacket = new Packet();
             vPacket.type = PacketType.StatusResponse;
             vPacket.firmwareVersion = "1.1.2.3";
@@ -74,14 +100,14 @@ namespace WindowsBPEmulator.Communication
             IPAddress vAddress = IPAddress.Parse(vEndpoint.address);
             IPEndPoint vServerEndPoint = new IPEndPoint(vAddress, (int)vEndpoint.port);
             FirmwareDownload vDownload = new FirmwareDownload();
-             vDownload.RequestFirmwareFromEndPoint(vServerEndPoint, vPacket.firmwareUpdate.fwFilename);
+            vDownload.RequestFirmwareFromEndPoint(vServerEndPoint, vPacket.firmwareUpdate.fwFilename);
 
         }
 
         private void OnCompletion(object vSender, EventArgs vE)
         {
             FirmwareDownload vDownload = (FirmwareDownload)vSender;
-             Packet vPacket = new Packet();
+            Packet vPacket = new Packet();
 
             vPacket.type = PacketType.UpdatedFirmwareResponse;
             MemoryStream vStream = new MemoryStream();
@@ -102,7 +128,6 @@ namespace WindowsBPEmulator.Communication
         {
             mCurrStateObject = (StateObject)vSender;
             mDecoder.EnqueueRawBytes(vReceivedBytes);
-
         }
 
         /// <summary>
@@ -129,7 +154,20 @@ namespace WindowsBPEmulator.Communication
                 vMemoryStream.Write(vRawPacket.Payload, 1, (int)vRawPacket.PayloadSize - 1);
                 vMemoryStream.Seek(0, SeekOrigin.Begin);
                 Packet vProtoPacket = Serializer.Deserialize<Packet>(vMemoryStream);
-                mDispatchRouter.Process(vProtoPacket.type, this, vProtoPacket);
+                try
+                {
+                    mDispatchRouter.Process(vProtoPacket.type, this, vProtoPacket);
+                }
+                catch (Exception vE)
+                {
+                    string vMsg = vE.Message;
+                    if (vE.InnerException != null)
+                    {
+                        vMsg += vE.InnerException.Message;
+                    }
+                    Console.WriteLine(vMsg);
+                }
+              
             }
         }
 

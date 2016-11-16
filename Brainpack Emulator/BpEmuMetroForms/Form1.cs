@@ -8,6 +8,8 @@ using MetroFramework.Controls;
 using MetroFramework.Forms;
 using System.Collections.Generic;
 using System.Linq;
+using BpEmuMetroForms.Brainpack.View;
+using heddoko;
 
 namespace BpEmuMetroForms
 {
@@ -57,6 +59,7 @@ namespace BpEmuMetroForms
             }
             mCurrentTile = (MetroTile)vSender;
             BrainpackController vController = mControllers.GetController(mCurrentTile.Text);
+          
             vController.ShowView();
             //for (int vI = 0; vI < 9; vI++)
             //{

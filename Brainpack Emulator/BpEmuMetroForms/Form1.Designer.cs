@@ -42,7 +42,7 @@
             this.BrainpackTileFlowParent.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.BrainpackTileFlowParent.Location = new System.Drawing.Point(23, 149);
             this.BrainpackTileFlowParent.Name = "BrainpackTileFlowParent";
-            this.BrainpackTileFlowParent.Size = new System.Drawing.Size(280, 291);
+            this.BrainpackTileFlowParent.Size = new System.Drawing.Size(280, 442);
             this.BrainpackTileFlowParent.TabIndex = 2;
             // 
             // metroTile1
@@ -69,7 +69,7 @@
             this.ParentGrid.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.ParentGrid.Location = new System.Drawing.Point(323, 149);
             this.ParentGrid.Name = "ParentGrid";
-            this.ParentGrid.Size = new System.Drawing.Size(466, 291);
+            this.ParentGrid.Size = new System.Drawing.Size(710, 442);
             this.ParentGrid.TabIndex = 3;
             // 
             // stateBindingSource

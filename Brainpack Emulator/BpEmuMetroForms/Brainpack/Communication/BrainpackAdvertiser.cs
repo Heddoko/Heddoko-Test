@@ -7,17 +7,13 @@
 // */
 
 
-using System;
 using System.IO;
 using System.Timers;
-using System.Windows;
-using BpEmuMetroForms.Brainpack;
-using BpEmuMetroForms.Brainpack.Communication;
 using heddoko;
 using HeddokoLib.heddokoProtobuff.Decoder;
 using ProtoBuf;
 
-namespace WindowsBPEmulator.Communication
+namespace BpEmuMetroForms.Brainpack.Communication
 {
     /// <summary>
     /// Sends out an advertising packet over udp, indicating that the brainpack is online and how to connect to its control port
@@ -38,17 +34,18 @@ namespace WindowsBPEmulator.Communication
         {
             mModel = vModel;
         }
-        public void StartAdvertising(double vHeartbeatInterval, int vPort = 6668)
+        public void StartAdvertising(int vPort = 6668)
         {
             if (mBroadcaster == null)
             {
                 mBroadcaster = new Broadcast();
             }
             mBroadcaster.SetupSocket(vPort);
-            mTimer = new Timer(vHeartbeatInterval);
+            mTimer = new Timer(mModel.AdvertisingTickRate);
             mTimer.AutoReset = true;
             mTimer.Elapsed += OnTimerElapsed;
             mTimer.Start();
+
         }
 
         private void OnTimerElapsed(object vSender, ElapsedEventArgs vE)
@@ -76,6 +73,14 @@ namespace WindowsBPEmulator.Communication
             mTimer.Stop();
             mTimer.Dispose();
             mBroadcaster.CloseSocket();
+        }
+
+        public void SetTickRate(int vAdvertisingTickRate)
+        {
+            if (mTimer != null)
+            {
+                mTimer.Interval = vAdvertisingTickRate;
+            }
         }
     }
 }

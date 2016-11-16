@@ -44,6 +44,10 @@
             this.ConfigPortErrorLabel = new MetroFramework.Controls.MetroLabel();
             this.SerialNumberErrorLabel = new MetroFramework.Controls.MetroLabel();
             this.FirmwareVersionLabel = new MetroFramework.Controls.MetroLabel();
+            this.metroLabel5 = new MetroFramework.Controls.MetroLabel();
+            this.advertisingTickRateInputField = new MetroFramework.Controls.MetroTextBox();
+            this.metroLabel6 = new MetroFramework.Controls.MetroLabel();
+            this.metroTextBox1 = new MetroFramework.Controls.MetroTextBox();
             this.SuspendLayout();
             // 
             // metroLabel1
@@ -239,7 +243,7 @@
             // 
             // SaveButton
             // 
-            this.SaveButton.Location = new System.Drawing.Point(320, 273);
+            this.SaveButton.Location = new System.Drawing.Point(625, 287);
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(111, 23);
             this.SaveButton.TabIndex = 11;
@@ -280,11 +284,95 @@
             this.FirmwareVersionLabel.TabIndex = 14;
             this.FirmwareVersionLabel.UseStyleColors = true;
             // 
+            // metroLabel5
+            // 
+            this.metroLabel5.AutoSize = true;
+            this.metroLabel5.Location = new System.Drawing.Point(24, 232);
+            this.metroLabel5.Name = "metroLabel5";
+            this.metroLabel5.Size = new System.Drawing.Size(156, 19);
+            this.metroLabel5.TabIndex = 15;
+            this.metroLabel5.Text = "Advertising Tick Rate(ms)";
+            // 
+            // advertisingTickRateInputField
+            // 
+            // 
+            // 
+            // 
+            this.advertisingTickRateInputField.CustomButton.Image = null;
+            this.advertisingTickRateInputField.CustomButton.Location = new System.Drawing.Point(75, 1);
+            this.advertisingTickRateInputField.CustomButton.Name = "";
+            this.advertisingTickRateInputField.CustomButton.Size = new System.Drawing.Size(21, 21);
+            this.advertisingTickRateInputField.CustomButton.Style = MetroFramework.MetroColorStyle.Blue;
+            this.advertisingTickRateInputField.CustomButton.TabIndex = 1;
+            this.advertisingTickRateInputField.CustomButton.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.advertisingTickRateInputField.CustomButton.UseSelectable = true;
+            this.advertisingTickRateInputField.CustomButton.Visible = false;
+            this.advertisingTickRateInputField.Lines = new string[0];
+            this.advertisingTickRateInputField.Location = new System.Drawing.Point(186, 232);
+            this.advertisingTickRateInputField.MaxLength = 32767;
+            this.advertisingTickRateInputField.Name = "advertisingTickRateInputField";
+            this.advertisingTickRateInputField.PasswordChar = '\0';
+            this.advertisingTickRateInputField.ScrollBars = System.Windows.Forms.ScrollBars.None;
+            this.advertisingTickRateInputField.SelectedText = "";
+            this.advertisingTickRateInputField.SelectionLength = 0;
+            this.advertisingTickRateInputField.SelectionStart = 0;
+            this.advertisingTickRateInputField.ShortcutsEnabled = true;
+            this.advertisingTickRateInputField.Size = new System.Drawing.Size(97, 23);
+            this.advertisingTickRateInputField.TabIndex = 16;
+            this.advertisingTickRateInputField.UseSelectable = true;
+            this.advertisingTickRateInputField.WaterMarkColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
+            this.advertisingTickRateInputField.WaterMarkFont = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Pixel);
+            this.advertisingTickRateInputField.Click += new System.EventHandler(this.advertisingTickRateInputField_Click);
+            // 
+            // metroLabel6
+            // 
+            this.metroLabel6.AutoSize = true;
+            this.metroLabel6.Location = new System.Drawing.Point(24, 261);
+            this.metroLabel6.Name = "metroLabel6";
+            this.metroLabel6.Size = new System.Drawing.Size(159, 19);
+            this.metroLabel6.TabIndex = 17;
+            this.metroLabel6.Text = "Concern Report Tick Rate";
+            // 
+            // metroTextBox1
+            // 
+            // 
+            // 
+            // 
+            this.metroTextBox1.CustomButton.Image = null;
+            this.metroTextBox1.CustomButton.Location = new System.Drawing.Point(75, 1);
+            this.metroTextBox1.CustomButton.Name = "";
+            this.metroTextBox1.CustomButton.Size = new System.Drawing.Size(21, 21);
+            this.metroTextBox1.CustomButton.Style = MetroFramework.MetroColorStyle.Blue;
+            this.metroTextBox1.CustomButton.TabIndex = 1;
+            this.metroTextBox1.CustomButton.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.metroTextBox1.CustomButton.UseSelectable = true;
+            this.metroTextBox1.CustomButton.Visible = false;
+            this.metroTextBox1.Lines = new string[0];
+            this.metroTextBox1.Location = new System.Drawing.Point(186, 261);
+            this.metroTextBox1.MaxLength = 32767;
+            this.metroTextBox1.Name = "metroTextBox1";
+            this.metroTextBox1.PasswordChar = '\0';
+            this.metroTextBox1.ScrollBars = System.Windows.Forms.ScrollBars.None;
+            this.metroTextBox1.SelectedText = "";
+            this.metroTextBox1.SelectionLength = 0;
+            this.metroTextBox1.SelectionStart = 0;
+            this.metroTextBox1.ShortcutsEnabled = true;
+            this.metroTextBox1.Size = new System.Drawing.Size(97, 23);
+            this.metroTextBox1.TabIndex = 18;
+            this.metroTextBox1.UseSelectable = true;
+            this.metroTextBox1.WaterMarkColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
+            this.metroTextBox1.WaterMarkFont = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Pixel);
+            this.metroTextBox1.Click += new System.EventHandler(this.metroTextBox1_Click);
+            // 
             // BrainpackForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(773, 319);
+            this.Controls.Add(this.metroTextBox1);
+            this.Controls.Add(this.metroLabel6);
+            this.Controls.Add(this.advertisingTickRateInputField);
+            this.Controls.Add(this.metroLabel5);
             this.Controls.Add(this.FirmwareVersionLabel);
             this.Controls.Add(this.SerialNumberErrorLabel);
             this.Controls.Add(this.ConfigPortErrorLabel);
@@ -324,5 +412,9 @@
         private MetroFramework.Controls.MetroLabel ConfigPortErrorLabel;
         private MetroFramework.Controls.MetroLabel SerialNumberErrorLabel;
         private MetroFramework.Controls.MetroLabel FirmwareVersionLabel;
+        private MetroFramework.Controls.MetroLabel metroLabel5;
+        private MetroFramework.Controls.MetroTextBox advertisingTickRateInputField;
+        private MetroFramework.Controls.MetroLabel metroLabel6;
+        private MetroFramework.Controls.MetroTextBox metroTextBox1;
     }
 }

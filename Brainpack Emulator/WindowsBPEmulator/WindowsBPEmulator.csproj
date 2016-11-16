@@ -88,6 +88,7 @@
     <Compile Include="BrainpackModel.cs" />
     <Compile Include="Communication\Broadcast.cs" />
     <Compile Include="Communication\Client.cs" />
+    <Compile Include="Communication\FileStreamer.cs" />
     <Compile Include="Communication\FirmwareDownload.cs" />
     <Compile Include="Communication\BrainpackAdvertiser.cs" />
     <Compile Include="Communication\ProtobuffDispatch.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Communication\Sender.cs" />
     <Compile Include="Communication\ServerListener.cs" />
     <Compile Include="Communication\StateObject.cs" />
+    <Compile Include="Communication\UdpConnectionSend.cs" />
     <Compile Include="Controller\ConsoleTextBlockController.cs" />
     <Compile Include="Controls\MultiFrameImage.cs" />
     <Compile Include="MainWindow.xaml.cs">

@@ -12,15 +12,43 @@ using System.IO;
 
 namespace BpEmuMetroForms.Brainpack
 {
-    public class BrainpackModel: IEqualityComparer
+    public delegate void ModelChangedEvent(BrainpackModel brainpackModel);
+    public class BrainpackModel : IEqualityComparer
     {
-       public string SerialNum { get; set; }  
+        public string SerialNum { get; set; }
         public Version FirmwareVersion { get; set; }
         public int ConfigurationPort { get; set; }
+
+        private int mAdvertisingTickRate;
+        private int mConcernReportTickRate;
+        public int AdvertisingTickRate
+        {
+            get
+            {
+                return mAdvertisingTickRate;
+            }
+            set
+            {
+                mAdvertisingTickRate = value;
+                ModelChangedEvent?.Invoke(this);
+            }
+        }
+
+        public int ConcernReportTickRate
+        {
+            get { return mConcernReportTickRate; }
+            set
+            {
+                mConcernReportTickRate = value;
+                ModelChangedEvent?.Invoke(this);
+            }
+        }
+
         public FileInfo FirmwarePath;
+        public FileInfo RecordingFile;
         public Sensor[] Sensors = new Sensor[9];
         public int UdpTransmitPort;
-        
+        public event ModelChangedEvent ModelChangedEvent;
         public BrainpackModel()
         {
             for (int i = 0; i < Sensors.Length; i++)
@@ -39,12 +67,12 @@ namespace BpEmuMetroForms.Brainpack
             {
                 return false;
             }
-            if (vX.GetType() != typeof (BrainpackModel) || vY.GetType() != typeof (BrainpackModel))
+            if (vX.GetType() != typeof(BrainpackModel) || vY.GetType() != typeof(BrainpackModel))
             {
                 return false;
             }
-            BrainpackModel vModelX = (BrainpackModel) vX;
-            BrainpackModel vModelY = (BrainpackModel) vY;
+            BrainpackModel vModelX = (BrainpackModel)vX;
+            BrainpackModel vModelY = (BrainpackModel)vY;
             return vModelY.SerialNum.Equals(vModelX.SerialNum);
         }
 

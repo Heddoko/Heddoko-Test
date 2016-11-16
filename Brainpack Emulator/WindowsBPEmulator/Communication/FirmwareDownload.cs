@@ -35,17 +35,17 @@ namespace WindowsBPEmulator.Communication
             var transfer = client.Download(vFileName);
             transfer.OnFinished += new TftpEventHandler(OnFinishedEvent);
             //Start the transfer and write the data that we're downloading into a memory stream
-            FileStream stream = new FileStream("C:\\downl\\firmware.bin", FileMode.CreateNew);
+            FileStream vStreamer = new FileStream("C:\\downl\\firmware.bin", FileMode.CreateNew);
             vwatch.Start();
             UpdateUi("Starting Firmware file transfer");
-            transfer.Start(stream);
+            transfer.Start(vStreamer);
             TransferFinishedEvent.WaitOne();
             FileInfo vInfo = new FileInfo("C:\\downl\\firmware.bin");
             long vLength= vInfo.Length;
           
             vwatch.Stop();
             UpdateUi("finished file transfer of "+ vLength + " bytes in "+ (vwatch.ElapsedMilliseconds  /1000.0) + "seconds");
-            stream.Close();
+            vStreamer.Close();
 
           
         }

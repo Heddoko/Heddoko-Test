@@ -26,6 +26,7 @@ namespace WindowsBPEmulator.Communication
         private ProtobuffDispatchRouter mDispatchRouter;
         private RawPacketDecoder mDecoder;
         private StateObject mCurrStateObject;
+        private UdpConnectionSend mUdpConnection;
 
         public ProtobuffDispatch(ServerListener vListener)
         {
@@ -42,8 +43,29 @@ namespace WindowsBPEmulator.Communication
         {
             mDispatchRouter.Add(PacketType.UpdateFirmwareRequest, FirmwareUpdateRequest);
             mDispatchRouter.Add(PacketType.StatusRequest, BrainpackStatusResponse);
+            mDispatchRouter.Add(PacketType.StartDataStream, StartDataStream);
+            mDispatchRouter.Add(PacketType.StopDataStream, StopDataStream);
         }
 
+        /// <summary>
+        /// request to stop data stream
+        /// </summary>
+        /// <param name="vSender"></param>
+        /// <param name="vArgs"></param>
+        private void StopDataStream(object vSender, object vArgs)
+        {
+
+        }
+
+        /// <summary>
+        /// Request to start the data stream
+        /// </summary>
+        /// <param name="vSender"></param>
+        /// <param name="vArgs"></param>
+        private void StartDataStream(object vSender, object vArgs)
+        {
+
+        }
         private void BrainpackStatusResponse(object vSender, object vVargs)
         {
            // StateObject vObject = (StateObject) vSender;
