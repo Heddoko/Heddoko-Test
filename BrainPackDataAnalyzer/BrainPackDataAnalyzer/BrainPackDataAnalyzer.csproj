@@ -69,6 +69,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BrainpackControllerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BrainpackControllerForm.Designer.cs">
+      <DependentUpon>BrainpackControllerForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="CRC_Calculator.cs" />
     <Compile Include="CSVDataAdapter.cs" />
     <Compile Include="heddokoPacket.cs" />
@@ -83,6 +89,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RawPacket.cs" />
+    <EmbeddedResource Include="BrainpackControllerForm.resx">
+      <DependentUpon>BrainpackControllerForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="mainForm.resx">
       <DependentUpon>mainForm.cs</DependentUpon>
     </EmbeddedResource>

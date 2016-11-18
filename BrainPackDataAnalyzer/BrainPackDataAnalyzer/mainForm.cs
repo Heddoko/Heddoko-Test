@@ -1512,7 +1512,7 @@ namespace BrainPackDataAnalyzer
                         //process the byte
                         for (int i = 0; i < receivedBytes.Length; i++)
                         {
-                            byte newByte = receivedBytes[i];
+                            
                             int bytesReceived = packet.BytesReceived + 1;
                             PacketStatus status = packet.processByte(receivedBytes[i]);
                             switch (status)
@@ -1561,6 +1561,19 @@ namespace BrainPackDataAnalyzer
             {
                 EnableSocketQueue = false; 
             }
+        }
+
+        private void btn_connectSocket_Click(object sender, EventArgs e)
+        {
+            //open brainpack control form. 
+
+        }
+
+        private void btn_configureBrainpack_Click(object sender, EventArgs e)
+        {
+            BrainpackControllerForm bpCfgForm = new BrainpackControllerForm();
+            bpCfgForm.Show(); 
+
         }
     }
 }

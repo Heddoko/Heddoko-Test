@@ -41,7 +41,6 @@
             this.btn_SendCmd = new System.Windows.Forms.Button();
             this.btn_Analyze = new System.Windows.Forms.Button();
             this.ofd_AnalyzeFile = new System.Windows.Forms.OpenFileDialog();
-            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.tb_Console = new System.Windows.Forms.TextBox();
             this.sfd_ConvertedFile = new System.Windows.Forms.SaveFileDialog();
             this.btn_EncryptSettings = new System.Windows.Forms.Button();
@@ -78,19 +77,17 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.cb_protobuf = new System.Windows.Forms.CheckBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.btn_disconnectSock = new System.Windows.Forms.Button();
             this.cb_udpListenner = new System.Windows.Forms.CheckBox();
-            this.mtb_NetAddress = new System.Windows.Forms.MaskedTextBox();
-            this.mtb_netPort = new System.Windows.Forms.MaskedTextBox();
-            this.btn_connectSocket = new System.Windows.Forms.Button();
             this.mtb_udpPort = new System.Windows.Forms.MaskedTextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
+            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
+            this.btn_configureBrainpack = new System.Windows.Forms.Button();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_SelectedImu)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_SensorStats)).BeginInit();
             this.tabControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.SuspendLayout();
             // 
             // serialPort
@@ -523,15 +520,6 @@
             this.checkBox1.Text = "batch";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
-            // btn_disconnectSock
-            // 
-            this.btn_disconnectSock.Location = new System.Drawing.Point(299, 377);
-            this.btn_disconnectSock.Name = "btn_disconnectSock";
-            this.btn_disconnectSock.Size = new System.Drawing.Size(105, 23);
-            this.btn_disconnectSock.TabIndex = 47;
-            this.btn_disconnectSock.Text = "Disconnect Sock";
-            this.btn_disconnectSock.UseVisualStyleBackColor = true;
-            // 
             // cb_udpListenner
             // 
             this.cb_udpListenner.AutoSize = true;
@@ -543,31 +531,6 @@
             this.cb_udpListenner.UseVisualStyleBackColor = true;
             this.cb_udpListenner.CheckedChanged += new System.EventHandler(this.cb_udpListenner_CheckedChanged);
             // 
-            // mtb_NetAddress
-            // 
-            this.mtb_NetAddress.Location = new System.Drawing.Point(182, 352);
-            this.mtb_NetAddress.Name = "mtb_NetAddress";
-            this.mtb_NetAddress.Size = new System.Drawing.Size(100, 20);
-            this.mtb_NetAddress.TabIndex = 44;
-            this.mtb_NetAddress.Text = "192.168.2.1";
-            // 
-            // mtb_netPort
-            // 
-            this.mtb_netPort.Location = new System.Drawing.Point(182, 381);
-            this.mtb_netPort.Name = "mtb_netPort";
-            this.mtb_netPort.Size = new System.Drawing.Size(100, 20);
-            this.mtb_netPort.TabIndex = 45;
-            this.mtb_netPort.Text = "6666";
-            // 
-            // btn_connectSocket
-            // 
-            this.btn_connectSocket.Location = new System.Drawing.Point(299, 350);
-            this.btn_connectSocket.Name = "btn_connectSocket";
-            this.btn_connectSocket.Size = new System.Drawing.Size(105, 23);
-            this.btn_connectSocket.TabIndex = 46;
-            this.btn_connectSocket.Text = "Connect Socket";
-            this.btn_connectSocket.UseVisualStyleBackColor = true;
-            // 
             // mtb_udpPort
             // 
             this.mtb_udpPort.Location = new System.Drawing.Point(485, 356);
@@ -576,17 +539,24 @@
             this.mtb_udpPort.TabIndex = 49;
             this.mtb_udpPort.Text = "6666";
             // 
+            // btn_configureBrainpack
+            // 
+            this.btn_configureBrainpack.Location = new System.Drawing.Point(299, 356);
+            this.btn_configureBrainpack.Name = "btn_configureBrainpack";
+            this.btn_configureBrainpack.Size = new System.Drawing.Size(149, 23);
+            this.btn_configureBrainpack.TabIndex = 50;
+            this.btn_configureBrainpack.Text = "Configure Brainpack";
+            this.btn_configureBrainpack.UseVisualStyleBackColor = true;
+            this.btn_configureBrainpack.Click += new System.EventHandler(this.btn_configureBrainpack_Click);
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1064, 856);
+            this.Controls.Add(this.btn_configureBrainpack);
             this.Controls.Add(this.mtb_udpPort);
-            this.Controls.Add(this.btn_disconnectSock);
             this.Controls.Add(this.cb_udpListenner);
-            this.Controls.Add(this.mtb_NetAddress);
-            this.Controls.Add(this.mtb_netPort);
-            this.Controls.Add(this.btn_connectSocket);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.cb_protobuf);
             this.Controls.Add(this.label2);
@@ -623,7 +593,6 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.mainForm_FormClosing);
             this.Load += new System.EventHandler(this.mainForm_Load);
             this.DoubleClick += new System.EventHandler(this.mainForm_DoubleClick);
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_SelectedImu)).EndInit();
@@ -631,6 +600,7 @@
             this.tabPage1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgv_SensorStats)).EndInit();
             this.tabControl1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -682,12 +652,9 @@
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.CheckBox cb_protobuf;
         private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.Button btn_disconnectSock;
         private System.Windows.Forms.CheckBox cb_udpListenner;
-        private System.Windows.Forms.MaskedTextBox mtb_NetAddress;
-        private System.Windows.Forms.MaskedTextBox mtb_netPort;
-        private System.Windows.Forms.Button btn_connectSocket;
         private System.Windows.Forms.MaskedTextBox mtb_udpPort;
+        private System.Windows.Forms.Button btn_configureBrainpack;
     }
 }
 

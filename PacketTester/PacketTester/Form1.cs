@@ -32,7 +32,10 @@ namespace PacketTester
         private bool streamDataToChartEnabled = false;
         private bool saveSensorDataToFile = false;
         private string saveSensorDataFilename = "";
-        private FileStream outputFileStream; 
+        private FileStream outputFileStream;
+
+        //sensor board parameters
+        bool setSensorIdFlag = false; 
 
         enum OutputType { legacyFrame, QuaternionFrame, protoBufFrame, individualSensorFiles};
         OutputType streamOutputType = OutputType.protoBufFrame; 
@@ -556,7 +559,11 @@ namespace PacketTester
             changeBaud,
             setRates,
             setWarmupParams,
-            setRangeParams    
+            setRangeParams,
+            setConfig,
+            getConfig,
+            getConfigResp,
+            saveToNvm    
         };
         string processSensorSerialNumber(RawPacket packet)
         {
@@ -569,6 +576,18 @@ namespace PacketTester
             for(int i = 0; i < 16; i++)
             {
                 strBuilder.Append(packet.Payload[i + 2].ToString("X2"));
+            }
+            //set the sensor ID
+            if(setSensorIdFlag)
+            {
+                byte[] setIdBytes = new byte[19];
+                setIdBytes[0] = 0x01;
+                setIdBytes[1] = (byte)CommandIds.setImuId;
+                Buffer.BlockCopy(packet.Payload, 2, setIdBytes, 2, 16);
+                setIdBytes[18] = (byte)nud_setId.Value;
+                sendPacket(setIdBytes, 19); 
+                setSensorIdFlag = false; 
+
             }
             return strBuilder.ToString();
         }
@@ -755,6 +774,95 @@ namespace PacketTester
                 }                 
             }
         }
+        void processGetConfigResponse(RawPacket packet)
+        {
+
+            byte algoConfig = 0x00;
+            algoConfig = packet.Payload[3];
+            
+            int index = 0;
+            for (int i =0; i<7; i++)
+            {
+                //skip 3
+                if (i == 4)
+                {
+                    continue;                   
+                }
+                int sentIndex = index; 
+                if ((algoConfig & (1 << i)) > 0)
+                {
+                    BeginInvoke((MethodInvoker)delegate () { clb_algoConfig.SetItemChecked(sentIndex, true); });
+                }
+                else
+                {
+                    BeginInvoke((MethodInvoker)delegate () { clb_algoConfig.SetItemChecked(sentIndex, false); });
+                }
+                index++; 
+            }
+            //process warm up
+            if(packet.Payload[4] == 1)
+            {
+
+                this.BeginInvoke((MethodInvoker)delegate () { clb_algoConfig.SetItemCheckState(6, CheckState.Checked); });
+            }
+            else
+            {
+                this.BeginInvoke((MethodInvoker)delegate () { clb_algoConfig.SetItemCheckState(6, CheckState.Unchecked); });
+            }
+            //process range on boot
+            if (packet.Payload[5] == 1)
+            {
+
+                this.BeginInvoke((MethodInvoker)delegate () { clb_algoConfig.SetItemCheckState(7, CheckState.Checked); });
+            }
+            else
+            {
+                this.BeginInvoke((MethodInvoker)delegate () { clb_algoConfig.SetItemCheckState(7, CheckState.Unchecked); });
+            }
+            UInt16 accelRange = BitConverter.ToUInt16(packet.Payload, 8);
+            UInt16 magRange = BitConverter.ToUInt16(packet.Payload, 6);
+            UInt16 gyroRange = BitConverter.ToUInt16(packet.Payload, 10);
+            //accelRange = ReverseBytes(accelRange);
+            //magRange = ReverseBytes(magRange);
+            //gyroRange = ReverseBytes(gyroRange);
+            if(!cb_accelRange.Items.Contains(accelRange.ToString()))
+            {
+                this.BeginInvoke((MethodInvoker)delegate () {
+                    cb_accelRange.Items.Add(accelRange.ToString());
+                });
+
+            }
+            this.BeginInvoke((MethodInvoker)delegate () {
+                cb_accelRange.SelectedIndex = cb_accelRange.Items.IndexOf(accelRange.ToString());
+            });
+
+
+            if (!cb_magRange.Items.Contains(magRange.ToString()))
+            {
+                this.BeginInvoke((MethodInvoker)delegate () {
+                    cb_magRange.Items.Add(magRange.ToString());
+                });
+            }
+            this.BeginInvoke((MethodInvoker)delegate () {
+                cb_magRange.SelectedIndex = cb_magRange.Items.IndexOf(magRange.ToString());
+            });
+
+            if (!cb_gyroRange.Items.Contains(gyroRange.ToString()))
+            {
+                this.BeginInvoke((MethodInvoker)delegate () {
+                    cb_gyroRange.Items.Add(gyroRange.ToString());
+                });
+            }
+            this.BeginInvoke((MethodInvoker)delegate () {
+                cb_gyroRange.SelectedIndex = cb_gyroRange.Items.IndexOf(gyroRange.ToString());
+            });
+            //cb_accelRange.SelectedValue = accelRange.ToString();
+            //cb_magRange.SelectedValue = magRange.ToString();
+            //cb_gyroRange.SelectedValue = gyroRange.ToString();
+
+
+
+        }
         private void processPacket(RawPacket packet)
         {
             //check that the packet comes from an IMU sensor
@@ -784,6 +892,10 @@ namespace PacketTester
                     case CommandIds.getWarmupParamResp:
                         debugMessageQueue.Enqueue("Received Warmup Parameters\r\n");
                         processWarmupResponse(packet); 
+                        break;
+                    case CommandIds.getConfigResp:
+                        debugMessageQueue.Enqueue("Received Config response 0x" +packet.Payload[3].ToString("x")  +"\r\n");
+                        processGetConfigResponse(packet);
                         break;
                     default:
                         break;
@@ -1077,21 +1189,7 @@ namespace PacketTester
         }
         private void btn_SetupMode_Click(object sender, EventArgs e)
         {
-            byte[] setupModeBytes = new byte[3];
-            setupModeBytes[0] = 0x01;
-            setupModeBytes[1] = 0x14;
-            if (cb_SetupModeEn.Checked)
-            {
-                setupModeBytes[2] = 0x01;
-            }
-            else
-            {
-                setupModeBytes[2] = 0x00;
-            }
-            if (serialPort.IsOpen)
-            {
-                sendPacket(setupModeBytes, 3);
-            }
+
 
         }
         private void btn_setRate_Click(object sender, EventArgs e)
@@ -3103,7 +3201,148 @@ namespace PacketTester
 
         }
 
+        private void cb_SetupModeEn_CheckedChanged(object sender, EventArgs e)
+        {
+            byte[] setupModeBytes = new byte[3];
+            setupModeBytes[0] = 0x01;
+            setupModeBytes[1] = 0x14;
+            if (cb_SetupModeEn.Checked)
+            {
+                setupModeBytes[2] = 0x01;
+            }
+            else
+            {
+                setupModeBytes[2] = 0x00;
+            }
+            if (serialPort.IsOpen)
+            {
+                sendPacket(setupModeBytes, 3);
+            }
+        }
 
+        private void cb_gyroRange_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+        public static UInt16 ReverseBytes(UInt16 value)
+        {
+            return (UInt16)((value & 0xFFU) << 8 | (value & 0xFF00U) >> 8);
+        }
+        private void btn_SendConfig_Click(object sender, EventArgs e)
+        {
+            byte[] configBytes = new byte[14];
+            configBytes[0] = 0x01;
+            configBytes[1] = 0x27; //send config command byte
+            configBytes[2] = (byte)nud_setId.Value; 
+            byte algoControl = 0x00;
+            //cannot loop through this since there is hole in the middle of the register. 
+            
+            //check standby checked state
+            if (clb_algoConfig.GetItemCheckState(0) == CheckState.Checked)
+            {
+                algoControl |= (1 << 0); 
+            }
+            //check raw data state
+            if (clb_algoConfig.GetItemCheckState(1) == CheckState.Checked)
+            {
+                algoControl |= (1 << 1);
+            }
+            //check HPR checked state
+            if (clb_algoConfig.GetItemCheckState(2) == CheckState.Checked)
+            {
+                algoControl |= (1 << 2);
+            }
+            //check 6axis checked state
+            if (clb_algoConfig.GetItemCheckState(3) == CheckState.Checked)
+            {
+                algoControl |= (1 << 3);
+            }
+            //check ENU checked state
+            if (clb_algoConfig.GetItemCheckState(4) == CheckState.Checked)
+            {
+                algoControl |= (1 << 5);
+            }
+            //check gyro off when still state
+            if (clb_algoConfig.GetItemCheckState(5) == CheckState.Checked)
+            {
+                algoControl |= (1 << 6);
+            }
+            configBytes[3] = algoControl;
+            //check warm start state
+            if (clb_algoConfig.GetItemCheckState(6) == CheckState.Checked)
+            {
+                configBytes[4] = 1;
+            }
+            else
+            {
+                configBytes[4] = 0;
+            }
+            //check the range setting
+            if (clb_algoConfig.GetItemCheckState(7) == CheckState.Checked)
+            {
+                configBytes[5] = 1;
+            }
+            else
+            {
+                configBytes[5] = 0;
+            }
+            //setup the range values; 
+            //if no range is selected use the default. 
+            if(cb_accelRange.SelectedIndex < 0)
+            {
+                cb_accelRange.SelectedIndex = 0;
+            }
+            if(cb_magRange.SelectedIndex < 0)
+            {
+                cb_magRange.SelectedIndex = 0;
+            }
+            if(cb_gyroRange.SelectedIndex < 0)
+            {
+                cb_gyroRange.SelectedIndex = 0;
+            }
+
+            UInt16 accelRange = UInt16.Parse(cb_accelRange.Items[cb_accelRange.SelectedIndex].ToString());
+            UInt16 magRange = UInt16.Parse(cb_magRange.Items[cb_magRange.SelectedIndex].ToString());            
+            UInt16 gyroRange = UInt16.Parse(cb_gyroRange.Items[cb_gyroRange.SelectedIndex].ToString());
+            //accelRange = ReverseBytes(accelRange);
+            //magRange = ReverseBytes(magRange);
+            //gyroRange = ReverseBytes(gyroRange); 
+
+            Buffer.BlockCopy(BitConverter.GetBytes(accelRange), 0, configBytes, 8, 2);
+            Buffer.BlockCopy(BitConverter.GetBytes(magRange), 0, configBytes, 6, 2);
+            Buffer.BlockCopy(BitConverter.GetBytes(gyroRange), 0, configBytes, 10, 2);
+            
+          
+            if (serialPort.IsOpen)
+            {
+                sendPacket(configBytes, 14);
+            }
+        }
+
+        private void btn_getConfig_Click(object sender, EventArgs e)
+        {
+            sendCommandToSensorId((byte)CommandIds.getConfig, (byte)nud_setId.Value);
+        }
+
+        private void btn_SaveConfig_Click(object sender, EventArgs e)
+        {
+            sendCommandToSensorId((byte)CommandIds.saveToNvm, (byte)nud_setId.Value);
+        }
+
+        private void btn_setSensorId_Click(object sender, EventArgs e)
+        {
+            if(cb_SetupModeEn.Checked)
+            {
+                //set the flag for processing the incoming button press. 
+                debugMessageQueue.Enqueue("Waiting for Button press event from sensor\r\n");
+                setSensorIdFlag = true; 
+            }
+            else
+            {
+                debugMessageQueue.Enqueue("Sensor Must be in setup mode\r\n");
+                //the sensor has to be in setup mode for this to work. 
+            }
+        }
 
         private void btn_pbTogglePort_Click(object sender, EventArgs e)
         {

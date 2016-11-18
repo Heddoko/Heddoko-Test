@@ -648,7 +648,7 @@ namespace ProtobufDecoder
                 if(decodingOutput == OutputType.individualSensorFiles)
                 {
                     //open all the output files. 
-                    string header = "Time(ms),Interval,Qx,Qy,Qz,Qw,Mx,My,Mz,Ax,Ay,Az,Rx,Ry,Rz,H1,P1,R1,H2,P2,R2,CalStable,MagTransient\r\n";
+                    string header = "Time(ms),Interval,Qx,Qy,Qz,Qw,Mx,My,Mz,Ax,Ay,Az,Rx,Ry,Rz,H1,P1,R1,CalStable,MagTransient\r\n";
 
                     for (int i = 0; i < numberOfSensors; i++)
                     {

@@ -81,7 +81,6 @@ namespace PacketTester
             this.cb_dataType = new System.Windows.Forms.ComboBox();
             this.btn_getStatus = new System.Windows.Forms.Button();
             this.btn_getFrame = new System.Windows.Forms.Button();
-            this.btn_SetupMode = new System.Windows.Forms.Button();
             this.cb_SetupModeEn = new System.Windows.Forms.CheckBox();
             this.btn_sendUpdateCmd = new System.Windows.Forms.Button();
             this.cb_enableStream = new System.Windows.Forms.CheckBox();
@@ -203,6 +202,19 @@ namespace PacketTester
             this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.dataBoardPort = new System.IO.Ports.SerialPort(this.components);
             this.powerBoardPort = new System.IO.Ports.SerialPort(this.components);
+            this.clb_algoConfig = new System.Windows.Forms.CheckedListBox();
+            this.lb_AlgorithmControl = new System.Windows.Forms.Label();
+            this.btn_SendConfig = new System.Windows.Forms.Button();
+            this.btn_SaveConfig = new System.Windows.Forms.Button();
+            this.btn_getConfig = new System.Windows.Forms.Button();
+            this.cb_magRange = new System.Windows.Forms.ComboBox();
+            this.cb_accelRange = new System.Windows.Forms.ComboBox();
+            this.cb_gyroRange = new System.Windows.Forms.ComboBox();
+            this.lb_magRange = new System.Windows.Forms.Label();
+            this.lb_accelRange = new System.Windows.Forms.Label();
+            this.lb_GyroRange = new System.Windows.Forms.Label();
+            this.nud_setId = new System.Windows.Forms.NumericUpDown();
+            this.btn_setSensorId = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -229,6 +241,7 @@ namespace PacketTester
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbStreamState)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgState)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgLvl)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_setId)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_disconnect
@@ -333,7 +346,7 @@ namespace PacketTester
             // 
             // tb_y_max
             // 
-            this.tb_y_max.Location = new System.Drawing.Point(575, 435);
+            this.tb_y_max.Location = new System.Drawing.Point(768, 433);
             this.tb_y_max.Name = "tb_y_max";
             this.tb_y_max.Size = new System.Drawing.Size(100, 20);
             this.tb_y_max.TabIndex = 29;
@@ -343,7 +356,7 @@ namespace PacketTester
             // 
             // tb_y_min
             // 
-            this.tb_y_min.Location = new System.Drawing.Point(575, 465);
+            this.tb_y_min.Location = new System.Drawing.Point(768, 463);
             this.tb_y_min.Name = "tb_y_min";
             this.tb_y_min.Size = new System.Drawing.Size(100, 20);
             this.tb_y_min.TabIndex = 30;
@@ -354,7 +367,7 @@ namespace PacketTester
             // lb_y_max
             // 
             this.lb_y_max.AutoSize = true;
-            this.lb_y_max.Location = new System.Drawing.Point(534, 442);
+            this.lb_y_max.Location = new System.Drawing.Point(727, 440);
             this.lb_y_max.Name = "lb_y_max";
             this.lb_y_max.Size = new System.Drawing.Size(37, 13);
             this.lb_y_max.TabIndex = 31;
@@ -363,7 +376,7 @@ namespace PacketTester
             // lb_y_min
             // 
             this.lb_y_min.AutoSize = true;
-            this.lb_y_min.Location = new System.Drawing.Point(534, 472);
+            this.lb_y_min.Location = new System.Drawing.Point(727, 470);
             this.lb_y_min.Name = "lb_y_min";
             this.lb_y_min.Size = new System.Drawing.Size(34, 13);
             this.lb_y_min.TabIndex = 32;
@@ -371,7 +384,7 @@ namespace PacketTester
             // 
             // btn_setAxis
             // 
-            this.btn_setAxis.Location = new System.Drawing.Point(575, 501);
+            this.btn_setAxis.Location = new System.Drawing.Point(768, 499);
             this.btn_setAxis.Name = "btn_setAxis";
             this.btn_setAxis.Size = new System.Drawing.Size(100, 23);
             this.btn_setAxis.TabIndex = 33;
@@ -461,6 +474,19 @@ namespace PacketTester
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.btn_setSensorId);
+            this.tabPage2.Controls.Add(this.nud_setId);
+            this.tabPage2.Controls.Add(this.lb_GyroRange);
+            this.tabPage2.Controls.Add(this.lb_accelRange);
+            this.tabPage2.Controls.Add(this.lb_magRange);
+            this.tabPage2.Controls.Add(this.cb_gyroRange);
+            this.tabPage2.Controls.Add(this.cb_accelRange);
+            this.tabPage2.Controls.Add(this.cb_magRange);
+            this.tabPage2.Controls.Add(this.btn_getConfig);
+            this.tabPage2.Controls.Add(this.btn_SaveConfig);
+            this.tabPage2.Controls.Add(this.btn_SendConfig);
+            this.tabPage2.Controls.Add(this.lb_AlgorithmControl);
+            this.tabPage2.Controls.Add(this.clb_algoConfig);
             this.tabPage2.Controls.Add(this.lbl_AlgorithmStatus);
             this.tabPage2.Controls.Add(this.clb_algorithmStatus);
             this.tabPage2.Controls.Add(this.cb_gyroEnabled);
@@ -481,7 +507,6 @@ namespace PacketTester
             this.tabPage2.Controls.Add(this.cb_dataType);
             this.tabPage2.Controls.Add(this.btn_getStatus);
             this.tabPage2.Controls.Add(this.btn_getFrame);
-            this.tabPage2.Controls.Add(this.btn_SetupMode);
             this.tabPage2.Controls.Add(this.cb_SetupModeEn);
             this.tabPage2.Controls.Add(this.btn_sendUpdateCmd);
             this.tabPage2.Controls.Add(this.cb_enableStream);
@@ -490,7 +515,7 @@ namespace PacketTester
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(508, 335);
+            this.tabPage2.Size = new System.Drawing.Size(674, 335);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Debug 485 Sensors";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -533,7 +558,7 @@ namespace PacketTester
             // 
             // btn_getWarmUp
             // 
-            this.btn_getWarmUp.Location = new System.Drawing.Point(152, 205);
+            this.btn_getWarmUp.Location = new System.Drawing.Point(152, 227);
             this.btn_getWarmUp.Name = "btn_getWarmUp";
             this.btn_getWarmUp.Size = new System.Drawing.Size(103, 23);
             this.btn_getWarmUp.TabIndex = 53;
@@ -543,7 +568,7 @@ namespace PacketTester
             // 
             // btn_updateWarmUp
             // 
-            this.btn_updateWarmUp.Location = new System.Drawing.Point(36, 205);
+            this.btn_updateWarmUp.Location = new System.Drawing.Point(36, 227);
             this.btn_updateWarmUp.Name = "btn_updateWarmUp";
             this.btn_updateWarmUp.Size = new System.Drawing.Size(103, 23);
             this.btn_updateWarmUp.TabIndex = 52;
@@ -553,7 +578,7 @@ namespace PacketTester
             // 
             // btn_getCfgParam
             // 
-            this.btn_getCfgParam.Location = new System.Drawing.Point(152, 175);
+            this.btn_getCfgParam.Location = new System.Drawing.Point(152, 197);
             this.btn_getCfgParam.Name = "btn_getCfgParam";
             this.btn_getCfgParam.Size = new System.Drawing.Size(103, 23);
             this.btn_getCfgParam.TabIndex = 51;
@@ -563,7 +588,7 @@ namespace PacketTester
             // 
             // btn_updateCfgParam
             // 
-            this.btn_updateCfgParam.Location = new System.Drawing.Point(36, 175);
+            this.btn_updateCfgParam.Location = new System.Drawing.Point(36, 197);
             this.btn_updateCfgParam.Name = "btn_updateCfgParam";
             this.btn_updateCfgParam.Size = new System.Drawing.Size(103, 23);
             this.btn_updateCfgParam.TabIndex = 50;
@@ -712,7 +737,7 @@ namespace PacketTester
             // 
             // btn_getStatus
             // 
-            this.btn_getStatus.Location = new System.Drawing.Point(126, 127);
+            this.btn_getStatus.Location = new System.Drawing.Point(132, 98);
             this.btn_getStatus.Name = "btn_getStatus";
             this.btn_getStatus.Size = new System.Drawing.Size(75, 23);
             this.btn_getStatus.TabIndex = 34;
@@ -730,29 +755,20 @@ namespace PacketTester
             this.btn_getFrame.UseVisualStyleBackColor = true;
             this.btn_getFrame.Click += new System.EventHandler(this.btn_getFrame_Click);
             // 
-            // btn_SetupMode
-            // 
-            this.btn_SetupMode.Location = new System.Drawing.Point(36, 97);
-            this.btn_SetupMode.Name = "btn_SetupMode";
-            this.btn_SetupMode.Size = new System.Drawing.Size(103, 23);
-            this.btn_SetupMode.TabIndex = 24;
-            this.btn_SetupMode.Text = "Send Setup Mode";
-            this.btn_SetupMode.UseVisualStyleBackColor = true;
-            this.btn_SetupMode.Click += new System.EventHandler(this.btn_SetupMode_Click);
-            // 
             // cb_SetupModeEn
             // 
             this.cb_SetupModeEn.AutoSize = true;
-            this.cb_SetupModeEn.Location = new System.Drawing.Point(152, 101);
+            this.cb_SetupModeEn.Location = new System.Drawing.Point(36, 138);
             this.cb_SetupModeEn.Name = "cb_SetupModeEn";
-            this.cb_SetupModeEn.Size = new System.Drawing.Size(65, 17);
+            this.cb_SetupModeEn.Size = new System.Drawing.Size(84, 17);
             this.cb_SetupModeEn.TabIndex = 25;
-            this.cb_SetupModeEn.Text = "Enabled";
+            this.cb_SetupModeEn.Text = "Setup Mode";
             this.cb_SetupModeEn.UseVisualStyleBackColor = true;
+            this.cb_SetupModeEn.CheckedChanged += new System.EventHandler(this.cb_SetupModeEn_CheckedChanged);
             // 
             // btn_sendUpdateCmd
             // 
-            this.btn_sendUpdateCmd.Location = new System.Drawing.Point(36, 127);
+            this.btn_sendUpdateCmd.Location = new System.Drawing.Point(36, 98);
             this.btn_sendUpdateCmd.Name = "btn_sendUpdateCmd";
             this.btn_sendUpdateCmd.Size = new System.Drawing.Size(75, 23);
             this.btn_sendUpdateCmd.TabIndex = 26;
@@ -896,10 +912,10 @@ namespace PacketTester
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Controls.Add(this.tabPage5);
-            this.tabControl1.Location = new System.Drawing.Point(12, 368);
+            this.tabControl1.Location = new System.Drawing.Point(12, 440);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(516, 361);
+            this.tabControl1.Size = new System.Drawing.Size(682, 361);
             this.tabControl1.TabIndex = 46;
             // 
             // tabPage4
@@ -1950,7 +1966,7 @@ namespace PacketTester
             // lbl_data1
             // 
             this.lbl_data1.AutoSize = true;
-            this.lbl_data1.Location = new System.Drawing.Point(800, 435);
+            this.lbl_data1.Location = new System.Drawing.Point(993, 433);
             this.lbl_data1.Name = "lbl_data1";
             this.lbl_data1.Size = new System.Drawing.Size(42, 13);
             this.lbl_data1.TabIndex = 48;
@@ -1959,7 +1975,7 @@ namespace PacketTester
             // lbl_data2
             // 
             this.lbl_data2.AutoSize = true;
-            this.lbl_data2.Location = new System.Drawing.Point(800, 465);
+            this.lbl_data2.Location = new System.Drawing.Point(993, 463);
             this.lbl_data2.Name = "lbl_data2";
             this.lbl_data2.Size = new System.Drawing.Size(42, 13);
             this.lbl_data2.TabIndex = 49;
@@ -1968,7 +1984,7 @@ namespace PacketTester
             // lbl_data3
             // 
             this.lbl_data3.AutoSize = true;
-            this.lbl_data3.Location = new System.Drawing.Point(800, 493);
+            this.lbl_data3.Location = new System.Drawing.Point(993, 491);
             this.lbl_data3.Name = "lbl_data3";
             this.lbl_data3.Size = new System.Drawing.Size(42, 13);
             this.lbl_data3.TabIndex = 50;
@@ -1977,7 +1993,7 @@ namespace PacketTester
             // lbl_data4
             // 
             this.lbl_data4.AutoSize = true;
-            this.lbl_data4.Location = new System.Drawing.Point(800, 522);
+            this.lbl_data4.Location = new System.Drawing.Point(993, 520);
             this.lbl_data4.Name = "lbl_data4";
             this.lbl_data4.Size = new System.Drawing.Size(42, 13);
             this.lbl_data4.TabIndex = 51;
@@ -1986,7 +2002,7 @@ namespace PacketTester
             // lbl_valueData1
             // 
             this.lbl_valueData1.AutoSize = true;
-            this.lbl_valueData1.Location = new System.Drawing.Point(849, 435);
+            this.lbl_valueData1.Location = new System.Drawing.Point(1042, 433);
             this.lbl_valueData1.Name = "lbl_valueData1";
             this.lbl_valueData1.Size = new System.Drawing.Size(13, 13);
             this.lbl_valueData1.TabIndex = 52;
@@ -1996,7 +2012,7 @@ namespace PacketTester
             // lbl_valueData2
             // 
             this.lbl_valueData2.AutoSize = true;
-            this.lbl_valueData2.Location = new System.Drawing.Point(849, 465);
+            this.lbl_valueData2.Location = new System.Drawing.Point(1042, 463);
             this.lbl_valueData2.Name = "lbl_valueData2";
             this.lbl_valueData2.Size = new System.Drawing.Size(13, 13);
             this.lbl_valueData2.TabIndex = 53;
@@ -2006,7 +2022,7 @@ namespace PacketTester
             // lbl_valueData3
             // 
             this.lbl_valueData3.AutoSize = true;
-            this.lbl_valueData3.Location = new System.Drawing.Point(848, 493);
+            this.lbl_valueData3.Location = new System.Drawing.Point(1041, 491);
             this.lbl_valueData3.Name = "lbl_valueData3";
             this.lbl_valueData3.Size = new System.Drawing.Size(13, 13);
             this.lbl_valueData3.TabIndex = 54;
@@ -2016,7 +2032,7 @@ namespace PacketTester
             // lbl_valueData4
             // 
             this.lbl_valueData4.AutoSize = true;
-            this.lbl_valueData4.Location = new System.Drawing.Point(848, 522);
+            this.lbl_valueData4.Location = new System.Drawing.Point(1041, 520);
             this.lbl_valueData4.Name = "lbl_valueData4";
             this.lbl_valueData4.Size = new System.Drawing.Size(13, 13);
             this.lbl_valueData4.TabIndex = 55;
@@ -2032,11 +2048,148 @@ namespace PacketTester
             // 
             this.powerBoardPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.powerBoardPort_DataReceived);
             // 
+            // clb_algoConfig
+            // 
+            this.clb_algoConfig.FormattingEnabled = true;
+            this.clb_algoConfig.Items.AddRange(new object[] {
+            "Standby EN",
+            "Raw Data EN",
+            "HPR EN",
+            "6-axis EN",
+            "ENU EN",
+            "Gyro Off when still",
+            "Load Warm Start",
+            "Load Ranges"});
+            this.clb_algoConfig.Location = new System.Drawing.Point(516, 43);
+            this.clb_algoConfig.Name = "clb_algoConfig";
+            this.clb_algoConfig.Size = new System.Drawing.Size(120, 124);
+            this.clb_algoConfig.TabIndex = 57;
+            // 
+            // lb_AlgorithmControl
+            // 
+            this.lb_AlgorithmControl.AutoSize = true;
+            this.lb_AlgorithmControl.Location = new System.Drawing.Point(513, 22);
+            this.lb_AlgorithmControl.Name = "lb_AlgorithmControl";
+            this.lb_AlgorithmControl.Size = new System.Drawing.Size(86, 13);
+            this.lb_AlgorithmControl.TabIndex = 58;
+            this.lb_AlgorithmControl.Text = "Algorithm Control";
+            // 
+            // btn_SendConfig
+            // 
+            this.btn_SendConfig.Location = new System.Drawing.Point(561, 261);
+            this.btn_SendConfig.Name = "btn_SendConfig";
+            this.btn_SendConfig.Size = new System.Drawing.Size(75, 23);
+            this.btn_SendConfig.TabIndex = 59;
+            this.btn_SendConfig.Text = "Send Config";
+            this.btn_SendConfig.UseVisualStyleBackColor = true;
+            this.btn_SendConfig.Click += new System.EventHandler(this.btn_SendConfig_Click);
+            // 
+            // btn_SaveConfig
+            // 
+            this.btn_SaveConfig.Location = new System.Drawing.Point(36, 258);
+            this.btn_SaveConfig.Name = "btn_SaveConfig";
+            this.btn_SaveConfig.Size = new System.Drawing.Size(120, 23);
+            this.btn_SaveConfig.TabIndex = 60;
+            this.btn_SaveConfig.Text = "Save Config to NVM";
+            this.btn_SaveConfig.UseVisualStyleBackColor = true;
+            this.btn_SaveConfig.Click += new System.EventHandler(this.btn_SaveConfig_Click);
+            // 
+            // btn_getConfig
+            // 
+            this.btn_getConfig.Location = new System.Drawing.Point(561, 290);
+            this.btn_getConfig.Name = "btn_getConfig";
+            this.btn_getConfig.Size = new System.Drawing.Size(75, 23);
+            this.btn_getConfig.TabIndex = 61;
+            this.btn_getConfig.Text = "Get Config";
+            this.btn_getConfig.UseVisualStyleBackColor = true;
+            this.btn_getConfig.Click += new System.EventHandler(this.btn_getConfig_Click);
+            // 
+            // cb_magRange
+            // 
+            this.cb_magRange.FormattingEnabled = true;
+            this.cb_magRange.Items.AddRange(new object[] {
+            "1000"});
+            this.cb_magRange.Location = new System.Drawing.Point(561, 177);
+            this.cb_magRange.Name = "cb_magRange";
+            this.cb_magRange.Size = new System.Drawing.Size(75, 21);
+            this.cb_magRange.TabIndex = 62;
+            // 
+            // cb_accelRange
+            // 
+            this.cb_accelRange.FormattingEnabled = true;
+            this.cb_accelRange.Items.AddRange(new object[] {
+            "2",
+            "4",
+            "8",
+            "16"});
+            this.cb_accelRange.Location = new System.Drawing.Point(561, 207);
+            this.cb_accelRange.Name = "cb_accelRange";
+            this.cb_accelRange.Size = new System.Drawing.Size(75, 21);
+            this.cb_accelRange.TabIndex = 63;
+            // 
+            // cb_gyroRange
+            // 
+            this.cb_gyroRange.FormattingEnabled = true;
+            this.cb_gyroRange.Items.AddRange(new object[] {
+            "125",
+            "500",
+            "1000",
+            "2000"});
+            this.cb_gyroRange.Location = new System.Drawing.Point(561, 234);
+            this.cb_gyroRange.Name = "cb_gyroRange";
+            this.cb_gyroRange.Size = new System.Drawing.Size(75, 21);
+            this.cb_gyroRange.TabIndex = 64;
+            this.cb_gyroRange.SelectedIndexChanged += new System.EventHandler(this.cb_gyroRange_SelectedIndexChanged);
+            // 
+            // lb_magRange
+            // 
+            this.lb_magRange.AutoSize = true;
+            this.lb_magRange.Location = new System.Drawing.Point(472, 187);
+            this.lb_magRange.Name = "lb_magRange";
+            this.lb_magRange.Size = new System.Drawing.Size(83, 13);
+            this.lb_magRange.TabIndex = 65;
+            this.lb_magRange.Text = "Mag Range(+/-)";
+            // 
+            // lb_accelRange
+            // 
+            this.lb_accelRange.AutoSize = true;
+            this.lb_accelRange.Location = new System.Drawing.Point(472, 210);
+            this.lb_accelRange.Name = "lb_accelRange";
+            this.lb_accelRange.Size = new System.Drawing.Size(89, 13);
+            this.lb_accelRange.TabIndex = 66;
+            this.lb_accelRange.Text = "Accel Range(+/-)";
+            // 
+            // lb_GyroRange
+            // 
+            this.lb_GyroRange.AutoSize = true;
+            this.lb_GyroRange.Location = new System.Drawing.Point(477, 237);
+            this.lb_GyroRange.Name = "lb_GyroRange";
+            this.lb_GyroRange.Size = new System.Drawing.Size(84, 13);
+            this.lb_GyroRange.TabIndex = 67;
+            this.lb_GyroRange.Text = "Gyro Range(+/-)";
+            // 
+            // nud_setId
+            // 
+            this.nud_setId.Location = new System.Drawing.Point(36, 161);
+            this.nud_setId.Name = "nud_setId";
+            this.nud_setId.Size = new System.Drawing.Size(90, 20);
+            this.nud_setId.TabIndex = 68;
+            // 
+            // btn_setSensorId
+            // 
+            this.btn_setSensorId.Location = new System.Drawing.Point(132, 158);
+            this.btn_setSensorId.Name = "btn_setSensorId";
+            this.btn_setSensorId.Size = new System.Drawing.Size(101, 23);
+            this.btn_setSensorId.TabIndex = 69;
+            this.btn_setSensorId.Text = "Set Sensor Id";
+            this.btn_setSensorId.UseVisualStyleBackColor = true;
+            this.btn_setSensorId.Click += new System.EventHandler(this.btn_setSensorId_Click);
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1142, 741);
+            this.ClientSize = new System.Drawing.Size(1142, 913);
             this.Controls.Add(this.lbl_valueData4);
             this.Controls.Add(this.lbl_valueData3);
             this.Controls.Add(this.lbl_valueData2);
@@ -2101,6 +2254,7 @@ namespace PacketTester
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbStreamState)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgState)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgLvl)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_setId)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2139,7 +2293,6 @@ namespace PacketTester
         private System.Windows.Forms.ComboBox cb_dataType;
         private System.Windows.Forms.Button btn_getStatus;
         private System.Windows.Forms.Button btn_getFrame;
-        private System.Windows.Forms.Button btn_SetupMode;
         private System.Windows.Forms.CheckBox cb_SetupModeEn;
         private System.Windows.Forms.Button btn_sendUpdateCmd;
         private System.Windows.Forms.CheckBox cb_enableStream;
@@ -2272,6 +2425,19 @@ namespace PacketTester
         private System.Windows.Forms.Button btn_updateWarmUp;
         private System.Windows.Forms.Label lbl_AlgorithmStatus;
         private System.Windows.Forms.CheckedListBox clb_algorithmStatus;
+        private System.Windows.Forms.Button btn_setSensorId;
+        private System.Windows.Forms.NumericUpDown nud_setId;
+        private System.Windows.Forms.Label lb_GyroRange;
+        private System.Windows.Forms.Label lb_accelRange;
+        private System.Windows.Forms.Label lb_magRange;
+        private System.Windows.Forms.ComboBox cb_gyroRange;
+        private System.Windows.Forms.ComboBox cb_accelRange;
+        private System.Windows.Forms.ComboBox cb_magRange;
+        private System.Windows.Forms.Button btn_getConfig;
+        private System.Windows.Forms.Button btn_SaveConfig;
+        private System.Windows.Forms.Button btn_SendConfig;
+        private System.Windows.Forms.Label lb_AlgorithmControl;
+        private System.Windows.Forms.CheckedListBox clb_algoConfig;
     }
 }
 
