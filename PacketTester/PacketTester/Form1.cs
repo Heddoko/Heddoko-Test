@@ -3233,7 +3233,7 @@ namespace PacketTester
             byte[] configBytes = new byte[14];
             configBytes[0] = 0x01;
             configBytes[1] = 0x27; //send config command byte
-            configBytes[2] = (byte)nud_setId.Value; 
+            configBytes[2] = (byte)nud_SelectedImu.Value; 
             byte algoControl = 0x00;
             //cannot loop through this since there is hole in the middle of the register. 
             
