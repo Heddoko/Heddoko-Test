@@ -21,7 +21,8 @@ namespace BrainPackDataAnalyzer
     {
         private bool processDebugThreadEnabled = false;
         public ConcurrentQueue<string> debugMessageQueue;
-        public ConcurrentQueue<RawPacket> outputPacketQueue; 
+        public ConcurrentQueue<RawPacket> outputPacketQueue;
+        private bool streamRequested = false;  
         public BrainpackControllerForm()
         {
             InitializeComponent();
@@ -68,6 +69,7 @@ namespace BrainPackDataAnalyzer
             }
 
         }
+        int statusMessageReceivedCount = 0;
         private void processProtoPacket(Packet packet)
         {
 
@@ -87,7 +89,7 @@ namespace BrainPackDataAnalyzer
                     }
                     break;
                 case PacketType.StatusResponse:
-                    strBuilder.Append("\r\nStatus Response\r\n");                    
+                    strBuilder.Append("\r\nStatus Response #" +statusMessageReceivedCount++.ToString() +  "\r\n");                    
                     if(packet.serialNumberSpecified)
                     {
                         strBuilder.Append("Serial Number: " + packet.serialNumber + "\r\n");
@@ -118,6 +120,15 @@ namespace BrainPackDataAnalyzer
                     if (packet.messageStatusSpecified)
                     {
                         debugMessageQueue.Enqueue(string.Format("Message Status: {0}\r\n",packet.messageStatus));
+                        //if a stream was requested, check the return value and change the button to stop stream. 
+                        if (streamRequested)
+                        {
+                            if(packet.messageStatus)
+                            {
+                                this.BeginInvoke((MethodInvoker)(() => btn_StreamReq.Text = "Stop Stream"));
+                            }
+                            streamRequested = false; 
+                        }
                     }
                     break;
                 default:
@@ -222,6 +233,12 @@ namespace BrainPackDataAnalyzer
                 {
                     debugMessageQueue.Enqueue(String.Format("Unexpected exception : {0}\r\n", e.ToString()));
                 }
+                if (sender.Connected)
+                {
+                    sender.Shutdown(SocketShutdown.Both);
+                    sender.Close();
+                }
+                
 
             }
             catch (Exception e)
@@ -260,12 +277,67 @@ namespace BrainPackDataAnalyzer
             {
                 Packet protoPacket = new Packet();
                 protoPacket.type = PacketType.StatusRequest;
+                sendProtoPacket(protoPacket); 
+            }
+        }
+        private void sendProtoPacket(Packet protoPacket)
+        {
+            if (EnableSocketQueue)
+            {
                 MemoryStream stream = new MemoryStream();
                 stream.WriteByte(0x04);
                 Serializer.Serialize(stream, protoPacket);
                 RawPacket outputPacket = new RawPacket(stream.ToArray(), (ushort)stream.Length);
                 outputPacketQueue.Enqueue(outputPacket);
             }
+        }
+        private void label2_Click(object sender, EventArgs e)
+        {
+            debugMessageQueue.Enqueue("don't click there, ya moron!\r\n"); 
+        }
+
+        private void btn_StreamReq_Click(object sender, EventArgs e)
+        {
+            Packet protoPacket = new Packet();
+            Endpoint protoEndpoint = new Endpoint();
+            protoPacket.type = PacketType.StartDataStream;
+            protoPacket.recordingFilename = tb_recordingName.Text;
+            protoPacket.recordingFilenameSpecified = true; 
+            protoPacket.sensorMask = 0x1FF; //all sensors
+            protoPacket.sensorMaskSpecified = true;
+            protoPacket.recordingRateSpecified = true;
+            protoPacket.recordingRate = (UInt32)nud_dataInterval.Value;
+            protoEndpoint.address = mtb_streamAddress.Text;
+            protoEndpoint.port = UInt32.Parse(mtb_streamPort.Text); 
+            protoPacket.endpoint = protoEndpoint;
+            sendProtoPacket(protoPacket);
+        }
+
+        private void btn_stopStream_Click(object sender, EventArgs e)
+        {
+            Packet protoPacket = new Packet();
+            protoPacket.type = PacketType.StopDataStream;
+            sendProtoPacket(protoPacket);
+        }
+
+        private void btn_cfgRecord_Click(object sender, EventArgs e)
+        {
+            Packet protoPacket = new Packet();
+            protoPacket.type = PacketType.ConfigureRecordingSettings;
+            protoPacket.recordingFilename = tb_recordingName.Text;
+            protoPacket.recordingFilenameSpecified = true;
+            protoPacket.sensorMask = 0x1FF; //all sensors
+            protoPacket.sensorMaskSpecified = true;
+            protoPacket.recordingRateSpecified = true;
+            protoPacket.recordingRate = (UInt32)nud_dataInterval.Value;
+            sendProtoPacket(protoPacket);
+        }
+
+        private void BrainpackControllerForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            
+            processDebugThreadEnabled = false;
+            EnableSocketQueue = false; 
         }
     }
 }

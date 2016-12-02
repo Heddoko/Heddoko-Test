@@ -2591,7 +2591,18 @@ namespace PacketTester
             second = convertFromBcd(packet.Payload[2]);
             debugMessageQueue.Enqueue(String.Format("{0}:{1}:{2}\r\n", hour, minute, second));
         }
-
+        private int findFrameOffsetForId(ref RawPacket packet, int expectedSensorId)
+        {
+            int i = 0;
+            for ( i=7; i < packet.PayloadSize; i += 36)
+            {
+                if(packet.Payload[i] == (byte)expectedSensorId)
+                {                    
+                    return i; 
+                }
+            }
+            return -1;
+        }
         private void displayFrameData(ref RawPacket packet)
         {
             if (chb_dbDataMonitorEnable.Checked)
@@ -2600,7 +2611,13 @@ namespace PacketTester
                 {
                     // get the sensor id from the nud
                     int expectedSensorId = (int)nud_dbSensorId.Value;
-                    int frameOffset = ((expectedSensorId) * 35) + 7;    // location of the data in the frame
+                    int frameOffset = findFrameOffsetForId(ref packet, expectedSensorId);
+                    if(frameOffset == -1)
+                    {
+                        return; 
+                    }
+                        //((expectedSensorId) * 36) + 7;    // location of the data in the frame
+
                     ImuFrame dataFrame = new ImuFrame();
                     dataFrame.ParseDataFromFullFrame(packet, frameOffset, expectedSensorId);
                     updateChart(dataFrame);
@@ -3321,12 +3338,12 @@ namespace PacketTester
 
         private void btn_getConfig_Click(object sender, EventArgs e)
         {
-            sendCommandToSensorId((byte)CommandIds.getConfig, (byte)nud_setId.Value);
+            sendCommandToSensorId((byte)CommandIds.getConfig, (byte)nud_SelectedImu.Value);
         }
 
         private void btn_SaveConfig_Click(object sender, EventArgs e)
         {
-            sendCommandToSensorId((byte)CommandIds.saveToNvm, (byte)nud_setId.Value);
+            sendCommandToSensorId((byte)CommandIds.saveToNvm, (byte)nud_SelectedImu.Value);
         }
 
         private void btn_setSensorId_Click(object sender, EventArgs e)
