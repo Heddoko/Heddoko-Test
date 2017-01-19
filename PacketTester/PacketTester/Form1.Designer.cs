@@ -61,6 +61,19 @@ namespace PacketTester
             this.mtb_netPort = new System.Windows.Forms.MaskedTextBox();
             this.btn_connectSocket = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.btn_setSensorId = new System.Windows.Forms.Button();
+            this.nud_setId = new System.Windows.Forms.NumericUpDown();
+            this.lb_GyroRange = new System.Windows.Forms.Label();
+            this.lb_accelRange = new System.Windows.Forms.Label();
+            this.lb_magRange = new System.Windows.Forms.Label();
+            this.cb_gyroRange = new System.Windows.Forms.ComboBox();
+            this.cb_accelRange = new System.Windows.Forms.ComboBox();
+            this.cb_magRange = new System.Windows.Forms.ComboBox();
+            this.btn_getConfig = new System.Windows.Forms.Button();
+            this.btn_SaveConfig = new System.Windows.Forms.Button();
+            this.btn_SendConfig = new System.Windows.Forms.Button();
+            this.lb_AlgorithmControl = new System.Windows.Forms.Label();
+            this.clb_algoConfig = new System.Windows.Forms.CheckedListBox();
             this.lbl_AlgorithmStatus = new System.Windows.Forms.Label();
             this.clb_algorithmStatus = new System.Windows.Forms.CheckedListBox();
             this.cb_gyroEnabled = new System.Windows.Forms.CheckBox();
@@ -202,22 +215,10 @@ namespace PacketTester
             this.fbd_folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.dataBoardPort = new System.IO.Ports.SerialPort(this.components);
             this.powerBoardPort = new System.IO.Ports.SerialPort(this.components);
-            this.clb_algoConfig = new System.Windows.Forms.CheckedListBox();
-            this.lb_AlgorithmControl = new System.Windows.Forms.Label();
-            this.btn_SendConfig = new System.Windows.Forms.Button();
-            this.btn_SaveConfig = new System.Windows.Forms.Button();
-            this.btn_getConfig = new System.Windows.Forms.Button();
-            this.cb_magRange = new System.Windows.Forms.ComboBox();
-            this.cb_accelRange = new System.Windows.Forms.ComboBox();
-            this.cb_gyroRange = new System.Windows.Forms.ComboBox();
-            this.lb_magRange = new System.Windows.Forms.Label();
-            this.lb_accelRange = new System.Windows.Forms.Label();
-            this.lb_GyroRange = new System.Windows.Forms.Label();
-            this.nud_setId = new System.Windows.Forms.NumericUpDown();
-            this.btn_setSensorId = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_setId)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_updateRate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_gyroRate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_accelRate)).BeginInit();
@@ -241,7 +242,6 @@ namespace PacketTester
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbStreamState)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgState)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgLvl)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nud_setId)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_disconnect
@@ -421,7 +421,7 @@ namespace PacketTester
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(508, 335);
+            this.tabPage3.Size = new System.Drawing.Size(674, 335);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "TCP IP Debug";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -519,6 +519,144 @@ namespace PacketTester
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Debug 485 Sensors";
             this.tabPage2.UseVisualStyleBackColor = true;
+            this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
+            // 
+            // btn_setSensorId
+            // 
+            this.btn_setSensorId.Location = new System.Drawing.Point(132, 158);
+            this.btn_setSensorId.Name = "btn_setSensorId";
+            this.btn_setSensorId.Size = new System.Drawing.Size(101, 23);
+            this.btn_setSensorId.TabIndex = 69;
+            this.btn_setSensorId.Text = "Set Sensor Id";
+            this.btn_setSensorId.UseVisualStyleBackColor = true;
+            this.btn_setSensorId.Click += new System.EventHandler(this.btn_setSensorId_Click);
+            // 
+            // nud_setId
+            // 
+            this.nud_setId.Location = new System.Drawing.Point(36, 161);
+            this.nud_setId.Name = "nud_setId";
+            this.nud_setId.Size = new System.Drawing.Size(90, 20);
+            this.nud_setId.TabIndex = 68;
+            // 
+            // lb_GyroRange
+            // 
+            this.lb_GyroRange.AutoSize = true;
+            this.lb_GyroRange.Location = new System.Drawing.Point(477, 237);
+            this.lb_GyroRange.Name = "lb_GyroRange";
+            this.lb_GyroRange.Size = new System.Drawing.Size(84, 13);
+            this.lb_GyroRange.TabIndex = 67;
+            this.lb_GyroRange.Text = "Gyro Range(+/-)";
+            // 
+            // lb_accelRange
+            // 
+            this.lb_accelRange.AutoSize = true;
+            this.lb_accelRange.Location = new System.Drawing.Point(472, 210);
+            this.lb_accelRange.Name = "lb_accelRange";
+            this.lb_accelRange.Size = new System.Drawing.Size(89, 13);
+            this.lb_accelRange.TabIndex = 66;
+            this.lb_accelRange.Text = "Accel Range(+/-)";
+            // 
+            // lb_magRange
+            // 
+            this.lb_magRange.AutoSize = true;
+            this.lb_magRange.Location = new System.Drawing.Point(472, 187);
+            this.lb_magRange.Name = "lb_magRange";
+            this.lb_magRange.Size = new System.Drawing.Size(83, 13);
+            this.lb_magRange.TabIndex = 65;
+            this.lb_magRange.Text = "Mag Range(+/-)";
+            // 
+            // cb_gyroRange
+            // 
+            this.cb_gyroRange.FormattingEnabled = true;
+            this.cb_gyroRange.Items.AddRange(new object[] {
+            "125",
+            "500",
+            "1000",
+            "2000"});
+            this.cb_gyroRange.Location = new System.Drawing.Point(561, 234);
+            this.cb_gyroRange.Name = "cb_gyroRange";
+            this.cb_gyroRange.Size = new System.Drawing.Size(75, 21);
+            this.cb_gyroRange.TabIndex = 64;
+            this.cb_gyroRange.SelectedIndexChanged += new System.EventHandler(this.cb_gyroRange_SelectedIndexChanged);
+            // 
+            // cb_accelRange
+            // 
+            this.cb_accelRange.FormattingEnabled = true;
+            this.cb_accelRange.Items.AddRange(new object[] {
+            "2",
+            "4",
+            "8",
+            "16"});
+            this.cb_accelRange.Location = new System.Drawing.Point(561, 207);
+            this.cb_accelRange.Name = "cb_accelRange";
+            this.cb_accelRange.Size = new System.Drawing.Size(75, 21);
+            this.cb_accelRange.TabIndex = 63;
+            // 
+            // cb_magRange
+            // 
+            this.cb_magRange.FormattingEnabled = true;
+            this.cb_magRange.Items.AddRange(new object[] {
+            "1000"});
+            this.cb_magRange.Location = new System.Drawing.Point(561, 177);
+            this.cb_magRange.Name = "cb_magRange";
+            this.cb_magRange.Size = new System.Drawing.Size(75, 21);
+            this.cb_magRange.TabIndex = 62;
+            // 
+            // btn_getConfig
+            // 
+            this.btn_getConfig.Location = new System.Drawing.Point(561, 290);
+            this.btn_getConfig.Name = "btn_getConfig";
+            this.btn_getConfig.Size = new System.Drawing.Size(75, 23);
+            this.btn_getConfig.TabIndex = 61;
+            this.btn_getConfig.Text = "Get Config";
+            this.btn_getConfig.UseVisualStyleBackColor = true;
+            this.btn_getConfig.Click += new System.EventHandler(this.btn_getConfig_Click);
+            // 
+            // btn_SaveConfig
+            // 
+            this.btn_SaveConfig.Location = new System.Drawing.Point(36, 258);
+            this.btn_SaveConfig.Name = "btn_SaveConfig";
+            this.btn_SaveConfig.Size = new System.Drawing.Size(120, 23);
+            this.btn_SaveConfig.TabIndex = 60;
+            this.btn_SaveConfig.Text = "Save Config to NVM";
+            this.btn_SaveConfig.UseVisualStyleBackColor = true;
+            this.btn_SaveConfig.Click += new System.EventHandler(this.btn_SaveConfig_Click);
+            // 
+            // btn_SendConfig
+            // 
+            this.btn_SendConfig.Location = new System.Drawing.Point(561, 261);
+            this.btn_SendConfig.Name = "btn_SendConfig";
+            this.btn_SendConfig.Size = new System.Drawing.Size(75, 23);
+            this.btn_SendConfig.TabIndex = 59;
+            this.btn_SendConfig.Text = "Send Config";
+            this.btn_SendConfig.UseVisualStyleBackColor = true;
+            this.btn_SendConfig.Click += new System.EventHandler(this.btn_SendConfig_Click);
+            // 
+            // lb_AlgorithmControl
+            // 
+            this.lb_AlgorithmControl.AutoSize = true;
+            this.lb_AlgorithmControl.Location = new System.Drawing.Point(513, 22);
+            this.lb_AlgorithmControl.Name = "lb_AlgorithmControl";
+            this.lb_AlgorithmControl.Size = new System.Drawing.Size(86, 13);
+            this.lb_AlgorithmControl.TabIndex = 58;
+            this.lb_AlgorithmControl.Text = "Algorithm Control";
+            // 
+            // clb_algoConfig
+            // 
+            this.clb_algoConfig.FormattingEnabled = true;
+            this.clb_algoConfig.Items.AddRange(new object[] {
+            "Standby EN",
+            "Raw Data EN",
+            "HPR EN",
+            "6-axis EN",
+            "ENU EN",
+            "Gyro Off when still",
+            "Load Warm Start",
+            "Load Ranges"});
+            this.clb_algoConfig.Location = new System.Drawing.Point(516, 43);
+            this.clb_algoConfig.Name = "clb_algoConfig";
+            this.clb_algoConfig.Size = new System.Drawing.Size(120, 124);
+            this.clb_algoConfig.TabIndex = 57;
             // 
             // lbl_AlgorithmStatus
             // 
@@ -823,7 +961,7 @@ namespace PacketTester
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(508, 335);
+            this.tabPage1.Size = new System.Drawing.Size(674, 335);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Record 485 Frames";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -938,7 +1076,7 @@ namespace PacketTester
             this.tabPage4.Controls.Add(this.cb_robotPort);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(508, 335);
+            this.tabPage4.Size = new System.Drawing.Size(674, 335);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Robot Arm Control";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -1189,7 +1327,7 @@ namespace PacketTester
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(508, 335);
+            this.tabPage5.Size = new System.Drawing.Size(674, 335);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Emulators";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -2048,143 +2186,6 @@ namespace PacketTester
             // 
             this.powerBoardPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.powerBoardPort_DataReceived);
             // 
-            // clb_algoConfig
-            // 
-            this.clb_algoConfig.FormattingEnabled = true;
-            this.clb_algoConfig.Items.AddRange(new object[] {
-            "Standby EN",
-            "Raw Data EN",
-            "HPR EN",
-            "6-axis EN",
-            "ENU EN",
-            "Gyro Off when still",
-            "Load Warm Start",
-            "Load Ranges"});
-            this.clb_algoConfig.Location = new System.Drawing.Point(516, 43);
-            this.clb_algoConfig.Name = "clb_algoConfig";
-            this.clb_algoConfig.Size = new System.Drawing.Size(120, 124);
-            this.clb_algoConfig.TabIndex = 57;
-            // 
-            // lb_AlgorithmControl
-            // 
-            this.lb_AlgorithmControl.AutoSize = true;
-            this.lb_AlgorithmControl.Location = new System.Drawing.Point(513, 22);
-            this.lb_AlgorithmControl.Name = "lb_AlgorithmControl";
-            this.lb_AlgorithmControl.Size = new System.Drawing.Size(86, 13);
-            this.lb_AlgorithmControl.TabIndex = 58;
-            this.lb_AlgorithmControl.Text = "Algorithm Control";
-            // 
-            // btn_SendConfig
-            // 
-            this.btn_SendConfig.Location = new System.Drawing.Point(561, 261);
-            this.btn_SendConfig.Name = "btn_SendConfig";
-            this.btn_SendConfig.Size = new System.Drawing.Size(75, 23);
-            this.btn_SendConfig.TabIndex = 59;
-            this.btn_SendConfig.Text = "Send Config";
-            this.btn_SendConfig.UseVisualStyleBackColor = true;
-            this.btn_SendConfig.Click += new System.EventHandler(this.btn_SendConfig_Click);
-            // 
-            // btn_SaveConfig
-            // 
-            this.btn_SaveConfig.Location = new System.Drawing.Point(36, 258);
-            this.btn_SaveConfig.Name = "btn_SaveConfig";
-            this.btn_SaveConfig.Size = new System.Drawing.Size(120, 23);
-            this.btn_SaveConfig.TabIndex = 60;
-            this.btn_SaveConfig.Text = "Save Config to NVM";
-            this.btn_SaveConfig.UseVisualStyleBackColor = true;
-            this.btn_SaveConfig.Click += new System.EventHandler(this.btn_SaveConfig_Click);
-            // 
-            // btn_getConfig
-            // 
-            this.btn_getConfig.Location = new System.Drawing.Point(561, 290);
-            this.btn_getConfig.Name = "btn_getConfig";
-            this.btn_getConfig.Size = new System.Drawing.Size(75, 23);
-            this.btn_getConfig.TabIndex = 61;
-            this.btn_getConfig.Text = "Get Config";
-            this.btn_getConfig.UseVisualStyleBackColor = true;
-            this.btn_getConfig.Click += new System.EventHandler(this.btn_getConfig_Click);
-            // 
-            // cb_magRange
-            // 
-            this.cb_magRange.FormattingEnabled = true;
-            this.cb_magRange.Items.AddRange(new object[] {
-            "1000"});
-            this.cb_magRange.Location = new System.Drawing.Point(561, 177);
-            this.cb_magRange.Name = "cb_magRange";
-            this.cb_magRange.Size = new System.Drawing.Size(75, 21);
-            this.cb_magRange.TabIndex = 62;
-            // 
-            // cb_accelRange
-            // 
-            this.cb_accelRange.FormattingEnabled = true;
-            this.cb_accelRange.Items.AddRange(new object[] {
-            "2",
-            "4",
-            "8",
-            "16"});
-            this.cb_accelRange.Location = new System.Drawing.Point(561, 207);
-            this.cb_accelRange.Name = "cb_accelRange";
-            this.cb_accelRange.Size = new System.Drawing.Size(75, 21);
-            this.cb_accelRange.TabIndex = 63;
-            // 
-            // cb_gyroRange
-            // 
-            this.cb_gyroRange.FormattingEnabled = true;
-            this.cb_gyroRange.Items.AddRange(new object[] {
-            "125",
-            "500",
-            "1000",
-            "2000"});
-            this.cb_gyroRange.Location = new System.Drawing.Point(561, 234);
-            this.cb_gyroRange.Name = "cb_gyroRange";
-            this.cb_gyroRange.Size = new System.Drawing.Size(75, 21);
-            this.cb_gyroRange.TabIndex = 64;
-            this.cb_gyroRange.SelectedIndexChanged += new System.EventHandler(this.cb_gyroRange_SelectedIndexChanged);
-            // 
-            // lb_magRange
-            // 
-            this.lb_magRange.AutoSize = true;
-            this.lb_magRange.Location = new System.Drawing.Point(472, 187);
-            this.lb_magRange.Name = "lb_magRange";
-            this.lb_magRange.Size = new System.Drawing.Size(83, 13);
-            this.lb_magRange.TabIndex = 65;
-            this.lb_magRange.Text = "Mag Range(+/-)";
-            // 
-            // lb_accelRange
-            // 
-            this.lb_accelRange.AutoSize = true;
-            this.lb_accelRange.Location = new System.Drawing.Point(472, 210);
-            this.lb_accelRange.Name = "lb_accelRange";
-            this.lb_accelRange.Size = new System.Drawing.Size(89, 13);
-            this.lb_accelRange.TabIndex = 66;
-            this.lb_accelRange.Text = "Accel Range(+/-)";
-            // 
-            // lb_GyroRange
-            // 
-            this.lb_GyroRange.AutoSize = true;
-            this.lb_GyroRange.Location = new System.Drawing.Point(477, 237);
-            this.lb_GyroRange.Name = "lb_GyroRange";
-            this.lb_GyroRange.Size = new System.Drawing.Size(84, 13);
-            this.lb_GyroRange.TabIndex = 67;
-            this.lb_GyroRange.Text = "Gyro Range(+/-)";
-            // 
-            // nud_setId
-            // 
-            this.nud_setId.Location = new System.Drawing.Point(36, 161);
-            this.nud_setId.Name = "nud_setId";
-            this.nud_setId.Size = new System.Drawing.Size(90, 20);
-            this.nud_setId.TabIndex = 68;
-            // 
-            // btn_setSensorId
-            // 
-            this.btn_setSensorId.Location = new System.Drawing.Point(132, 158);
-            this.btn_setSensorId.Name = "btn_setSensorId";
-            this.btn_setSensorId.Size = new System.Drawing.Size(101, 23);
-            this.btn_setSensorId.TabIndex = 69;
-            this.btn_setSensorId.Text = "Set Sensor Id";
-            this.btn_setSensorId.UseVisualStyleBackColor = true;
-            this.btn_setSensorId.Click += new System.EventHandler(this.btn_setSensorId_Click);
-            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2222,6 +2223,7 @@ namespace PacketTester
             this.tabPage3.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_setId)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_updateRate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_gyroRate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_accelRate)).EndInit();
@@ -2254,7 +2256,6 @@ namespace PacketTester
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbStreamState)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgState)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_pbChrgLvl)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nud_setId)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

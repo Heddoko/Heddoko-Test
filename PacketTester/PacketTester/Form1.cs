@@ -3361,6 +3361,11 @@ namespace PacketTester
             }
         }
 
+        private void tabPage2_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void btn_pbTogglePort_Click(object sender, EventArgs e)
         {
             if (!togglePbPort)  // try to open the port
