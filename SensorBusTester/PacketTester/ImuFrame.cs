@@ -132,6 +132,11 @@ namespace PacketTester
                         Rotation_x = BitConverter.ToInt16(packet.Payload, 28 + 3);
                         Rotation_y = BitConverter.ToInt16(packet.Payload, 30 + 3);
                         Rotation_z = BitConverter.ToInt16(packet.Payload, 32 + 3);
+                        //validate the quaternion data
+                        if (Math.Abs(Quaternion_x) > 1 || Math.Abs(Quaternion_y) > 1 || Math.Abs(Quaternion_z) > 1 || Math.Abs(Quaternion_z) > 1)
+                        {
+                            retVal = false; 
+                        }
                         if (packet.PayloadSize >= 38)
                         {
                             frameStatus = packet.Payload[37];

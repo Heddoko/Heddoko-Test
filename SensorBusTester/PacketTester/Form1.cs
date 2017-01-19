@@ -47,22 +47,14 @@ namespace PacketTester
         public int dbDataRate = 20;
         public Int32 setSensorMask = 0, rxSensorMask = 0;
 
-        private bool dataMonitorQueueEnabled = false;
+
         public ConcurrentQueue<RawPacket> dataMonitorQueue;
         public UInt32 sensorDataRate = 0, sensorAvgRate = 0;
         public UInt32 curSensorFrameTick = 0, preSensorFrameTick = 0;
         public int dbSensorFrameCount = 0, debugCount = 0;
         public ConcurrentQueue<byte> dbDataReceiveQueue;
-        private bool dbDataReceiveQueueEnabled = false;
-        private int dbPacketErrorCount = 0;
 
-        // Power board emulator part
-        public bool togglePbPort = false, pbPortOpen = false;
-        private int pbDetectedSensorMask = 0;
-        public bool pbProcessDataEnable = false;
-        public ConcurrentQueue<byte> pbDataReceiveQueue;
-        private bool pbDataReceiveQueueEnabled = false;
-        
+
 
         public mainForm()
         {
@@ -109,15 +101,16 @@ namespace PacketTester
         public void streamDataToChartThread()
         {
             startTime = (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond);
-            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qx"].Points.Clear()));
-            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qy"].Points.Clear()));
-            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qz"].Points.Clear()));
-            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qw"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["X"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Y"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Z"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["W"].Points.Clear()));
 
             ImuFrame sensorframe = new ImuFrame();
             RawPacket framePacket = new RawPacket();
             bool receivedPacket = false; 
             graphIndex = 0;
+            int failedFrameCount = 0;
             //open file stream
 
             FileStream outputFile;
@@ -161,6 +154,10 @@ namespace PacketTester
                             receivedPacket = true;
                             break;
                         }
+                        else
+                        {
+                            failedFrameCount++; 
+                        }
                     }
                     Thread.Yield();
                 }
@@ -181,6 +178,8 @@ namespace PacketTester
                     outputFile.Close(); 
                 }
             }
+
+            debugMessageQueue.Enqueue(String.Format("Stream Closed received: {0} Failed frames\r\n", failedFrameCount));
             //start up other listenning thread again
             processPacketQueueEnabled = true;
             Thread packetProcessorThread = new Thread(processPacketThread);
@@ -393,6 +392,7 @@ namespace PacketTester
                                 frameReceived[i] = true;
                                 break;
                             }
+                            
                         }
                         Thread.Yield(); 
                     }
@@ -542,10 +542,11 @@ namespace PacketTester
             strBuilder.Append(string.Format("Mag Rate:{0}\r\n", magError));
             strBuilder.Append(string.Format("Accel Rate:{0}\r\n", accelError));
             strBuilder.Append(string.Format("Gyro Rate:{0}\r\n", gyroError));
+            //Algorithm Status
             for (int i = 0; i < 5; i++)
             {
                 int index = i; 
-                if ((imuStatus & (1 << i)) > 0)
+                if ((imuStatus & (1 << (i+24))) > 0)
                 {
                     this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(index, CheckState.Checked); });
                    
@@ -555,7 +556,48 @@ namespace PacketTester
                     this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(index, CheckState.Unchecked); });                    
                 }
             }
+            //Sentral Status 3rd byte, starts in list at 12
+            for (int i = 0; i < 5; i++)
+            {
+                int index = i + 12;
+                if ((imuStatus & (1 << (i + 16))) > 0)
+                {
+                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Checked); });
 
+                }
+                else
+                {
+                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Unchecked); });
+                }
+            }
+            //Sensor Status 2nd, starts in list at 6
+            for (int i = 0; i < 6; i++)
+            {
+                int index = i + 6;
+                if ((imuStatus & (1 << (i + 8))) > 0)
+                {
+                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Checked); });
+
+                }
+                else
+                {
+                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Unchecked); });
+                }
+            }
+            //Event Status 1st byte, starts in list at 0
+            for (int i = 0; i < 6; i++)
+            {
+                int index = i;
+                if ((imuStatus & (1 << (i))) > 0)
+                {
+                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Checked); });
+
+                }
+                else
+                {
+                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Unchecked); });
+                }
+            }
             return strBuilder.ToString();
         }
         string processGetConfigParamResponse(RawPacket packet)
@@ -635,16 +677,16 @@ namespace PacketTester
             {
                 try
                 {
-                    //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qx"].Points.AddY((double)frame.Quaternion_x)));
-                    //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qy"].Points.AddY((double)frame.Quaternion_y)));
-                    //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qz"].Points.AddY((double)frame.Quaternion_z)));
-                    //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qw"].Points.AddY((double)frame.Quaternion_w)));
+                    //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["X"].Points.AddY((double)frame.Quaternion_x)));
+                    //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Y"].Points.AddY((double)frame.Quaternion_y)));
+                    //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Z"].Points.AddY((double)frame.Quaternion_z)));
+                    //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["W"].Points.AddY((double)frame.Quaternion_w)));
                     this.BeginInvoke((MethodInvoker)delegate ()
                     {
-                        chrt_dataChart.Series["Qx"].Points.AddY((double)frame.Quaternion_x);
-                        chrt_dataChart.Series["Qy"].Points.AddY((double)frame.Quaternion_y);
-                        chrt_dataChart.Series["Qz"].Points.AddY((double)frame.Quaternion_z);
-                        chrt_dataChart.Series["Qw"].Points.AddY((double)frame.Quaternion_w);
+                        chrt_dataChart.Series["X"].Points.AddY((double)frame.Quaternion_x);
+                        chrt_dataChart.Series["Y"].Points.AddY((double)frame.Quaternion_y);
+                        chrt_dataChart.Series["Z"].Points.AddY((double)frame.Quaternion_z);
+                        chrt_dataChart.Series["W"].Points.AddY((double)frame.Quaternion_w);
                     });
 
                 }
@@ -657,9 +699,9 @@ namespace PacketTester
             {
                 this.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    chrt_dataChart.Series["Qx"].Points.AddY(System.Convert.ToDouble(frame.Magnetic_x));
-                    chrt_dataChart.Series["Qy"].Points.AddY(System.Convert.ToDouble(frame.Magnetic_y));
-                    chrt_dataChart.Series["Qz"].Points.AddY(System.Convert.ToDouble(frame.Magnetic_z));
+                    chrt_dataChart.Series["X"].Points.AddY(System.Convert.ToDouble(frame.Magnetic_x));
+                    chrt_dataChart.Series["Y"].Points.AddY(System.Convert.ToDouble(frame.Magnetic_y));
+                    chrt_dataChart.Series["Z"].Points.AddY(System.Convert.ToDouble(frame.Magnetic_z));
                 });
                 
             }
@@ -667,9 +709,9 @@ namespace PacketTester
             {
                 this.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    chrt_dataChart.Series["Qx"].Points.AddY(System.Convert.ToDouble(frame.Acceleration_x));
-                    chrt_dataChart.Series["Qy"].Points.AddY(System.Convert.ToDouble(frame.Acceleration_y));
-                    chrt_dataChart.Series["Qz"].Points.AddY(System.Convert.ToDouble(frame.Acceleration_z));
+                    chrt_dataChart.Series["X"].Points.AddY(System.Convert.ToDouble(frame.Acceleration_x));
+                    chrt_dataChart.Series["Y"].Points.AddY(System.Convert.ToDouble(frame.Acceleration_y));
+                    chrt_dataChart.Series["Z"].Points.AddY(System.Convert.ToDouble(frame.Acceleration_z));
                 });
                 
             }
@@ -677,31 +719,31 @@ namespace PacketTester
             {
                 this.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    chrt_dataChart.Series["Qx"].Points.AddY(System.Convert.ToDouble(frame.Rotation_x));
-                    chrt_dataChart.Series["Qy"].Points.AddY(System.Convert.ToDouble(frame.Rotation_y));
-                    chrt_dataChart.Series["Qz"].Points.AddY(System.Convert.ToDouble(frame.Rotation_z));
+                    chrt_dataChart.Series["X"].Points.AddY(System.Convert.ToDouble(frame.Rotation_x));
+                    chrt_dataChart.Series["Y"].Points.AddY(System.Convert.ToDouble(frame.Rotation_y));
+                    chrt_dataChart.Series["Z"].Points.AddY(System.Convert.ToDouble(frame.Rotation_z));
                 });
             }
 
-            if (chrt_dataChart.Series["Qx"].Points.Count > graphMaxSize)
+            if (chrt_dataChart.Series["X"].Points.Count > graphMaxSize)
             {
                 this.BeginInvoke((MethodInvoker)delegate ()
                 {
-                    chrt_dataChart.Series["Qx"].Points.RemoveAt(0);
-                    chrt_dataChart.Series["Qy"].Points.RemoveAt(0);
-                    chrt_dataChart.Series["Qz"].Points.RemoveAt(0);
+                    chrt_dataChart.Series["X"].Points.RemoveAt(0);
+                    chrt_dataChart.Series["Y"].Points.RemoveAt(0);
+                    chrt_dataChart.Series["Z"].Points.RemoveAt(0);
                     if (selectedDataType == 0)
                     {
-                        chrt_dataChart.Series["Qw"].Points.RemoveAt(0);
+                        chrt_dataChart.Series["W"].Points.RemoveAt(0);
                     }
                 });
 
-                //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qx"].Points.RemoveAt(0)));
-                //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qy"].Points.RemoveAt(0)));
-                //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qz"].Points.RemoveAt(0)));
+                //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["X"].Points.RemoveAt(0)));
+                //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Y"].Points.RemoveAt(0)));
+                //this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Z"].Points.RemoveAt(0)));
                 //if (selectedDataType == 0)
                 //{
-                //    this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qw"].Points.RemoveAt(0)));
+                //    this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["W"].Points.RemoveAt(0)));
                 //}
 
             }
@@ -892,20 +934,6 @@ namespace PacketTester
                         break;
                 }
             }
-            else if(packet.Payload[0] == 0x04) //this is a protocol buffer file. 
-            {
-                Stream stream = new MemoryStream(packet.Payload,1,packet.PayloadSize-1);
-                try
-                {
-                    Packet protoPacket = Serializer.Deserialize<Packet>(stream);
-                    processProtoPacket(protoPacket); 
-                }
-                catch
-                {
-                    debugMessageQueue.Enqueue("Failed to deserialize packet\r\n");
-                }
-                
-            }
             
         }
 
@@ -944,9 +972,6 @@ namespace PacketTester
             cb_dataType.Items.AddRange(dataTypes);
             cb_dataType.SelectedIndex = 0;
 
-
-            dataMonitorQueue = new ConcurrentQueue<RawPacket>();
-            dataMonitorQueueEnabled = true;
         }
 
         private void bnt_Connect_Click(object sender, EventArgs e)
@@ -959,13 +984,13 @@ namespace PacketTester
                 return;
             }
 
-            serialPort.PortName = cb_serialPorts.Items[cb_serialPorts.SelectedIndex].ToString();
-            serialPort.BaudRate = int.Parse(cb_BaudRate.Items[cb_BaudRate.SelectedIndex].ToString()); 
+
             try
             {
+                serialPort.PortName = cb_serialPorts.Items[cb_serialPorts.SelectedIndex].ToString();
+                serialPort.BaudRate = int.Parse(cb_BaudRate.Items[cb_BaudRate.SelectedIndex].ToString());
                 openSerialPort = true;
                 serialPort.Open();
-
                 tb_Console.AppendText("Port: " + serialPort.PortName + " Open\r\n");
             }
             catch (Exception ex)
@@ -1062,7 +1087,9 @@ namespace PacketTester
         {
             //stop debug thread
             processDebugThreadEnabled = false;
-            processPacketQueueEnabled = false;
+            streamDataToChartEnabled = false;
+            Thread.Sleep(400);
+            processPacketQueueEnabled = false; 
             streamDataEnabled = false;     
             //close the serial port
             if (serialPort.IsOpen)
@@ -1154,24 +1181,6 @@ namespace PacketTester
             if (serialPort.IsOpen)
             {
                 sendPacket(setRateBytes, 5);
-            }
-        }
-        private void cb_ypr_CheckedChanged(object sender, EventArgs e)
-        {
-            if (serialPort.IsOpen)
-            {
-                byte[] setYPRBytes = new byte[3];
-                setYPRBytes[0] = 0x01;
-                setYPRBytes[1] = 0x22; //set yaw pitch and roll command
-                if(cb_ypr.Checked)
-                {
-                    setYPRBytes[2] = 0x01;
-                }
-                else
-                {
-                    setYPRBytes[2] = 0x00;
-                }
-                sendPacket(setYPRBytes, 3);
             }
         }
         private void sendUpdateCommand()
@@ -1325,10 +1334,10 @@ namespace PacketTester
         private void cb_dataType_SelectedIndexChanged(object sender, EventArgs e)
         {
             //clear the data
-            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qx"].Points.Clear()));
-            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qy"].Points.Clear()));
-            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qz"].Points.Clear()));
-            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Qw"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["X"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Y"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["Z"].Points.Clear()));
+            this.BeginInvoke((MethodInvoker)(() => chrt_dataChart.Series["W"].Points.Clear()));
             //Change the range to make more sense
 
             if(cb_dataType.SelectedIndex < 0 || cb_dataType.SelectedIndex > 3)
