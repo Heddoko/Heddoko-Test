@@ -106,6 +106,7 @@ namespace PacketTester
             this.btn_getEepromFile = new System.Windows.Forms.Button();
             this.ofd_openFile = new System.Windows.Forms.OpenFileDialog();
             this.btn_cancelTransfer = new System.Windows.Forms.Button();
+            this.tmr_transferTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_setId)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_updateRate)).BeginInit();
@@ -182,28 +183,33 @@ namespace PacketTester
             this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
             series1.BorderWidth = 5;
             series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
             series1.Legend = "Legend1";
-            series1.MarkerSize = 1;
+            series1.MarkerSize = 3;
+            series1.MarkerStyle = System.Windows.Forms.DataVisualization.Charting.MarkerStyle.Circle;
             series1.Name = "Qx";
+            series1.YValuesPerPoint = 2;
             series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
             series2.BorderWidth = 5;
             series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
             series2.Legend = "Legend1";
-            series2.MarkerSize = 1;
+            series2.MarkerSize = 3;
+            series2.MarkerStyle = System.Windows.Forms.DataVisualization.Charting.MarkerStyle.Circle;
             series2.Name = "Qy";
             series3.BorderWidth = 5;
             series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
             series3.Legend = "Legend1";
-            series3.MarkerSize = 1;
+            series3.MarkerSize = 3;
+            series3.MarkerStyle = System.Windows.Forms.DataVisualization.Charting.MarkerStyle.Circle;
             series3.Name = "Qz";
             series4.BorderWidth = 5;
             series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
             series4.Legend = "Legend1";
-            series4.MarkerSize = 1;
+            series4.MarkerSize = 3;
+            series4.MarkerStyle = System.Windows.Forms.DataVisualization.Charting.MarkerStyle.Circle;
             series4.Name = "Qw";
             this.chrt_dataChart.Series.Add(series1);
             this.chrt_dataChart.Series.Add(series2);
@@ -829,6 +835,10 @@ namespace PacketTester
             this.btn_cancelTransfer.UseVisualStyleBackColor = true;
             this.btn_cancelTransfer.Click += new System.EventHandler(this.btn_cancelTransfer_Click);
             // 
+            // tmr_transferTimer
+            // 
+            this.tmr_transferTimer.Tick += new System.EventHandler(this.tmr_transferTimer_Tick);
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -898,7 +908,7 @@ namespace PacketTester
             this.Controls.Add(this.cb_dataType);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "mainForm";
-            this.Text = "Sean\'s Packet Tester";
+            this.Text = "Sean\'s Sensor Tester";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.mainForm_FormClosing);
             this.Load += new System.EventHandler(this.mainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).EndInit();
@@ -982,6 +992,7 @@ namespace PacketTester
         private System.Windows.Forms.Button btn_getEepromFile;
         private System.Windows.Forms.OpenFileDialog ofd_openFile;
         private System.Windows.Forms.Button btn_cancelTransfer;
+        private System.Windows.Forms.Timer tmr_transferTimer;
     }
 }
 

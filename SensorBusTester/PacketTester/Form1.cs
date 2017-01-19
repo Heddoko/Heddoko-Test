@@ -773,7 +773,7 @@ namespace PacketTester
 
             byte algoConfig = 0x00;
             algoConfig = packet.Payload[3];
-            
+            tmr_transferTimer.Stop(); //stop the timeout timer
             int index = 0;
             for (int i =0; i<7; i++)
             {
@@ -879,7 +879,7 @@ namespace PacketTester
                         processWarmupResponse(packet); 
                         break;
                     case CommandIds.getConfigResp:
-                        debugMessageQueue.Enqueue("Received Config response 0x" +packet.Payload[3].ToString("x")  +"\r\n");
+                        debugMessageQueue.Enqueue("Received Config Response!\r\nConfig Reg=" +packet.Payload[3].ToString("x")  +"\r\n");
                         processGetConfigResponse(packet);
                         break;
                     case CommandIds.writeEepromResponse:
@@ -936,13 +936,10 @@ namespace PacketTester
             processDebugThreadEnabled = true;
             Thread debugMessageThread = new Thread(processDebugMessagesThread);
             debugMessageThread.Start();
-
             packetQueue = new ConcurrentQueue<RawPacket>();
             processPacketQueueEnabled = true; 
             Thread packetProcessorThread = new Thread(processPacketThread);
             packetProcessorThread.Start();
-
-
             string[] dataTypes = { "Quaternion", "Magnetic","Acceleration", "Rotation" };
             cb_dataType.Items.AddRange(dataTypes);
             cb_dataType.SelectedIndex = 0;
@@ -1448,8 +1445,13 @@ namespace PacketTester
             configBytes[1] = 0x27; //send config command byte
             configBytes[2] = (byte)nud_SelectedImu.Value; 
             byte algoControl = 0x00;
+            if(streamDataEnabled || streamDataToChartEnabled)
+            {
+                MessageBox.Show("Cannot configure sensor while streaming.\r\nDisable Streaming to continue", "ERROR!!!", MessageBoxButtons.OK);
+                return; 
+            }
+
             //cannot loop through this since there is hole in the middle of the register. 
-            
             //check standby checked state
             if (clb_algoConfig.GetItemCheckState(0) == CheckState.Checked)
             {
@@ -1550,6 +1552,7 @@ namespace PacketTester
             //copy the address
             Buffer.BlockCopy(BitConverter.GetBytes(address), 0, outputPacket, 3, 2);
             sendPacket(outputPacket, 5);
+
         }
         const int eepromSize = 32000; 
         byte[] eepromData = new byte[eepromSize];
@@ -1587,15 +1590,17 @@ namespace PacketTester
             //send the first packet
             byte[] packet = new byte[64];
             Buffer.BlockCopy(eepromData, 0, packet, 0, 64);
-            sendEepromPacket(0, packet); 
+            sendEepromPacket(0, packet);
             //TODO: start timeout timer... add this in next. 
-
+            tmr_transferTimer.Interval = 1000; //set the interval for 1 second
+            tmr_transferTimer.Start(); 
         }
         private void processWriteEepromResponse(RawPacket packet)
         {
             byte[] eepromPacket = new byte[64];
             int address = (packet.Payload[3] << 8) + packet.Payload[2];
             int transferSize = 0;
+            tmr_transferTimer.Stop(); //stop the timeout timer
             if (packet.Payload[4] == 0x01) //the last packet was written correctly
             {
                 //calculate if we need to write more bytes
@@ -1617,6 +1622,7 @@ namespace PacketTester
                 }
                 Buffer.BlockCopy(eepromData, (int)eepromDataTransferedLength, eepromPacket, 0, transferSize);
                 sendEepromPacket((UInt16)eepromDataTransferedLength, eepromPacket);
+                tmr_transferTimer.Start(); //start the timeout timer again
             }
             else
             {
@@ -1630,7 +1636,7 @@ namespace PacketTester
         {
             int address = (packet.Payload[3] << 8) + packet.Payload[2];
             int transferSize = 64;
-            
+            tmr_transferTimer.Stop(); //stop the timeout timer
             //copy the eeprom packet into the buffer at the given address. 
             if(packet.PayloadSize != 68 && address > eepromSize)
             {
@@ -1663,6 +1669,8 @@ namespace PacketTester
             {
                 //now ask for the next packet
                 sendGetEepromPacket((UInt16)eepromDataTransferedLength);
+                tmr_transferTimer.Interval = 1000; //set the timeout for 1 second
+                tmr_transferTimer.Start(); //start the timeout timer again
             }
             
         }
@@ -1696,10 +1704,27 @@ namespace PacketTester
             //send get file
             sendGetEepromPacket(0);
             eepromTransferInProgress = true;
+            tmr_transferTimer.Interval = 1000; //set the timeout for 1 second
+            tmr_transferTimer.Start(); //start the timeout timer again
+        }
+
+        private void tmr_transferTimer_Tick(object sender, EventArgs e)
+        {
+            tmr_transferTimer.Stop(); //stop the timer
+            //disable passthrough
+            sendCommandToSensorId(0x2B, (byte)nud_SelectedImu.Value, 0x00);
+            eepromTransferInProgress = false;
+            debugMessageQueue.Enqueue("Transfer Timed out!\r\n");
+            eepromDataTransferedLength = 0;
         }
 
         private void btn_getConfig_Click(object sender, EventArgs e)
         {
+            if (streamDataEnabled || streamDataToChartEnabled)
+            {
+                MessageBox.Show("Cannot get sensor config while streaming.\r\nDisable Streaming to continue", "ERROR!!!", MessageBoxButtons.OK);
+                return;
+            }
             sendCommandToSensorId((byte)CommandIds.getConfig, (byte)nud_SelectedImu.Value);
         }
 
