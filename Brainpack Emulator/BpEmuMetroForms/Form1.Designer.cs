@@ -34,6 +34,8 @@
             this.metroToolTip1 = new MetroFramework.Components.MetroToolTip();
             this.ParentGrid = new System.Windows.Forms.FlowLayoutPanel();
             this.stateBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.button1 = new System.Windows.Forms.Button();
+            this.metroTile2 = new MetroFramework.Controls.MetroTile();
             ((System.ComponentModel.ISupportInitialize)(this.stateBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
@@ -48,7 +50,7 @@
             // metroTile1
             // 
             this.metroTile1.ActiveControl = null;
-            this.metroTile1.Location = new System.Drawing.Point(23, 93);
+            this.metroTile1.Location = new System.Drawing.Point(23, 63);
             this.metroTile1.Name = "metroTile1";
             this.metroTile1.Size = new System.Drawing.Size(42, 40);
             this.metroTile1.TabIndex = 3;
@@ -75,12 +77,37 @@
             // stateBindingSource
             // 
             this.stateBindingSource.DataSource = typeof(BpEmuMetroForms.Brainpack.Sensor.State);
+            this.stateBindingSource.CurrentChanged += new System.EventHandler(this.stateBindingSource_CurrentChanged);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(23, 597);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(217, 23);
+            this.button1.TabIndex = 4;
+            this.button1.Text = "Save brainpack list";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // metroTile2
+            // 
+            this.metroTile2.ActiveControl = null;
+            this.metroTile2.Location = new System.Drawing.Point(103, 63);
+            this.metroTile2.Name = "metroTile2";
+            this.metroTile2.Size = new System.Drawing.Size(70, 40);
+            this.metroTile2.TabIndex = 5;
+            this.metroTile2.Text = "Load";
+            this.metroTile2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.metroTile2.UseSelectable = true;
+            this.metroTile2.Click += new System.EventHandler(this.metroTile2_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1156, 689);
+            this.ClientSize = new System.Drawing.Size(1156, 642);
+            this.Controls.Add(this.metroTile2);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.ParentGrid);
             this.Controls.Add(this.metroTile1);
             this.Controls.Add(this.BrainpackTileFlowParent);
@@ -98,6 +125,8 @@
         private MetroFramework.Components.MetroToolTip metroToolTip1;
         private System.Windows.Forms.FlowLayoutPanel ParentGrid;
         private System.Windows.Forms.BindingSource stateBindingSource;
+        private System.Windows.Forms.Button button1;
+        private MetroFramework.Controls.MetroTile metroTile2;
     }
 }
 

@@ -41,15 +41,16 @@ namespace BpEmuMetroForms.Brainpack
             ComboBoxBuild.Text = BrainpackController.Model.FirmwareVersion.Build.ToString();
             ComboBoxRevision.Text = BrainpackController.Model.FirmwareVersion.Revision.ToString();
             ConfigurationPortInputField.Text = BrainpackController.Model.ConfigurationPort.ToString();
+            advertisingTickRateInputField.Text = BrainpackController.Model.AdvertisingTickRate.ToString();
+            ConcernReportTickRate.Text = BrainpackController.Model.ConcernReportTickRate.ToString();
             advertisingTickRateInputField.KeyPress += AdvertisingTickRateInputField_KeyPress;
-            metroTextBox1.KeyPress += MetroTextBox1_KeyPress;
+            ConcernReportTickRate.KeyPress += MetroTextBox1_KeyPress;
             this.FormClosing += BrainpackFormClosing;
         }
 
         private void MetroTextBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
             e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
-
         }
 
         private void AdvertisingTickRateInputField_KeyPress(object sender, KeyPressEventArgs e)
@@ -152,7 +153,7 @@ namespace BpEmuMetroForms.Brainpack
             int advertisingTickRateInputFieldValue = 5000;
             int concernReportTickRate = 5000;
             int.TryParse(advertisingTickRateInputField.Text, out advertisingTickRateInputFieldValue);
-            int.TryParse(metroTextBox1.Text, out concernReportTickRate);
+            int.TryParse(ConcernReportTickRate.Text, out concernReportTickRate);
             if (concernReportTickRate < 200)
             {
                 concernReportTickRate = 200;
@@ -165,7 +166,7 @@ namespace BpEmuMetroForms.Brainpack
             BrainpackController.Model.AdvertisingTickRate = advertisingTickRateInputFieldValue;
             BrainpackController.Model.ConcernReportTickRate = concernReportTickRate;
             advertisingTickRateInputField.Text = advertisingTickRateInputFieldValue.ToString();
-            metroTextBox1.Text = concernReportTickRate.ToString();
+            ConcernReportTickRate.Text = concernReportTickRate.ToString();
 
 
             if (ConfigurationPortValidation != null)
