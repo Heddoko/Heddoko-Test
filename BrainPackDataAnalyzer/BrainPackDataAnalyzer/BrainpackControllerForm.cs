@@ -1,6 +1,7 @@
 ﻿using heddoko;
 using ProtoBuf;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,6 +10,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -22,11 +24,25 @@ namespace BrainPackDataAnalyzer
         private bool processDebugThreadEnabled = false;
         public ConcurrentQueue<string> debugMessageQueue;
         public ConcurrentQueue<RawPacket> outputPacketQueue;
-        private bool streamRequested = false;  
+        private bool streamRequested = false;
+
+
         public BrainpackControllerForm()
         {
             InitializeComponent();
 
+        }
+        public BrainpackControllerForm(Brainpack brainapack)
+        {
+            InitializeComponent();
+            mtb_netPort.Text = brainapack.ConfigurationPort.ToString();
+            mtb_NetAddress.Text = brainapack.RemoteEP.Address.ToString();
+            StringBuilder strBuilder = new StringBuilder();
+            strBuilder.Append("Serial Number: " + brainapack.SerialNumber + "\r\n");
+            strBuilder.Append("Firmware Version: " + brainapack.FirmwareVersion + "\r\n");
+            strBuilder.Append("IP Address: " + brainapack.RemoteEP.Address.ToString() + "\r\n");
+            tb_Console.AppendText(strBuilder.ToString());
+            this.Text = "Brainpack Configuration " + brainapack.SerialNumber; 
         }
         public void processDebugMessagesThread()
         {
@@ -69,6 +85,56 @@ namespace BrainPackDataAnalyzer
             }
 
         }
+        private void processSensorMask(UInt32 sensorMask)
+        {
+            for(int i =0; i < 9; i++)
+            {
+                if((sensorMask &(1<< i)) > 0)
+                {
+                    setCheckedSensorState(i, CheckState.Checked);
+                }
+                else
+                {
+                    setCheckedSensorState(i, CheckState.Unchecked);
+                }
+                
+                this.BeginInvoke((MethodInvoker)(() => pb_bodyPicture.Update()));
+            }
+            
+        }
+        private void setCheckedSensorState(int sensor, CheckState checkedState)
+        {
+            switch(sensor)
+            {
+                case 0:
+                    this.BeginInvoke((MethodInvoker)(() => cb_sensor0.CheckState = checkedState));                    
+                    break;
+                case 1:
+                    this.BeginInvoke((MethodInvoker)(() => cb_sensor1.CheckState = checkedState));
+                    break;
+                case 2:
+                    this.BeginInvoke((MethodInvoker)(() => cb_sensor2.CheckState = checkedState));
+                    break;
+                case 3:
+                    this.BeginInvoke((MethodInvoker)(() => cb_sensor3.CheckState = checkedState));
+                    break;
+                case 4:
+                    this.BeginInvoke((MethodInvoker)(() => cb_sensor4.CheckState = checkedState));
+                    break;
+                case 5:
+                    this.BeginInvoke((MethodInvoker)(() => cb_sensor5.CheckState = checkedState));
+                    break;
+                case 6:
+                    this.BeginInvoke((MethodInvoker)(() => cb_sensor6.CheckState = checkedState));
+                    break;
+                case 7:
+                    this.BeginInvoke((MethodInvoker)(() => cb_sensor7.CheckState = checkedState));
+                    break;
+                case 8:
+                    this.BeginInvoke((MethodInvoker)(() => cb_sensor8.CheckState = checkedState));
+                    break;
+            }
+        }
         int statusMessageReceivedCount = 0;
         private void processProtoPacket(Packet packet)
         {
@@ -107,6 +173,11 @@ namespace BrainPackDataAnalyzer
                         strBuilder.Append("Charger State: " + packet.chargeState.ToString() + "\r\n");
                     }
                     strBuilder.Append("Battery Level: " + packet.batteryLevel.ToString() + "\r\n");
+                    if(packet.sensorMaskSpecified)
+                    {
+                        strBuilder.Append("Sensor Mask: " + packet.sensorMask.ToString("X") + "\r\n");
+                        processSensorMask(packet.sensorMask);
+                    }
                     debugMessageQueue.Enqueue(strBuilder.ToString());
                     break;
                 case PacketType.DataFrame:
@@ -252,7 +323,36 @@ namespace BrainPackDataAnalyzer
             Thread socketClientThread = new Thread(socketClientProcess);
             socketClientThread.Start();
         }
-
+        public static string GetLocalIpAddress()
+        {
+            var vHost = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var vIp in vHost.AddressList)
+            {
+                if (vIp.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return vIp.ToString();
+                }
+            }
+            throw new Exception("Local IP Address Not Found!");
+        }
+        public string GetLocalIPv4(NetworkInterfaceType _type)
+        {
+            string output = "";
+            foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (item.NetworkInterfaceType == _type && item.OperationalStatus == OperationalStatus.Up)
+                {
+                    foreach (UnicastIPAddressInformation ip in item.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            output = ip.Address.ToString();
+                        }
+                    }
+                }
+            }
+            return output;
+        }
         private void BrainpackControllerForm_Load(object sender, EventArgs e)
         {
             //initialize the message queue
@@ -262,6 +362,15 @@ namespace BrainPackDataAnalyzer
             Thread debugMessageThread = new Thread(processDebugMessagesThread);
             debugMessageThread.Start();
             outputPacketQueue = new ConcurrentQueue<RawPacket>();
+            try
+            {
+                mtb_streamAddress.Text = GetLocalIPv4(NetworkInterfaceType.Wireless80211); 
+            }
+            catch
+            {
+                mtb_streamAddress.Text = "192.168.11.1";
+            }
+
         }
 
         private void btn_disconnectSock_Click(object sender, EventArgs e)
@@ -338,6 +447,11 @@ namespace BrainPackDataAnalyzer
             
             processDebugThreadEnabled = false;
             EnableSocketQueue = false; 
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

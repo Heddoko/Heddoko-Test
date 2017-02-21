@@ -542,60 +542,67 @@ namespace PacketTester
             strBuilder.Append(string.Format("Mag Rate:{0}\r\n", magError));
             strBuilder.Append(string.Format("Accel Rate:{0}\r\n", accelError));
             strBuilder.Append(string.Format("Gyro Rate:{0}\r\n", gyroError));
-            //Algorithm Status
-            for (int i = 0; i < 5; i++)
+            if (imuStatus == 0xdeadbeef)
             {
-                int index = i; 
-                if ((imuStatus & (1 << (i+24))) > 0)
-                {
-                    this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(index, CheckState.Checked); });
-                   
-                }
-                else
-                {
-                    this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(index, CheckState.Unchecked); });                    
-                }
+                strBuilder.Append("SENTRAL COMMS FAILURE!!!\r\n");
             }
-            //Sentral Status 3rd byte, starts in list at 12
-            for (int i = 0; i < 5; i++)
+            else
             {
-                int index = i + 12;
-                if ((imuStatus & (1 << (i + 16))) > 0)
+                //Algorithm Status
+                for (int i = 0; i < 5; i++)
                 {
-                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Checked); });
+                    int index = i;
+                    if ((imuStatus & (1 << (i + 24))) > 0)
+                    {
+                        this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(index, CheckState.Checked); });
 
+                    }
+                    else
+                    {
+                        this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(index, CheckState.Unchecked); });
+                    }
                 }
-                else
+                //Sentral Status 3rd byte, starts in list at 12
+                for (int i = 0; i < 5; i++)
                 {
-                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Unchecked); });
-                }
-            }
-            //Sensor Status 2nd, starts in list at 6
-            for (int i = 0; i < 6; i++)
-            {
-                int index = i + 6;
-                if ((imuStatus & (1 << (i + 8))) > 0)
-                {
-                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Checked); });
+                    int index = i + 12;
+                    if ((imuStatus & (1 << (i + 16))) > 0)
+                    {
+                        this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Checked); });
 
+                    }
+                    else
+                    {
+                        this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Unchecked); });
+                    }
                 }
-                else
+                //Sensor Status 2nd, starts in list at 6
+                for (int i = 0; i < 6; i++)
                 {
-                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Unchecked); });
-                }
-            }
-            //Event Status 1st byte, starts in list at 0
-            for (int i = 0; i < 6; i++)
-            {
-                int index = i;
-                if ((imuStatus & (1 << (i))) > 0)
-                {
-                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Checked); });
+                    int index = i + 6;
+                    if ((imuStatus & (1 << (i + 8))) > 0)
+                    {
+                        this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Checked); });
 
+                    }
+                    else
+                    {
+                        this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Unchecked); });
+                    }
                 }
-                else
+                //Event Status 1st byte, starts in list at 0
+                for (int i = 0; i < 6; i++)
                 {
-                    this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Unchecked); });
+                    int index = i;
+                    if ((imuStatus & (1 << (i))) > 0)
+                    {
+                        this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Checked); });
+
+                    }
+                    else
+                    {
+                        this.BeginInvoke((MethodInvoker)delegate () { clb_sensorStatus.SetItemCheckState(index, CheckState.Unchecked); });
+                    }
                 }
             }
             return strBuilder.ToString();
@@ -734,7 +741,10 @@ namespace PacketTester
                     chrt_dataChart.Series["Z"].Points.RemoveAt(0);
                     if (selectedDataType == 0)
                     {
-                        chrt_dataChart.Series["W"].Points.RemoveAt(0);
+                        if (chrt_dataChart.Series["W"].Points.Count > graphMaxSize)
+                        {
+                            chrt_dataChart.Series["W"].Points.RemoveAt(0);
+                        }
                     }
                 });
 
@@ -761,7 +771,15 @@ namespace PacketTester
                     this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(index, CheckState.Unchecked); });
                 }
             }
+            if((frame.frameStatus & 0x80) > 0)
+            {
+                this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(5, CheckState.Checked); });
 
+            }
+            else
+            {
+                this.BeginInvoke((MethodInvoker)delegate () { clb_algorithmStatus.SetItemCheckState(5, CheckState.Unchecked); });
+            }
 
         }
         private void processProtoPacket(Packet packet)

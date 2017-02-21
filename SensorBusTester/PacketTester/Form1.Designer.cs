@@ -437,7 +437,8 @@ namespace PacketTester
             "AlgorithmSlow",
             "Still",
             "CalStable",
-            "MagTransient"});
+            "MagTransient",
+            "COM FAILURE"});
             this.clb_algorithmStatus.Location = new System.Drawing.Point(803, 440);
             this.clb_algorithmStatus.Name = "clb_algorithmStatus";
             this.clb_algorithmStatus.SelectionMode = System.Windows.Forms.SelectionMode.None;

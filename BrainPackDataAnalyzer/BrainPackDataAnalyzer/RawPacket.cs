@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Net;
 
 namespace BrainPackDataAnalyzer
 {
@@ -22,7 +23,8 @@ namespace BrainPackDataAnalyzer
         bool escapeFlag;
         UInt16 bytesReceived;
         byte[] rawPacketBytes;
-        UInt16 rawPacketBytesIndex; 
+        UInt16 rawPacketBytesIndex;
+        IPEndPoint remoteEndpoint;
 
         public byte[] Payload
         {
@@ -45,6 +47,20 @@ namespace BrainPackDataAnalyzer
                 return bytesReceived;
             }
         }
+
+        public IPEndPoint RemoteEndpoint
+        {
+            get
+            {
+                return remoteEndpoint;
+            }
+
+            set
+            {
+                remoteEndpoint = value;
+            }
+        }
+
         public RawPacket()
         {
             payload = new byte[maxPacketSize];
@@ -52,7 +68,8 @@ namespace BrainPackDataAnalyzer
             packetComplete = false;
             escapeFlag = false;
             bytesReceived = 0;
-            rawPacketBytes = new byte[maxPacketSize]; 
+            rawPacketBytes = new byte[maxPacketSize];
+            RemoteEndpoint = new IPEndPoint(0, 0);
         }
         public RawPacket(byte[] payloadBytes, UInt16 payloadBytesSize)
         {
@@ -62,6 +79,7 @@ namespace BrainPackDataAnalyzer
             bytesReceived = 0;
             rawPacketBytes = new byte[maxPacketSize];
             rawPacketBytesIndex = 0;
+            RemoteEndpoint = new IPEndPoint(0, 0);
         }
         public RawPacket(RawPacket packet)
         {
@@ -72,6 +90,7 @@ namespace BrainPackDataAnalyzer
             bytesReceived = 0;
             rawPacketBytes = new byte[maxPacketSize];
             rawPacketBytesIndex = 0;
+            RemoteEndpoint = packet.RemoteEndpoint;
         }
         public void resetPacket()
         {
@@ -86,6 +105,7 @@ namespace BrainPackDataAnalyzer
             other.payload = this.payload;
             Buffer.BlockCopy(other.payload, 0, this.payload, 0, this.payloadSize);
             other.payloadSize = this.payloadSize;
+            other.RemoteEndpoint = this.RemoteEndpoint;
             return other;
         }
         public PacketStatus processByte(byte incoming)

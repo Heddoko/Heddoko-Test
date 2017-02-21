@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BrainpackControllerForm));
             this.tb_Console = new System.Windows.Forms.TextBox();
             this.btn_getStatus = new System.Windows.Forms.Button();
             this.btn_disconnectSock = new System.Windows.Forms.Button();
@@ -45,7 +46,18 @@
             this.btn_StreamReq = new System.Windows.Forms.Button();
             this.btn_cfgRecord = new System.Windows.Forms.Button();
             this.btn_stopStream = new System.Windows.Forms.Button();
+            this.pb_bodyPicture = new System.Windows.Forms.PictureBox();
+            this.cb_sensor0 = new System.Windows.Forms.CheckBox();
+            this.cb_sensor1 = new System.Windows.Forms.CheckBox();
+            this.cb_sensor2 = new System.Windows.Forms.CheckBox();
+            this.cb_sensor4 = new System.Windows.Forms.CheckBox();
+            this.cb_sensor3 = new System.Windows.Forms.CheckBox();
+            this.cb_sensor5 = new System.Windows.Forms.CheckBox();
+            this.cb_sensor6 = new System.Windows.Forms.CheckBox();
+            this.cb_sensor7 = new System.Windows.Forms.CheckBox();
+            this.cb_sensor8 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.nud_dataInterval)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_bodyPicture)).BeginInit();
             this.SuspendLayout();
             // 
             // tb_Console
@@ -217,11 +229,112 @@
             this.btn_stopStream.UseVisualStyleBackColor = true;
             this.btn_stopStream.Click += new System.EventHandler(this.btn_stopStream_Click);
             // 
+            // pb_bodyPicture
+            // 
+            this.pb_bodyPicture.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pb_bodyPicture.BackgroundImage")));
+            this.pb_bodyPicture.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pb_bodyPicture.Location = new System.Drawing.Point(650, 12);
+            this.pb_bodyPicture.Name = "pb_bodyPicture";
+            this.pb_bodyPicture.Size = new System.Drawing.Size(202, 340);
+            this.pb_bodyPicture.TabIndex = 63;
+            this.pb_bodyPicture.TabStop = false;
+            // 
+            // cb_sensor0
+            // 
+            this.cb_sensor0.AutoSize = true;
+            this.cb_sensor0.Location = new System.Drawing.Point(745, 86);
+            this.cb_sensor0.Name = "cb_sensor0";
+            this.cb_sensor0.Size = new System.Drawing.Size(15, 14);
+            this.cb_sensor0.TabIndex = 73;
+            this.cb_sensor0.UseVisualStyleBackColor = true;
+            // 
+            // cb_sensor1
+            // 
+            this.cb_sensor1.AutoSize = true;
+            this.cb_sensor1.Location = new System.Drawing.Point(704, 103);
+            this.cb_sensor1.Name = "cb_sensor1";
+            this.cb_sensor1.Size = new System.Drawing.Size(15, 14);
+            this.cb_sensor1.TabIndex = 74;
+            this.cb_sensor1.UseVisualStyleBackColor = true;
+            // 
+            // cb_sensor2
+            // 
+            this.cb_sensor2.AutoSize = true;
+            this.cb_sensor2.Location = new System.Drawing.Point(683, 150);
+            this.cb_sensor2.Name = "cb_sensor2";
+            this.cb_sensor2.Size = new System.Drawing.Size(15, 14);
+            this.cb_sensor2.TabIndex = 75;
+            this.cb_sensor2.UseVisualStyleBackColor = true;
+            // 
+            // cb_sensor4
+            // 
+            this.cb_sensor4.AutoSize = true;
+            this.cb_sensor4.Location = new System.Drawing.Point(801, 150);
+            this.cb_sensor4.Name = "cb_sensor4";
+            this.cb_sensor4.Size = new System.Drawing.Size(15, 14);
+            this.cb_sensor4.TabIndex = 76;
+            this.cb_sensor4.UseVisualStyleBackColor = true;
+            // 
+            // cb_sensor3
+            // 
+            this.cb_sensor3.AutoSize = true;
+            this.cb_sensor3.Location = new System.Drawing.Point(788, 103);
+            this.cb_sensor3.Name = "cb_sensor3";
+            this.cb_sensor3.Size = new System.Drawing.Size(15, 14);
+            this.cb_sensor3.TabIndex = 77;
+            this.cb_sensor3.UseVisualStyleBackColor = true;
+            // 
+            // cb_sensor5
+            // 
+            this.cb_sensor5.AutoSize = true;
+            this.cb_sensor5.Location = new System.Drawing.Point(723, 216);
+            this.cb_sensor5.Name = "cb_sensor5";
+            this.cb_sensor5.Size = new System.Drawing.Size(15, 14);
+            this.cb_sensor5.TabIndex = 78;
+            this.cb_sensor5.UseVisualStyleBackColor = true;
+            // 
+            // cb_sensor6
+            // 
+            this.cb_sensor6.AutoSize = true;
+            this.cb_sensor6.Location = new System.Drawing.Point(720, 280);
+            this.cb_sensor6.Name = "cb_sensor6";
+            this.cb_sensor6.Size = new System.Drawing.Size(15, 14);
+            this.cb_sensor6.TabIndex = 79;
+            this.cb_sensor6.UseVisualStyleBackColor = true;
+            // 
+            // cb_sensor7
+            // 
+            this.cb_sensor7.AutoSize = true;
+            this.cb_sensor7.Location = new System.Drawing.Point(769, 216);
+            this.cb_sensor7.Name = "cb_sensor7";
+            this.cb_sensor7.Size = new System.Drawing.Size(15, 14);
+            this.cb_sensor7.TabIndex = 80;
+            this.cb_sensor7.UseVisualStyleBackColor = true;
+            // 
+            // cb_sensor8
+            // 
+            this.cb_sensor8.AutoSize = true;
+            this.cb_sensor8.Location = new System.Drawing.Point(775, 280);
+            this.cb_sensor8.Name = "cb_sensor8";
+            this.cb_sensor8.Size = new System.Drawing.Size(15, 14);
+            this.cb_sensor8.TabIndex = 81;
+            this.cb_sensor8.UseVisualStyleBackColor = true;
+            // 
             // BrainpackControllerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(620, 494);
+            this.ClientSize = new System.Drawing.Size(882, 530);
+            this.Controls.Add(this.cb_sensor8);
+            this.Controls.Add(this.cb_sensor7);
+            this.Controls.Add(this.cb_sensor6);
+            this.Controls.Add(this.cb_sensor5);
+            this.Controls.Add(this.cb_sensor3);
+            this.Controls.Add(this.cb_sensor4);
+            this.Controls.Add(this.cb_sensor2);
+            this.Controls.Add(this.cb_sensor1);
+            this.Controls.Add(this.cb_sensor0);
+            this.Controls.Add(this.pb_bodyPicture);
             this.Controls.Add(this.btn_stopStream);
             this.Controls.Add(this.btn_cfgRecord);
             this.Controls.Add(this.btn_StreamReq);
@@ -244,6 +357,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.BrainpackControllerForm_FormClosing);
             this.Load += new System.EventHandler(this.BrainpackControllerForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.nud_dataInterval)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_bodyPicture)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -268,5 +382,15 @@
         private System.Windows.Forms.Button btn_StreamReq;
         private System.Windows.Forms.Button btn_cfgRecord;
         private System.Windows.Forms.Button btn_stopStream;
+        private System.Windows.Forms.PictureBox pb_bodyPicture;
+        private System.Windows.Forms.CheckBox cb_sensor0;
+        private System.Windows.Forms.CheckBox cb_sensor1;
+        private System.Windows.Forms.CheckBox cb_sensor2;
+        private System.Windows.Forms.CheckBox cb_sensor4;
+        private System.Windows.Forms.CheckBox cb_sensor3;
+        private System.Windows.Forms.CheckBox cb_sensor5;
+        private System.Windows.Forms.CheckBox cb_sensor6;
+        private System.Windows.Forms.CheckBox cb_sensor7;
+        private System.Windows.Forms.CheckBox cb_sensor8;
     }
 }

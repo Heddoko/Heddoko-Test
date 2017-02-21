@@ -15,7 +15,7 @@ using ProtoBuf;
 using heddoko;
 using System.Net.Sockets;
 using System.Net;
-
+using System.Collections.Generic;
 
 namespace BrainPackDataAnalyzer
 {
@@ -35,6 +35,7 @@ namespace BrainPackDataAnalyzer
         private bool processPacketQueueEnabled = false;
         public ConcurrentQueue<RawPacket> packetQueue;
         private bool mIsBatchModeSelected = false;
+        private List<Brainpack> foundBrainpacks;
 
         
 
@@ -161,16 +162,49 @@ namespace BrainPackDataAnalyzer
 
             }
         }
-        private void processProtoPacket(Packet packet)
+        private void processAdvertisingPacket(Packet packet, IPEndPoint remoteEndpoint)
+        {
+            
+            bool newBrainpackFound = true; //default to true, will change it if the 
+            if (!packet.serialNumberSpecified)
+            {
+                return;
+            }
+            for (int i = 0; i < foundBrainpacks.Count; i++)
+            {
+                if(foundBrainpacks[i].SerialNumber == packet.serialNumber)
+                {
+                    newBrainpackFound = false;
+                    break;
+                }
+            }
+            if(newBrainpackFound)
+            {
+                Brainpack newBrainpack = new Brainpack();
+                newBrainpack.SerialNumber = packet.serialNumber;
+                if (packet.firmwareVersionSpecified)
+                {
+                    newBrainpack.FirmwareVersion = packet.firmwareVersion;
+                }
+                newBrainpack.RemoteEP = remoteEndpoint;
+                newBrainpack.ConfigurationPort = packet.configurationPort; 
+                this.BeginInvoke((MethodInvoker)(() => lb_FoundBrainpacks.Items.Add(newBrainpack.SerialNumber)));
+                
+                foundBrainpacks.Add(newBrainpack);
+                debugMessageQueue.Enqueue("New Brainpack found!\r\nSN: " + packet.serialNumber + "\r\nPort: "
+    + packet.configurationPort.ToString() + "\r\nIP Address:" + remoteEndpoint.Address.ToString() + "\r\nFW: " +
+    packet.firmwareVersion + "\r\n");
+            }
+        }
+        private void processProtoPacket(Packet packet, IPEndPoint remoteEndpoint)
         {
             switch (packet.type)
             {
                 case PacketType.AdvertisingPacket:
                     if (packet.firmwareVersionSpecified)
                     {
-                        debugMessageQueue.Enqueue("Received Advertising Packet: " +
-                            packet.firmwareVersion + " SN: " + packet.serialNumber + " Port: "
-                            + packet.configurationPort.ToString() + "\r\n");
+
+                        processAdvertisingPacket(packet, remoteEndpoint);
                     }
                     else
                     {
@@ -291,7 +325,7 @@ namespace BrainPackDataAnalyzer
                 try
                 {
                     Packet protoPacket = Serializer.Deserialize<Packet>(stream);
-                    processProtoPacket(protoPacket);
+                    processProtoPacket(protoPacket, packet.RemoteEndpoint);
                 }
                 catch
                 {
@@ -571,6 +605,9 @@ namespace BrainPackDataAnalyzer
             processDataTheadEnabled = true;
             Thread dataProcessorThread = new Thread(processDataThread);
             dataProcessorThread.Start();
+
+            //initialize found brainpack list
+            foundBrainpacks = new List<Brainpack>(); 
 
         }
 
@@ -1243,7 +1280,9 @@ namespace BrainPackDataAnalyzer
             processDataTheadEnabled = false;
             processDebugThreadEnabled = false;
             processPacketQueueEnabled = false;
-            EnableSocketQueue = false; 
+            keepStreamPortRunning = false;
+            updListennerKeepRunning = false; 
+
         }
 
         private void cb_serialPassEn_CheckedChanged(object sender, EventArgs e)
@@ -1485,61 +1524,63 @@ namespace BrainPackDataAnalyzer
                 sendCommmand("pbVersion\r\n");
             }
         }
-        private bool EnableSocketQueue = false;
-        private void udpSocketClientProcess()
+        private void udpSocketClientProcess(int port, ref bool keepRunning)
         {
-            int port = 0;
-            if (!int.TryParse(mtb_udpPort.Text, out port))
-            {
-                port = 6668;
-            }
-            UdpClient udpClient = new UdpClient(port);
+            RawPacket localPacket = new RawPacket();
             try
             {
+                UdpClient udpClient = new UdpClient(port);
+                udpClient.Client.ReceiveTimeout = 1000;
+
                 IPAddress ipAddress = IPAddress.Parse("192.168.2.1");//ipHostInfo.AddressList[0];
                 IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
-                //udpClient.Connect(ipAddress, 6667);
                 //IPEndPoint object will allow us to read datagrams sent from the IP address we want. 
                 //IPEndPoint RemoteIpEndPoint = new IPEndPoint(ipAddress, 0);
-                debugMessageQueue.Enqueue(String.Format("Socket connected"));
+                debugMessageQueue.Enqueue(String.Format("UDP Socket Openned\r\n"));
 
-                while (EnableSocketQueue)
+                while (keepRunning)
                 {
                     // Blocks until a message returns on this socket from a remote host.
-                    byte[] receivedBytes = udpClient.Receive(ref remoteEP);
-                    if (receivedBytes.Length > 0)
+                    try
                     {
-                        //process the byte
-                        for (int i = 0; i < receivedBytes.Length; i++)
+                        byte[] receivedBytes = udpClient.Receive(ref remoteEP);
+
+                        if (receivedBytes.Length > 0)
                         {
-                            
-                            int bytesReceived = packet.BytesReceived + 1;
-                            PacketStatus status = packet.processByte(receivedBytes[i]);
-                            switch (status)
+
+                            localPacket.RemoteEndpoint = remoteEP;
+                            //process the byte
+                            for (int i = 0; i < receivedBytes.Length; i++)
                             {
-                                case PacketStatus.PacketComplete:
-                                    //debugMessageQueue.Enqueue(String.Format("{0} Packet Received {1} bytes\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), packet.PayloadSize));
-                                    RawPacket packetCopy = new RawPacket(packet);
-                                    packetQueue.Enqueue(packetCopy);
-                                    packet.resetPacket();
-                                    break;
-                                case PacketStatus.PacketError:
-                                    debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));                                    
-                                    packet.resetPacket();
-                                    break;
-                                case PacketStatus.Processing:
-                                case PacketStatus.newPacketDetected:
-                                    break;
+
+                                int bytesReceived = localPacket.BytesReceived + 1;
+                                PacketStatus status = localPacket.processByte(receivedBytes[i]);
+                                switch (status)
+                                {
+                                    case PacketStatus.PacketComplete:
+                                        //debugMessageQueue.Enqueue(String.Format("{0} Packet Received {1} bytes\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), packet.PayloadSize));
+                                        RawPacket packetCopy = new RawPacket(localPacket);
+                                        packetQueue.Enqueue(packetCopy);
+                                        localPacket.resetPacket();
+                                        break;
+                                    case PacketStatus.PacketError:
+                                        debugMessageQueue.Enqueue(String.Format("{0} Packet ERROR! {1} bytes received\r\n", (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond), bytesReceived));
+                                        localPacket.resetPacket();
+                                        break;
+                                    case PacketStatus.Processing:
+                                    case PacketStatus.newPacketDetected:
+                                        break;
+                                }
                             }
                         }
                     }
+                    catch
+                    {
+
+                    }
                 }
-                debugMessageQueue.Enqueue("Socket Closed\r\n");
-                debugMessageQueue.Enqueue("This message was sent from " +
-                                            remoteEP.Address.ToString() +
-                                            " on their port number " +
-                                            remoteEP.Port.ToString() + "\r\n");
-                
+                udpClient.Close();
+                debugMessageQueue.Enqueue("UDP Socket Closed\r\n");            
 
             }
             catch (Exception e)
@@ -1547,19 +1588,25 @@ namespace BrainPackDataAnalyzer
                 debugMessageQueue.Enqueue(e.ToString());
 
             }
-            udpClient.Close();
+            
         }
+        bool updListennerKeepRunning = false; 
         private void cb_udpListenner_CheckedChanged(object sender, EventArgs e)
         {
-            if(cb_udpListenner.Checked)
+            int port = 6668;
+            if (cb_udpListenner.Checked)
             {
-                EnableSocketQueue = true;
-                Thread socketClientThread = new Thread(udpSocketClientProcess);
+                updListennerKeepRunning = true;
+                if (!int.TryParse(mtb_udpPort.Text, out port))
+                {
+                    port = 6668;
+                }
+                Thread socketClientThread = new Thread(() => udpSocketClientProcess(port, ref updListennerKeepRunning));
                 socketClientThread.Start();
             }
             else
             {
-                EnableSocketQueue = false; 
+                updListennerKeepRunning = false; 
             }
         }
 
@@ -1571,9 +1618,123 @@ namespace BrainPackDataAnalyzer
 
         private void btn_configureBrainpack_Click(object sender, EventArgs e)
         {
-            BrainpackControllerForm bpCfgForm = new BrainpackControllerForm();
-            bpCfgForm.Show(); 
+            if(lb_FoundBrainpacks.SelectedIndex > -1)
+            {
+                BrainpackControllerForm bpCfgForm = new BrainpackControllerForm(foundBrainpacks[lb_FoundBrainpacks.SelectedIndex]);
+                bpCfgForm.Show();
+            }
+            else
+            {
+                BrainpackControllerForm bpCfgForm = new BrainpackControllerForm();
+                bpCfgForm.Show();
+            }
 
+            
+
+        }
+
+        private void createV10FWFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ofd_AnalyzeFile.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    FileStream fwStream = File.Open(ofd_AnalyzeFile.FileName, FileMode.Open);
+                    byte[] data = new byte[fwStream.Length];
+                    int totalBytesRead = fwStream.Read(data, 0, data.Length);
+                    fwStream.Close();
+
+                    CRC_Calculator crcCal = new CRC_Calculator(InitialCrcValue.NonZero1);
+                    CRCTool crcTool = new CRCTool();
+                    crcTool.Init(CRCTool.CRCCode.CRC32);
+                    ulong crcValue1 = crcTool.crcbitbybitfast(data);
+                    ushort crcValue2 = crcCal.ComputeChecksum(data);
+                    ulong crcValue3 = crcTool.crcbitbybitfast(bitReverseAllBytes(data));
+                    tb_Console.AppendText("CRC method 1 Calculated: " + crcValue1.ToString() + " \r\n");
+                    tb_Console.AppendText("CRC method 2 Calculated: " + crcValue2.ToString() + " \r\n");
+                    tb_Console.AppendText("CRC method 3 Calculated: " + crcValue3.ToString() + " \r\n");
+                    //header 0x55AA55AA CRC(16bit) CRC(16bit), Length(32bit)
+                    byte[] header = { 0x55, 0xAA, 0x55, 0xAA, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+                    header[4] = (byte)(crcValue1 & 0x00FF);
+                    header[5] = (byte)((crcValue1 >> 8) & 0x00FF);
+                    header[6] = (byte)((crcValue1 >> 16) & 0x00FF);
+                    header[7] = (byte)((crcValue1 >> 24) & 0x00FF);
+
+
+                    //decrypt(ref data, totalBytesRead);  
+
+                    if (sfd_ConvertedFile.ShowDialog() == DialogResult.OK)
+                    {
+                        FileStream outputFw = File.Open(sfd_ConvertedFile.FileName, FileMode.Create);
+                        outputFw.Write(header, 0, header.Length);
+                        outputFw.Write(data, 0, totalBytesRead);
+                        outputFw.Close();
+                    }
+                }
+                catch
+                {
+
+                }
+            }
+        }
+
+        private void encryptSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ofd_AnalyzeFile.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    FileStream settingsFs = File.Open(ofd_AnalyzeFile.FileName, FileMode.Open);
+                    byte[] data = new byte[500];
+                    int totalBytesRead = settingsFs.Read(data, 0, 500);
+                    settingsFs.Close();
+                    encrypt(ref data, totalBytesRead);
+
+                    //decrypt(ref data, totalBytesRead);  
+
+                    if (sfd_ConvertedFile.ShowDialog() == DialogResult.OK)
+                    {
+                        FileStream encryptedSettings = File.Open(sfd_ConvertedFile.FileName, FileMode.Create);
+                        byte[] header = new byte[2];
+                        header[0] = (byte)'e';
+                        header[1] = (byte)'e';
+                        encryptedSettings.Write(header, 0, 2);
+                        encryptedSettings.Write(data, 0, totalBytesRead);
+                        encryptedSettings.Close();
+                    }
+                }
+                catch
+                {
+
+                }
+            }
+        }
+        bool keepStreamPortRunning = false; 
+        private void cb_openStreamPort_CheckedChanged(object sender, EventArgs e)
+        {
+            int port = 6668;
+            if (cb_openStreamPort.Checked)
+            {
+                keepStreamPortRunning = true;
+                if (!int.TryParse(mtb_streamPort.Text, out port))
+                {
+                    port = 6668;
+                }
+                Thread socketClientThread = new Thread(() => udpSocketClientProcess(port,ref keepStreamPortRunning));
+                socketClientThread.Start();
+            }
+            else
+            {
+                keepStreamPortRunning = false;
+            }
+        }
+
+        private void btn_clearBrainpackList_Click(object sender, EventArgs e)
+        {
+            //clear both the item list and the list containing all the brainpack objects. 
+            lb_FoundBrainpacks.Items.Clear();
+            foundBrainpacks.Clear();
         }
     }
 }

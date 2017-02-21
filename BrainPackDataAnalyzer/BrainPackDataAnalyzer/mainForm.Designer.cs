@@ -29,11 +29,11 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.serialPort = new System.IO.Ports.SerialPort(this.components);
             this.cb_serialPorts = new System.Windows.Forms.ComboBox();
             this.l_COM_Port = new System.Windows.Forms.Label();
@@ -43,7 +43,6 @@
             this.ofd_AnalyzeFile = new System.Windows.Forms.OpenFileDialog();
             this.tb_Console = new System.Windows.Forms.TextBox();
             this.sfd_ConvertedFile = new System.Windows.Forms.SaveFileDialog();
-            this.btn_EncryptSettings = new System.Windows.Forms.Button();
             this.btn_CreateFwBin = new System.Windows.Forms.Button();
             this.btn_disconnect = new System.Windows.Forms.Button();
             this.tb_stretchData = new System.Windows.Forms.TextBox();
@@ -81,6 +80,15 @@
             this.mtb_udpPort = new System.Windows.Forms.MaskedTextBox();
             this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.btn_configureBrainpack = new System.Windows.Forms.Button();
+            this.ms_mainForm = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createV10FWFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.encryptSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lb_FoundBrainpacks = new System.Windows.Forms.ListBox();
+            this.cb_openStreamPort = new System.Windows.Forms.CheckBox();
+            this.mtb_streamPort = new System.Windows.Forms.MaskedTextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.btn_clearBrainpackList = new System.Windows.Forms.Button();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_SelectedImu)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
@@ -88,6 +96,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgv_SensorStats)).BeginInit();
             this.tabControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
+            this.ms_mainForm.SuspendLayout();
             this.SuspendLayout();
             // 
             // serialPort
@@ -161,19 +170,9 @@
             this.tb_Console.Size = new System.Drawing.Size(455, 218);
             this.tb_Console.TabIndex = 7;
             // 
-            // btn_EncryptSettings
-            // 
-            this.btn_EncryptSettings.Location = new System.Drawing.Point(571, 87);
-            this.btn_EncryptSettings.Name = "btn_EncryptSettings";
-            this.btn_EncryptSettings.Size = new System.Drawing.Size(117, 23);
-            this.btn_EncryptSettings.TabIndex = 12;
-            this.btn_EncryptSettings.Text = "Encrypt Settings";
-            this.btn_EncryptSettings.UseVisualStyleBackColor = true;
-            this.btn_EncryptSettings.Click += new System.EventHandler(this.btn_EncryptSettings_Click);
-            // 
             // btn_CreateFwBin
             // 
-            this.btn_CreateFwBin.Location = new System.Drawing.Point(571, 116);
+            this.btn_CreateFwBin.Location = new System.Drawing.Point(571, 87);
             this.btn_CreateFwBin.Name = "btn_CreateFwBin";
             this.btn_CreateFwBin.Size = new System.Drawing.Size(117, 23);
             this.btn_CreateFwBin.TabIndex = 13;
@@ -193,7 +192,7 @@
             // 
             // tb_stretchData
             // 
-            this.tb_stretchData.Location = new System.Drawing.Point(717, 312);
+            this.tb_stretchData.Location = new System.Drawing.Point(100, 377);
             this.tb_stretchData.Name = "tb_stretchData";
             this.tb_stretchData.Size = new System.Drawing.Size(202, 20);
             this.tb_stretchData.TabIndex = 16;
@@ -201,7 +200,7 @@
             // lb_stretchdata
             // 
             this.lb_stretchdata.AutoSize = true;
-            this.lb_stretchdata.Location = new System.Drawing.Point(644, 317);
+            this.lb_stretchdata.Location = new System.Drawing.Point(27, 382);
             this.lb_stretchdata.Name = "lb_stretchdata";
             this.lb_stretchdata.Size = new System.Drawing.Size(67, 13);
             this.lb_stretchdata.TabIndex = 17;
@@ -209,7 +208,7 @@
             // 
             // btn_record
             // 
-            this.btn_record.Location = new System.Drawing.Point(567, 209);
+            this.btn_record.Location = new System.Drawing.Point(571, 161);
             this.btn_record.Name = "btn_record";
             this.btn_record.Size = new System.Drawing.Size(73, 23);
             this.btn_record.TabIndex = 19;
@@ -219,7 +218,7 @@
             // 
             // btn_reset
             // 
-            this.btn_reset.Location = new System.Drawing.Point(664, 209);
+            this.btn_reset.Location = new System.Drawing.Point(668, 161);
             this.btn_reset.Name = "btn_reset";
             this.btn_reset.Size = new System.Drawing.Size(73, 23);
             this.btn_reset.TabIndex = 20;
@@ -229,7 +228,7 @@
             // 
             // btn_getState
             // 
-            this.btn_getState.Location = new System.Drawing.Point(567, 169);
+            this.btn_getState.Location = new System.Drawing.Point(571, 121);
             this.btn_getState.Name = "btn_getState";
             this.btn_getState.Size = new System.Drawing.Size(73, 23);
             this.btn_getState.TabIndex = 21;
@@ -249,7 +248,7 @@
             // 
             // btn_setTime
             // 
-            this.btn_setTime.Location = new System.Drawing.Point(664, 169);
+            this.btn_setTime.Location = new System.Drawing.Point(668, 121);
             this.btn_setTime.Name = "btn_setTime";
             this.btn_setTime.Size = new System.Drawing.Size(73, 23);
             this.btn_setTime.TabIndex = 23;
@@ -260,7 +259,7 @@
             // cb_saveRecordEntries
             // 
             this.cb_saveRecordEntries.AutoSize = true;
-            this.cb_saveRecordEntries.Location = new System.Drawing.Point(567, 253);
+            this.cb_saveRecordEntries.Location = new System.Drawing.Point(571, 196);
             this.cb_saveRecordEntries.Name = "cb_saveRecordEntries";
             this.cb_saveRecordEntries.Size = new System.Drawing.Size(112, 17);
             this.cb_saveRecordEntries.TabIndex = 24;
@@ -270,14 +269,14 @@
             // 
             // tb_saveLocation
             // 
-            this.tb_saveLocation.Location = new System.Drawing.Point(567, 271);
+            this.tb_saveLocation.Location = new System.Drawing.Point(571, 214);
             this.tb_saveLocation.Name = "tb_saveLocation";
             this.tb_saveLocation.Size = new System.Drawing.Size(232, 20);
             this.tb_saveLocation.TabIndex = 25;
             // 
             // btn_setSaveLocation
             // 
-            this.btn_setSaveLocation.Location = new System.Drawing.Point(805, 271);
+            this.btn_setSaveLocation.Location = new System.Drawing.Point(809, 214);
             this.btn_setSaveLocation.Name = "btn_setSaveLocation";
             this.btn_setSaveLocation.Size = new System.Drawing.Size(116, 23);
             this.btn_setSaveLocation.TabIndex = 26;
@@ -288,7 +287,7 @@
             // cb_serialPassT
             // 
             this.cb_serialPassT.FormattingEnabled = true;
-            this.cb_serialPassT.Location = new System.Drawing.Point(761, 211);
+            this.cb_serialPassT.Location = new System.Drawing.Point(765, 163);
             this.cb_serialPassT.Name = "cb_serialPassT";
             this.cb_serialPassT.Size = new System.Drawing.Size(115, 21);
             this.cb_serialPassT.TabIndex = 27;
@@ -296,7 +295,7 @@
             // cb_serialPassEn
             // 
             this.cb_serialPassEn.AutoSize = true;
-            this.cb_serialPassEn.Location = new System.Drawing.Point(761, 188);
+            this.cb_serialPassEn.Location = new System.Drawing.Point(765, 140);
             this.cb_serialPassEn.Name = "cb_serialPassEn";
             this.cb_serialPassEn.Size = new System.Drawing.Size(128, 17);
             this.cb_serialPassEn.TabIndex = 28;
@@ -424,34 +423,34 @@
             // 
             // chrt_dataChart
             // 
-            chartArea1.AxisY.Maximum = 3.15D;
-            chartArea1.AxisY.Minimum = -3.15D;
-            chartArea1.Name = "ChartArea1";
-            this.chrt_dataChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chrt_dataChart.Legends.Add(legend1);
+            chartArea3.AxisY.Maximum = 3.15D;
+            chartArea3.AxisY.Minimum = -3.15D;
+            chartArea3.Name = "ChartArea1";
+            this.chrt_dataChart.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.chrt_dataChart.Legends.Add(legend3);
             this.chrt_dataChart.Location = new System.Drawing.Point(152, 15);
             this.chrt_dataChart.Name = "chrt_dataChart";
             this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
-            series1.BorderWidth = 5;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Legend = "Legend1";
-            series1.Name = "Roll";
-            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            series2.BorderWidth = 5;
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series2.Legend = "Legend1";
-            series2.Name = "Pitch";
-            series3.BorderWidth = 5;
-            series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series3.Legend = "Legend1";
-            series3.Name = "Yaw";
-            this.chrt_dataChart.Series.Add(series1);
-            this.chrt_dataChart.Series.Add(series2);
-            this.chrt_dataChart.Series.Add(series3);
+            series7.BorderWidth = 5;
+            series7.ChartArea = "ChartArea1";
+            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series7.Legend = "Legend1";
+            series7.Name = "Roll";
+            series7.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            series8.BorderWidth = 5;
+            series8.ChartArea = "ChartArea1";
+            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series8.Legend = "Legend1";
+            series8.Name = "Pitch";
+            series9.BorderWidth = 5;
+            series9.ChartArea = "ChartArea1";
+            series9.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series9.Legend = "Legend1";
+            series9.Name = "Yaw";
+            this.chrt_dataChart.Series.Add(series7);
+            this.chrt_dataChart.Series.Add(series8);
+            this.chrt_dataChart.Series.Add(series9);
             this.chrt_dataChart.Size = new System.Drawing.Size(713, 377);
             this.chrt_dataChart.TabIndex = 29;
             this.chrt_dataChart.Text = "chart1";
@@ -460,6 +459,8 @@
             // 
             this.tabPage1.Controls.Add(this.pb_processingProgress);
             this.tabPage1.Controls.Add(this.dgv_SensorStats);
+            this.tabPage1.Controls.Add(this.tb_stretchData);
+            this.tabPage1.Controls.Add(this.lb_stretchdata);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
@@ -523,37 +524,121 @@
             // cb_udpListenner
             // 
             this.cb_udpListenner.AutoSize = true;
-            this.cb_udpListenner.Location = new System.Drawing.Point(591, 356);
+            this.cb_udpListenner.Location = new System.Drawing.Point(616, 388);
             this.cb_udpListenner.Name = "cb_udpListenner";
-            this.cb_udpListenner.Size = new System.Drawing.Size(125, 17);
+            this.cb_udpListenner.Size = new System.Drawing.Size(120, 17);
             this.cb_udpListenner.TabIndex = 48;
-            this.cb_udpListenner.Text = "Enable UDP Listener";
+            this.cb_udpListenner.Text = "Open Listenner Port";
             this.cb_udpListenner.UseVisualStyleBackColor = true;
             this.cb_udpListenner.CheckedChanged += new System.EventHandler(this.cb_udpListenner_CheckedChanged);
             // 
             // mtb_udpPort
             // 
-            this.mtb_udpPort.Location = new System.Drawing.Point(485, 356);
+            this.mtb_udpPort.Location = new System.Drawing.Point(747, 383);
             this.mtb_udpPort.Name = "mtb_udpPort";
             this.mtb_udpPort.Size = new System.Drawing.Size(100, 20);
             this.mtb_udpPort.TabIndex = 49;
-            this.mtb_udpPort.Text = "6666";
+            this.mtb_udpPort.Text = "6668";
             // 
             // btn_configureBrainpack
             // 
-            this.btn_configureBrainpack.Location = new System.Drawing.Point(299, 356);
+            this.btn_configureBrainpack.Location = new System.Drawing.Point(811, 282);
             this.btn_configureBrainpack.Name = "btn_configureBrainpack";
-            this.btn_configureBrainpack.Size = new System.Drawing.Size(149, 23);
+            this.btn_configureBrainpack.Size = new System.Drawing.Size(114, 23);
             this.btn_configureBrainpack.TabIndex = 50;
             this.btn_configureBrainpack.Text = "Configure Brainpack";
             this.btn_configureBrainpack.UseVisualStyleBackColor = true;
             this.btn_configureBrainpack.Click += new System.EventHandler(this.btn_configureBrainpack_Click);
+            // 
+            // ms_mainForm
+            // 
+            this.ms_mainForm.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem});
+            this.ms_mainForm.Location = new System.Drawing.Point(0, 0);
+            this.ms_mainForm.Name = "ms_mainForm";
+            this.ms_mainForm.Size = new System.Drawing.Size(1064, 24);
+            this.ms_mainForm.TabIndex = 51;
+            this.ms_mainForm.Text = "File";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.createV10FWFileToolStripMenuItem,
+            this.encryptSettingsToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // createV10FWFileToolStripMenuItem
+            // 
+            this.createV10FWFileToolStripMenuItem.Name = "createV10FWFileToolStripMenuItem";
+            this.createV10FWFileToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.createV10FWFileToolStripMenuItem.Text = "Create V1.0 FW File";
+            this.createV10FWFileToolStripMenuItem.Click += new System.EventHandler(this.createV10FWFileToolStripMenuItem_Click);
+            // 
+            // encryptSettingsToolStripMenuItem
+            // 
+            this.encryptSettingsToolStripMenuItem.Name = "encryptSettingsToolStripMenuItem";
+            this.encryptSettingsToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.encryptSettingsToolStripMenuItem.Text = "Encrypt Settings";
+            this.encryptSettingsToolStripMenuItem.Click += new System.EventHandler(this.encryptSettingsToolStripMenuItem_Click);
+            // 
+            // lb_FoundBrainpacks
+            // 
+            this.lb_FoundBrainpacks.FormattingEnabled = true;
+            this.lb_FoundBrainpacks.Location = new System.Drawing.Point(615, 282);
+            this.lb_FoundBrainpacks.Name = "lb_FoundBrainpacks";
+            this.lb_FoundBrainpacks.Size = new System.Drawing.Size(188, 95);
+            this.lb_FoundBrainpacks.TabIndex = 52;
+            // 
+            // cb_openStreamPort
+            // 
+            this.cb_openStreamPort.AutoSize = true;
+            this.cb_openStreamPort.Location = new System.Drawing.Point(299, 360);
+            this.cb_openStreamPort.Name = "cb_openStreamPort";
+            this.cb_openStreamPort.Size = new System.Drawing.Size(110, 17);
+            this.cb_openStreamPort.TabIndex = 53;
+            this.cb_openStreamPort.Text = "Open Stream Port";
+            this.cb_openStreamPort.UseVisualStyleBackColor = true;
+            this.cb_openStreamPort.CheckedChanged += new System.EventHandler(this.cb_openStreamPort_CheckedChanged);
+            // 
+            // mtb_streamPort
+            // 
+            this.mtb_streamPort.Location = new System.Drawing.Point(176, 357);
+            this.mtb_streamPort.Name = "mtb_streamPort";
+            this.mtb_streamPort.Size = new System.Drawing.Size(100, 20);
+            this.mtb_streamPort.TabIndex = 54;
+            this.mtb_streamPort.Text = "6666";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(615, 263);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(93, 13);
+            this.label3.TabIndex = 55;
+            this.label3.Text = "Found Brainpacks";
+            // 
+            // btn_clearBrainpackList
+            // 
+            this.btn_clearBrainpackList.Location = new System.Drawing.Point(811, 309);
+            this.btn_clearBrainpackList.Name = "btn_clearBrainpackList";
+            this.btn_clearBrainpackList.Size = new System.Drawing.Size(114, 23);
+            this.btn_clearBrainpackList.TabIndex = 56;
+            this.btn_clearBrainpackList.Text = "Clear Brainpack List";
+            this.btn_clearBrainpackList.UseVisualStyleBackColor = true;
+            this.btn_clearBrainpackList.Click += new System.EventHandler(this.btn_clearBrainpackList_Click);
             // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1064, 856);
+            this.Controls.Add(this.btn_clearBrainpackList);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.mtb_streamPort);
+            this.Controls.Add(this.cb_openStreamPort);
+            this.Controls.Add(this.lb_FoundBrainpacks);
             this.Controls.Add(this.btn_configureBrainpack);
             this.Controls.Add(this.mtb_udpPort);
             this.Controls.Add(this.cb_udpListenner);
@@ -577,17 +662,15 @@
             this.Controls.Add(this.btn_getState);
             this.Controls.Add(this.btn_reset);
             this.Controls.Add(this.btn_record);
-            this.Controls.Add(this.lb_stretchdata);
-            this.Controls.Add(this.tb_stretchData);
             this.Controls.Add(this.btn_disconnect);
             this.Controls.Add(this.btn_CreateFwBin);
-            this.Controls.Add(this.btn_EncryptSettings);
             this.Controls.Add(this.tb_Console);
             this.Controls.Add(this.btn_Analyze);
             this.Controls.Add(this.btn_SendCmd);
             this.Controls.Add(this.bnt_Connect);
             this.Controls.Add(this.l_COM_Port);
             this.Controls.Add(this.cb_serialPorts);
+            this.Controls.Add(this.ms_mainForm);
             this.Name = "mainForm";
             this.Text = "Brain Data Analyzer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.mainForm_FormClosing);
@@ -598,9 +681,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.nud_SelectedImu)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).EndInit();
             this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_SensorStats)).EndInit();
             this.tabControl1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
+            this.ms_mainForm.ResumeLayout(false);
+            this.ms_mainForm.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -618,7 +704,6 @@
         private System.Windows.Forms.BindingSource bindingSource1;
         private System.Windows.Forms.TextBox tb_Console;
         private System.Windows.Forms.SaveFileDialog sfd_ConvertedFile;
-        private System.Windows.Forms.Button btn_EncryptSettings;
         private System.Windows.Forms.Button btn_CreateFwBin;
         private System.Windows.Forms.Button btn_disconnect;
         private System.Windows.Forms.TextBox tb_stretchData;
@@ -655,6 +740,15 @@
         private System.Windows.Forms.CheckBox cb_udpListenner;
         private System.Windows.Forms.MaskedTextBox mtb_udpPort;
         private System.Windows.Forms.Button btn_configureBrainpack;
+        private System.Windows.Forms.MenuStrip ms_mainForm;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createV10FWFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem encryptSettingsToolStripMenuItem;
+        private System.Windows.Forms.ListBox lb_FoundBrainpacks;
+        private System.Windows.Forms.CheckBox cb_openStreamPort;
+        private System.Windows.Forms.MaskedTextBox mtb_streamPort;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button btn_clearBrainpackList;
     }
 }
 
