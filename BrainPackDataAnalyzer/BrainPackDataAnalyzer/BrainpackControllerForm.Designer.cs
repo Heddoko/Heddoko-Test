@@ -56,6 +56,13 @@
             this.cb_sensor6 = new System.Windows.Forms.CheckBox();
             this.cb_sensor7 = new System.Windows.Forms.CheckBox();
             this.cb_sensor8 = new System.Windows.Forms.CheckBox();
+            this.tb_firmwareFilename = new System.Windows.Forms.TextBox();
+            this.mtb_transferIp = new System.Windows.Forms.MaskedTextBox();
+            this.mtb_transferPort = new System.Windows.Forms.MaskedTextBox();
+            this.lb_transferPort = new System.Windows.Forms.Label();
+            this.lb_transferIp = new System.Windows.Forms.Label();
+            this.lb_firmwareFile = new System.Windows.Forms.Label();
+            this.btn_FwUpdate = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.nud_dataInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pb_bodyPicture)).BeginInit();
             this.SuspendLayout();
@@ -201,7 +208,7 @@
             // 
             // btn_StreamReq
             // 
-            this.btn_StreamReq.Location = new System.Drawing.Point(281, 384);
+            this.btn_StreamReq.Location = new System.Drawing.Point(243, 379);
             this.btn_StreamReq.Name = "btn_StreamReq";
             this.btn_StreamReq.Size = new System.Drawing.Size(87, 23);
             this.btn_StreamReq.TabIndex = 60;
@@ -211,7 +218,7 @@
             // 
             // btn_cfgRecord
             // 
-            this.btn_cfgRecord.Location = new System.Drawing.Point(281, 442);
+            this.btn_cfgRecord.Location = new System.Drawing.Point(243, 437);
             this.btn_cfgRecord.Name = "btn_cfgRecord";
             this.btn_cfgRecord.Size = new System.Drawing.Size(87, 23);
             this.btn_cfgRecord.TabIndex = 61;
@@ -221,7 +228,7 @@
             // 
             // btn_stopStream
             // 
-            this.btn_stopStream.Location = new System.Drawing.Point(281, 413);
+            this.btn_stopStream.Location = new System.Drawing.Point(243, 408);
             this.btn_stopStream.Name = "btn_stopStream";
             this.btn_stopStream.Size = new System.Drawing.Size(87, 23);
             this.btn_stopStream.TabIndex = 62;
@@ -320,11 +327,79 @@
             this.cb_sensor8.TabIndex = 81;
             this.cb_sensor8.UseVisualStyleBackColor = true;
             // 
+            // tb_firmwareFilename
+            // 
+            this.tb_firmwareFilename.Location = new System.Drawing.Point(466, 440);
+            this.tb_firmwareFilename.Name = "tb_firmwareFilename";
+            this.tb_firmwareFilename.Size = new System.Drawing.Size(142, 20);
+            this.tb_firmwareFilename.TabIndex = 84;
+            this.tb_firmwareFilename.Text = "firmware.bin";
+            // 
+            // mtb_transferIp
+            // 
+            this.mtb_transferIp.Location = new System.Drawing.Point(466, 413);
+            this.mtb_transferIp.Name = "mtb_transferIp";
+            this.mtb_transferIp.Size = new System.Drawing.Size(100, 20);
+            this.mtb_transferIp.TabIndex = 83;
+            this.mtb_transferIp.Text = "192.168.2.1";
+            // 
+            // mtb_transferPort
+            // 
+            this.mtb_transferPort.Location = new System.Drawing.Point(466, 387);
+            this.mtb_transferPort.Name = "mtb_transferPort";
+            this.mtb_transferPort.Size = new System.Drawing.Size(100, 20);
+            this.mtb_transferPort.TabIndex = 82;
+            this.mtb_transferPort.Text = "69";
+            // 
+            // lb_transferPort
+            // 
+            this.lb_transferPort.AutoSize = true;
+            this.lb_transferPort.Location = new System.Drawing.Point(387, 393);
+            this.lb_transferPort.Name = "lb_transferPort";
+            this.lb_transferPort.Size = new System.Drawing.Size(68, 13);
+            this.lb_transferPort.TabIndex = 85;
+            this.lb_transferPort.Text = "Transfer Port";
+            // 
+            // lb_transferIp
+            // 
+            this.lb_transferIp.AutoSize = true;
+            this.lb_transferIp.Location = new System.Drawing.Point(373, 418);
+            this.lb_transferIp.Name = "lb_transferIp";
+            this.lb_transferIp.Size = new System.Drawing.Size(87, 13);
+            this.lb_transferIp.TabIndex = 86;
+            this.lb_transferIp.Text = "Transfer Address";
+            // 
+            // lb_firmwareFile
+            // 
+            this.lb_firmwareFile.AutoSize = true;
+            this.lb_firmwareFile.Location = new System.Drawing.Point(390, 446);
+            this.lb_firmwareFile.Name = "lb_firmwareFile";
+            this.lb_firmwareFile.Size = new System.Drawing.Size(68, 13);
+            this.lb_firmwareFile.TabIndex = 87;
+            this.lb_firmwareFile.Text = "Firmware File";
+            // 
+            // btn_FwUpdate
+            // 
+            this.btn_FwUpdate.Location = new System.Drawing.Point(634, 438);
+            this.btn_FwUpdate.Name = "btn_FwUpdate";
+            this.btn_FwUpdate.Size = new System.Drawing.Size(101, 23);
+            this.btn_FwUpdate.TabIndex = 88;
+            this.btn_FwUpdate.Text = "Start FW Update";
+            this.btn_FwUpdate.UseVisualStyleBackColor = true;
+            this.btn_FwUpdate.Click += new System.EventHandler(this.btn_FwUpdate_Click);
+            // 
             // BrainpackControllerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(882, 530);
+            this.ClientSize = new System.Drawing.Size(882, 616);
+            this.Controls.Add(this.btn_FwUpdate);
+            this.Controls.Add(this.lb_firmwareFile);
+            this.Controls.Add(this.lb_transferIp);
+            this.Controls.Add(this.lb_transferPort);
+            this.Controls.Add(this.tb_firmwareFilename);
+            this.Controls.Add(this.mtb_transferIp);
+            this.Controls.Add(this.mtb_transferPort);
             this.Controls.Add(this.cb_sensor8);
             this.Controls.Add(this.cb_sensor7);
             this.Controls.Add(this.cb_sensor6);
@@ -392,5 +467,12 @@
         private System.Windows.Forms.CheckBox cb_sensor6;
         private System.Windows.Forms.CheckBox cb_sensor7;
         private System.Windows.Forms.CheckBox cb_sensor8;
+        private System.Windows.Forms.TextBox tb_firmwareFilename;
+        private System.Windows.Forms.MaskedTextBox mtb_transferIp;
+        private System.Windows.Forms.MaskedTextBox mtb_transferPort;
+        private System.Windows.Forms.Label lb_transferPort;
+        private System.Windows.Forms.Label lb_transferIp;
+        private System.Windows.Forms.Label lb_firmwareFile;
+        private System.Windows.Forms.Button btn_FwUpdate;
     }
 }

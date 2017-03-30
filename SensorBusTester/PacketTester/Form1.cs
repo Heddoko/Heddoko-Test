@@ -1618,7 +1618,6 @@ namespace PacketTester
             byte[] packet = new byte[64];
             Buffer.BlockCopy(eepromData, 0, packet, 0, 64);
             sendEepromPacket(0, packet);
-            //TODO: start timeout timer... add this in next. 
             tmr_transferTimer.Interval = 1000; //set the interval for 1 second
             tmr_transferTimer.Start(); 
         }

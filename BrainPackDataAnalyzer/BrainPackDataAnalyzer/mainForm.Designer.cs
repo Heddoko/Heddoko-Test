@@ -29,11 +29,11 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.serialPort = new System.IO.Ports.SerialPort(this.components);
             this.cb_serialPorts = new System.Windows.Forms.ComboBox();
             this.l_COM_Port = new System.Windows.Forms.Label();
@@ -89,6 +89,7 @@
             this.mtb_streamPort = new System.Windows.Forms.MaskedTextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.btn_clearBrainpackList = new System.Windows.Forms.Button();
+            this.createV15FWFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_SelectedImu)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chrt_dataChart)).BeginInit();
@@ -423,34 +424,34 @@
             // 
             // chrt_dataChart
             // 
-            chartArea3.AxisY.Maximum = 3.15D;
-            chartArea3.AxisY.Minimum = -3.15D;
-            chartArea3.Name = "ChartArea1";
-            this.chrt_dataChart.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.chrt_dataChart.Legends.Add(legend3);
+            chartArea1.AxisY.Maximum = 3.15D;
+            chartArea1.AxisY.Minimum = -3.15D;
+            chartArea1.Name = "ChartArea1";
+            this.chrt_dataChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chrt_dataChart.Legends.Add(legend1);
             this.chrt_dataChart.Location = new System.Drawing.Point(152, 15);
             this.chrt_dataChart.Name = "chrt_dataChart";
             this.chrt_dataChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
-            series7.BorderWidth = 5;
-            series7.ChartArea = "ChartArea1";
-            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series7.Legend = "Legend1";
-            series7.Name = "Roll";
-            series7.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
-            series8.BorderWidth = 5;
-            series8.ChartArea = "ChartArea1";
-            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series8.Legend = "Legend1";
-            series8.Name = "Pitch";
-            series9.BorderWidth = 5;
-            series9.ChartArea = "ChartArea1";
-            series9.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series9.Legend = "Legend1";
-            series9.Name = "Yaw";
-            this.chrt_dataChart.Series.Add(series7);
-            this.chrt_dataChart.Series.Add(series8);
-            this.chrt_dataChart.Series.Add(series9);
+            series1.BorderWidth = 5;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Legend = "Legend1";
+            series1.Name = "Roll";
+            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Single;
+            series2.BorderWidth = 5;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Legend = "Legend1";
+            series2.Name = "Pitch";
+            series3.BorderWidth = 5;
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.Legend = "Legend1";
+            series3.Name = "Yaw";
+            this.chrt_dataChart.Series.Add(series1);
+            this.chrt_dataChart.Series.Add(series2);
+            this.chrt_dataChart.Series.Add(series3);
             this.chrt_dataChart.Size = new System.Drawing.Size(713, 377);
             this.chrt_dataChart.TabIndex = 29;
             this.chrt_dataChart.Text = "chart1";
@@ -564,7 +565,8 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.createV10FWFileToolStripMenuItem,
-            this.encryptSettingsToolStripMenuItem});
+            this.encryptSettingsToolStripMenuItem,
+            this.createV15FWFileToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -628,6 +630,13 @@
             this.btn_clearBrainpackList.Text = "Clear Brainpack List";
             this.btn_clearBrainpackList.UseVisualStyleBackColor = true;
             this.btn_clearBrainpackList.Click += new System.EventHandler(this.btn_clearBrainpackList_Click);
+            // 
+            // createV15FWFileToolStripMenuItem
+            // 
+            this.createV15FWFileToolStripMenuItem.Name = "createV15FWFileToolStripMenuItem";
+            this.createV15FWFileToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.createV15FWFileToolStripMenuItem.Text = "Create V1.5 FW File";
+            this.createV15FWFileToolStripMenuItem.Click += new System.EventHandler(this.createV15FWFileToolStripMenuItem_Click);
             // 
             // mainForm
             // 
@@ -749,6 +758,7 @@
         private System.Windows.Forms.MaskedTextBox mtb_streamPort;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btn_clearBrainpackList;
+        private System.Windows.Forms.ToolStripMenuItem createV15FWFileToolStripMenuItem;
     }
 }
 

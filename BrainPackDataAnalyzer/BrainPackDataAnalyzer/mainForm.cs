@@ -37,7 +37,7 @@ namespace BrainPackDataAnalyzer
         private bool mIsBatchModeSelected = false;
         private List<Brainpack> foundBrainpacks;
 
-        
+
 
         public mainForm()
         {
@@ -164,7 +164,7 @@ namespace BrainPackDataAnalyzer
         }
         private void processAdvertisingPacket(Packet packet, IPEndPoint remoteEndpoint)
         {
-            
+
             bool newBrainpackFound = true; //default to true, will change it if the 
             if (!packet.serialNumberSpecified)
             {
@@ -172,13 +172,13 @@ namespace BrainPackDataAnalyzer
             }
             for (int i = 0; i < foundBrainpacks.Count; i++)
             {
-                if(foundBrainpacks[i].SerialNumber == packet.serialNumber)
+                if (foundBrainpacks[i].SerialNumber == packet.serialNumber)
                 {
                     newBrainpackFound = false;
                     break;
                 }
             }
-            if(newBrainpackFound)
+            if (newBrainpackFound)
             {
                 Brainpack newBrainpack = new Brainpack();
                 newBrainpack.SerialNumber = packet.serialNumber;
@@ -187,9 +187,9 @@ namespace BrainPackDataAnalyzer
                     newBrainpack.FirmwareVersion = packet.firmwareVersion;
                 }
                 newBrainpack.RemoteEP = remoteEndpoint;
-                newBrainpack.ConfigurationPort = packet.configurationPort; 
+                newBrainpack.ConfigurationPort = packet.configurationPort;
                 this.BeginInvoke((MethodInvoker)(() => lb_FoundBrainpacks.Items.Add(newBrainpack.SerialNumber)));
-                
+
                 foundBrainpacks.Add(newBrainpack);
                 debugMessageQueue.Enqueue("New Brainpack found!\r\nSN: " + packet.serialNumber + "\r\nPort: "
     + packet.configurationPort.ToString() + "\r\nIP Address:" + remoteEndpoint.Address.ToString() + "\r\nFW: " +
@@ -260,7 +260,7 @@ namespace BrainPackDataAnalyzer
                         continue;
                     }
                     float heading = 0.0F, pitch = 0.0F, roll = 0.0F;
-                    getHprStringFromQuaternions(dataFrame.imuDataFrame[i], ref heading, ref pitch, ref roll);                    
+                    getHprStringFromQuaternions(dataFrame.imuDataFrame[i], ref heading, ref pitch, ref roll);
                     sensorStats.Rows[sensorId]["Sensor ID"] = sensorId.ToString();
                     sensorStats.Rows[sensorId]["Roll"] = roll.ToString("F3");
                     sensorStats.Rows[sensorId]["Pitch"] = pitch.ToString("F3");
@@ -271,7 +271,7 @@ namespace BrainPackDataAnalyzer
                     sensorStats.Rows[sensorId]["Average Interval"] = imuArray[sensorId].GetAverageInterval().ToString();
                     uint calStable = (dataFrame.imuDataFrame[i].sensorMask >> 19) & 0x01;
                     uint magTransient = (dataFrame.imuDataFrame[i].sensorMask >> 20) & 0x01;
-                    if(calStable == 1)
+                    if (calStable == 1)
                     {
                         sensorStats.Rows[sensorId]["Cal Status"] = "Cal Good";
                     }
@@ -279,7 +279,7 @@ namespace BrainPackDataAnalyzer
                     {
                         sensorStats.Rows[sensorId]["Cal Status"] = "Cal Bad";
                     }
-                    if(magTransient == 1)
+                    if (magTransient == 1)
                     {
                         sensorStats.Rows[sensorId]["Mag Transient"] = "Present";
                     }
@@ -607,7 +607,7 @@ namespace BrainPackDataAnalyzer
             dataProcessorThread.Start();
 
             //initialize found brainpack list
-            foundBrainpacks = new List<Brainpack>(); 
+            foundBrainpacks = new List<Brainpack>();
 
         }
 
@@ -1281,7 +1281,7 @@ namespace BrainPackDataAnalyzer
             processDebugThreadEnabled = false;
             processPacketQueueEnabled = false;
             keepStreamPortRunning = false;
-            updListennerKeepRunning = false; 
+            updListennerKeepRunning = false;
 
         }
 
@@ -1580,7 +1580,7 @@ namespace BrainPackDataAnalyzer
                     }
                 }
                 udpClient.Close();
-                debugMessageQueue.Enqueue("UDP Socket Closed\r\n");            
+                debugMessageQueue.Enqueue("UDP Socket Closed\r\n");
 
             }
             catch (Exception e)
@@ -1588,9 +1588,9 @@ namespace BrainPackDataAnalyzer
                 debugMessageQueue.Enqueue(e.ToString());
 
             }
-            
+
         }
-        bool updListennerKeepRunning = false; 
+        bool updListennerKeepRunning = false;
         private void cb_udpListenner_CheckedChanged(object sender, EventArgs e)
         {
             int port = 6668;
@@ -1606,7 +1606,7 @@ namespace BrainPackDataAnalyzer
             }
             else
             {
-                updListennerKeepRunning = false; 
+                updListennerKeepRunning = false;
             }
         }
 
@@ -1618,7 +1618,7 @@ namespace BrainPackDataAnalyzer
 
         private void btn_configureBrainpack_Click(object sender, EventArgs e)
         {
-            if(lb_FoundBrainpacks.SelectedIndex > -1)
+            if (lb_FoundBrainpacks.SelectedIndex > -1)
             {
                 BrainpackControllerForm bpCfgForm = new BrainpackControllerForm(foundBrainpacks[lb_FoundBrainpacks.SelectedIndex]);
                 bpCfgForm.Show();
@@ -1629,7 +1629,7 @@ namespace BrainPackDataAnalyzer
                 bpCfgForm.Show();
             }
 
-            
+
 
         }
 
@@ -1710,7 +1710,7 @@ namespace BrainPackDataAnalyzer
                 }
             }
         }
-        bool keepStreamPortRunning = false; 
+        bool keepStreamPortRunning = false;
         private void cb_openStreamPort_CheckedChanged(object sender, EventArgs e)
         {
             int port = 6668;
@@ -1721,7 +1721,7 @@ namespace BrainPackDataAnalyzer
                 {
                     port = 6668;
                 }
-                Thread socketClientThread = new Thread(() => udpSocketClientProcess(port,ref keepStreamPortRunning));
+                Thread socketClientThread = new Thread(() => udpSocketClientProcess(port, ref keepStreamPortRunning));
                 socketClientThread.Start();
             }
             else
@@ -1736,6 +1736,105 @@ namespace BrainPackDataAnalyzer
             lb_FoundBrainpacks.Items.Clear();
             foundBrainpacks.Clear();
         }
+
+        private void createV15FWFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string databoardFwFilename = "";
+            string powerboardFwFilename = "";
+            bool databoardFwFilenameSelected = false;
+            bool powerboardFwFilenameSelected = false;
+            ofd_AnalyzeFile.Filter = "Firmware binary(*.bin)|*.bin|All files (*.*)|*.*";
+            ofd_AnalyzeFile.Title = "Select Data Board firmware File";
+            if (ofd_AnalyzeFile.ShowDialog() == DialogResult.OK)
+            {
+                databoardFwFilenameSelected = true;
+                databoardFwFilename = ofd_AnalyzeFile.FileName; 
+            }
+            ofd_AnalyzeFile.Title = "Select Power Board firmware File";
+            if (ofd_AnalyzeFile.ShowDialog() == DialogResult.OK)
+            {
+                powerboardFwFilenameSelected = true;
+                powerboardFwFilename = ofd_AnalyzeFile.FileName;
+            }
+
+            try
+            {
+                byte[] dbBinData;
+                long dbBinDataLength = 0;
+                ulong dbCrcValue = 0;
+                byte[] pbBinData;
+                long pbBinDataLength = 0;
+                ulong pbCrcValue = 0;
+                if (databoardFwFilenameSelected)
+                {
+                    FileStream fwStream = File.Open(databoardFwFilename, FileMode.Open);
+                    dbBinDataLength = fwStream.Length;
+                    dbBinData = new byte[fwStream.Length];
+                    int totalBytesRead = fwStream.Read(dbBinData, 0, dbBinData.Length);
+                    fwStream.Close();
+                    CRC_Calculator crcCal = new CRC_Calculator(InitialCrcValue.NonZero1);
+                    CRCTool crcTool = new CRCTool();
+                    crcTool.Init(CRCTool.CRCCode.CRC32);
+                    dbCrcValue = crcTool.crcbitbybitfast(dbBinData);
+                }
+                else
+                {
+                    dbBinData = new byte[0]; 
+                }
+                if (powerboardFwFilenameSelected)
+                {
+                    FileStream fwStream = File.Open(powerboardFwFilename, FileMode.Open);
+                    pbBinDataLength = fwStream.Length;
+                    pbBinData = new byte[fwStream.Length];
+                    int totalBytesRead = fwStream.Read(pbBinData, 0, pbBinData.Length);
+                    fwStream.Close();
+                    CRC_Calculator crcCal = new CRC_Calculator(InitialCrcValue.NonZero1);
+                    CRCTool crcTool = new CRCTool();
+                    crcTool.Init(CRCTool.CRCCode.CRC32);
+                    pbCrcValue = crcTool.crcbitbybitfast(pbBinData);
+                }
+                else
+                {
+                    pbBinData = new byte[0];
+                }
+
+                //header 0x55AA55AA CRC(16bit) CRC(16bit), Length(32bit)
+                byte[] header = new byte[20];
+                //copy header ID bytes
+                UInt32 headerBytes = 0x55AA55AA;
+                Buffer.BlockCopy(BitConverter.GetBytes(headerBytes), 0, header, 0, 4);
+                //copy data board binary Length
+                Buffer.BlockCopy(BitConverter.GetBytes(dbBinDataLength), 0, header, 4, 4);
+                //copy the data board CRC
+                Buffer.BlockCopy(BitConverter.GetBytes(dbCrcValue), 0, header, 8, 4);
+                //copy data board binary Length
+                Buffer.BlockCopy(BitConverter.GetBytes(pbBinDataLength), 0, header, 12, 4);
+                //copy the data board CRC
+                Buffer.BlockCopy(BitConverter.GetBytes(pbCrcValue), 0, header, 16, 4);
+
+                if (sfd_ConvertedFile.ShowDialog() == DialogResult.OK)
+                {
+                    FileStream outputFw = File.Open(sfd_ConvertedFile.FileName, FileMode.Create);
+                    outputFw.Write(header, 0, header.Length);
+                    if (dbBinDataLength > 0)
+                    {
+                        outputFw.Write(dbBinData, 0, (int)dbBinDataLength);
+                    }
+                    if (pbBinDataLength > 0)
+                    {
+                        outputFw.Write(pbBinData, 0, (int)pbBinDataLength);
+                    }
+                    outputFw.Close();
+                }
+            }
+            catch
+            {
+
+            }
+            ofd_AnalyzeFile.Filter = "comma seperated values(*.csv)|*.csv|Brain pack data(*.dat)|*.dat|All files (*.*)|*.*";
+            ofd_AnalyzeFile.Title = "Select File";
+        }
+    
     }
 }
 

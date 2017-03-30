@@ -202,6 +202,12 @@ namespace BrainPackDataAnalyzer
                         }
                     }
                     break;
+                case PacketType.UpdatedFirmwareResponse:
+                    if (packet.messageStatusSpecified)
+                    {
+                        debugMessageQueue.Enqueue(string.Format("Firmware Update Result: {0}\r\n", packet.messageStatus));
+                    }
+                    break;
                 default:
                     debugMessageQueue.Enqueue(string.Format("Receiced Packet {0}", packet.type.ToString()));
                     break;
@@ -227,6 +233,7 @@ namespace BrainPackDataAnalyzer
                 Socket sender = new Socket(AddressFamily.InterNetwork,
                     SocketType.Stream, ProtocolType.Tcp);
                 // Connect the socket to the remote endpoint. Catch any errors.
+                sender.SendTimeout = 5000; 
                 try
                 {
                     sender.Connect(remoteEP);
@@ -452,6 +459,20 @@ namespace BrainPackDataAnalyzer
         private void pictureBox1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void btn_FwUpdate_Click(object sender, EventArgs e)
+        {
+            Packet protoPacket = new Packet();
+            Endpoint protoEndpoint = new Endpoint();
+            FirmwareUpdate protoFirmwareUpdate = new FirmwareUpdate(); 
+            protoPacket.type = PacketType.UpdateFirmwareRequest;
+            protoEndpoint.address = mtb_transferIp.Text;
+            protoEndpoint.port = UInt32.Parse(mtb_transferPort.Text);
+            protoFirmwareUpdate.fwEndpoint = protoEndpoint;
+            protoFirmwareUpdate.fwFilename = tb_firmwareFilename.Text;
+            protoPacket.firmwareUpdate = protoFirmwareUpdate;                 
+            sendProtoPacket(protoPacket);
         }
     }
 }
